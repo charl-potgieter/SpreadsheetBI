@@ -18,26 +18,24 @@ Option Explicit
 '------------------------------------------------------------------------------------------------------------------------
 
 Public Sub ExportVBAModules()
+'Saves active workbook and exports file to VBA_Code subfolder in path of active workbook
+' *****IMPORTANT NOTE****
+' Any existing files in this subfolder will be deleted
 
     Dim sExportPath As String
     Dim sExportFileName As String
     Dim bExport As Boolean
-'    Dim wkbSource As Excel.Workbook
-    Dim szSourceWorkbook As String
-    Dim szFileName As String
+    Dim sFileName As String
     Dim cmpComponent As VBIDE.VBComponent
 
     
-   sExportPath = ThisWorkbook.Path & Application.PathSeparator & "VBA_Code"
+    ActiveWorkbook.Save
+    sExportPath = ThisWorkbook.Path & Application.PathSeparator & "VBA_Code"
     On Error Resume Next
         MkDir sExportPath
         Kill sExportPath & "\*.*"
     On Error GoTo 0
 
-    
-'    szSourceWorkbook = ActiveWorkbook.Name
-'    Set wkbSource = Application.Workbooks(szSourceWorkbook)
-    
     If ActiveWorkbook.VBProject.Protection = 1 Then
         MsgBox "The VBA in this workbook is protected," & _
             "not possible to export the code"
@@ -47,24 +45,23 @@ Public Sub ExportVBAModules()
     For Each cmpComponent In ActiveWorkbook.VBProject.VBComponents
         
         bExport = True
-        szFileName = cmpComponent.Name
+        sFileName = cmpComponent.Name
 
-        ''' Concatenate the correct filename for export.
+        'Set filename
         Select Case cmpComponent.Type
             Case vbext_ct_ClassModule
-                szFileName = szFileName & ".cls"
+                sFileName = cmpComponent.Name & ".cls"
             Case vbext_ct_MSForm
-                szFileName = szFileName & ".frm"
+                sFileName = cmpComponent.Name & ".frm"
             Case vbext_ct_StdModule
-                szFileName = szFileName & ".bas"
+                sFileName = cmpComponent.Name & ".bas"
             Case vbext_ct_Document
-                ''' This is a worksheet or workbook object.
-                ''' Don't try to export.
+                ' This is a worksheet or workbook object - don't export.
                 bExport = False
         End Select
         
         If bExport Then
-            sExportFileName = sExportPath & Application.PathSeparator & szFileName
+            sExportFileName = sExportPath & Application.PathSeparator & sFileName
             cmpComponent.Export sExportFileName
         End If
    
