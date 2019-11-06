@@ -1,0 +1,21 @@
+﻿// Need to still solve for the cases where there are 2 different description for codes on one date
+
+EVALUATE(
+	Filter(
+		SUMMARIZECOLUMNS(
+			tbl_LatestInstance[Date],
+			tbl_LatestInstance[Code],
+			tbl_LatestInstance[Description],
+			"tbl_LatestInstance[Is Max Date]",
+			VAR RowContextCode = VALUES(tbl_LatestInstance[Code])
+			VAR RowContextDate = VALUES(tbl_LatestInstance[Date])
+			RETURN
+				RowContextDate =  CALCULATE(
+					MAX(tbl_LatestInstance[Date]),
+					ALL(tbl_LatestInstance),
+					tbl_LatestInstance[Code] = RowContextCode
+					)
+		),
+		tbl_LatestInstance[Is Max Date] = TRUE
+	)
+)
