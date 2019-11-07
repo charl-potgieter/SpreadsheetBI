@@ -1,16 +1,12 @@
 ﻿EVALUATE
 
 FILTER(
-ADDCOLUMNS(
 	tbl_LatestInstance,
-	"tbl_LatestInstance[INDEX]",
 	RANKX(
 					FILTER(
-							ALL(tbl_LatestInstance),
+							tbl_LatestInstance,
 							tbl_LatestInstance[Code] = EARLIER(tbl_LatestInstance[Code])
 							),
 			tbl_LatestInstance[Date] & tbl_LatestInstance[Description]
-		)
-	),
-	tbl_LatestInstance[INDEX] = 1)
-			
+		) = 1
+	)
