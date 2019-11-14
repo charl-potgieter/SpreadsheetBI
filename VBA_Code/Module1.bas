@@ -19,3 +19,20 @@ Sub Test()
 End Sub
 
 
+
+
+
+Sub Macro2()
+'
+' Macro2 Macro
+'
+
+'
+    Selection.ListObject.TableObject.Refresh
+    Selection.ListObject.TableObject.Refresh
+    Workbooks("MasterBI.xlsm").Connections.Add2 "Query - Myquery", _
+        "Connection to the 'Myquery' query in the workbook.", _
+        "OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=Myquery;Extended Properties=" _
+        , """Myquery""", 6, True, False
+End Sub
+
