@@ -281,6 +281,211 @@ Sub CreateIndexPage()
 End Sub
 
 
+Sub InsertParameterSheet()
+'Creates a parameter sheet for use in data models
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+    
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    
+    
+    If SheetExists(ActiveWorkbook, "Parameters") Then
+        MsgBox ("Parameters sheet already exists, exiting...")
+        GoTo ExitPoint
+    End If
+    
+    Set sht = ActiveWorkbook.Sheets.Add(After:=ActiveSheet)
+    FormatSheet sht
+    sht.Name = "Parameters"
+    sht.Range("SheetHeading") = "Parameters"
+    
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B5:C6"), XlListObjectHasHeaders:=xlYes)
+    lo.Name = "tbl_Parameters"
+    lo.HeaderRowRange.Cells(1) = "Parameter"
+    lo.HeaderRowRange.Cells(2) = "Value"
+    lo.ListColumns("Parameter").DataBodyRange.Cells(1) = "Date_Start"
+    lo.ListColumns("Parameter").DataBodyRange.Cells(2) = "Date_End"
+    lo.ListColumns("Value").DataBodyRange.NumberForma = "dd-mmm-yy"
+    
+    FormatTable lo
+    
+ExitPoint:
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+End Sub
+
+
+
+
+
+Function GetCellColour(rng As Range, Optional formatType As Integer = 0) As Variant
+
+'https://stackoverflow.com/questions/24132665/return-rgb-values-from-range-interior-color-or-any-other-color-property?rq=1
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'   Function            Color
+'   Purpose             Determine the Background Color Of a Cell
+'   @Param rng          Range to Determine Background Color of
+'   @Param formatType   Default Value = 0
+'                       0   Integer
+'                       1   Hex
+'                       2   RGB
+'                       3   Excel Color Index
+'   Usage               Color(A1)      -->   9507341
+'                       Color(A1, 0)   -->   9507341
+'                       Color(A1, 1)   -->   91120D
+'                       Color(A1, 2)   -->   13, 18, 145
+'                       Color(A1, 3)   -->   6
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+    Dim colorVal As Variant
+    colorVal = Cells(rng.Row, rng.Column).Interior.Color
+    Select Case formatType
+        Case 1
+            GetCellColour = Hex(colorVal)
+        Case 2
+            GetCellColour = (colorVal Mod 256) & ", " & ((colorVal \ 256) Mod 256) & ", " & (colorVal \ 65536)
+        Case 3
+            GetCellColour = Cells(rng.Row, rng.Column).Interior.ColorIndex
+        Case Else
+            GetCellColour = colorVal
+    End Select
+End Function
+
+
+
+
+Sub FormatPivotTableFlatten()
+
+    Dim pvt As PivotTable
+    Dim pvtField As PivotField
+    Dim b_mu As Boolean
+    
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+        
+    On Error Resume Next
+    Set pvt = ActiveCell.PivotTable
+    On Error GoTo 0
+    
+    If Not pvt Is Nothing Then
+        
+        With pvt
+        
+            'Get update status and suspend updates
+            b_mu = .ManualUpdate
+            .ManualUpdate = True
+            
+            .RowAxisLayout xlTabularRow
+            .ColumnGrand = True
+            .RowGrand = True
+            .HasAutoFormat = False
+            .ShowDrillIndicators = False
+            
+            For Each pvtField In pvt.PivotFields
+                If pvtField.Orientation = xlRowField Then
+                    pvtField.RepeatLabels = True
+                    pvtField.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
+                End If
+            Next pvtField
+            
+            'Restore update status
+            .ManualUpdate = b_mu
+            
+        End With
+    End If
+
+
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+
+
+
+End Sub
+
+
+
+Sub CreateDataModelRelationships()
+'Creates relationships based on listobject in sheet Model_Relationhsips which has the below fields:
+'ID, Foreign Key Table, Foreign Key Column, Primary Key Table, Primary Key Column, Active
+
+
+    Dim lo As ListObject
+    Dim i As Integer
+    Dim mdl As Model
+    Dim sForeignKeyTable As String
+    Dim sForeignKeyCol As String
+    Dim sPrimaryKeyTable As String
+    Dim sPrimaryKeyCol As String
+    
+    
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    
+    
+    Set mdl = ActiveWorkbook.Model
+    Set lo = ActiveWorkbook.Sheets("Model_Relationships").ListObjects(1)
+    
+    For i = 1 To lo.DataBodyRange.Rows.Count
+    
+        sForeignKeyTable = lo.ListColumns("Foreign Key Table").DataBodyRange.Cells(i)
+        sForeignKeyCol = lo.ListColumns("Foreign Key Column").DataBodyRange.Cells(i)
+        sPrimaryKeyTable = lo.ListColumns("Primary Key Table").DataBodyRange.Cells(i)
+        sPrimaryKeyCol = lo.ListColumns("Primary Key Table").DataBodyRange.Cells(i)
+    
+        mdl.ModelRelationships.Add _
+            mdl.ModelTables(sForeignKeyTable).ModelTableColumns(sForeignKeyCol), _
+            mdl.ModelTables(sPrimaryKeyTable).ModelTableColumns(sPrimaryKeyCol)
+            
+    Next i
+
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+
+
+End Sub
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

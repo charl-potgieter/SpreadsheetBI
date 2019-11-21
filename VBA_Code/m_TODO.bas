@@ -2,6 +2,8 @@ Attribute VB_Name = "m_TODO"
 'TODO
 '--------
 '
+'Continue to work on userform code
+'
 'Code Import and Export does not cover code in sheets and thisworkbook.  Look at Chris Peason site
 ' for creating an event procedure - can potentially use this for ThisWorkbook.Open to assign keyboard shortcuts
 '   http://www.cpearson.com/excel/vbe.aspx
