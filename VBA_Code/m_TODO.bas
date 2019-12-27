@@ -4,6 +4,9 @@ Attribute VB_Name = "m_TODO"
 '
 'Continue to work on userform code
 '
+' How does importing / exportng of user forms work.  What is in .frx file?
+'
+'
 'Code Import and Export does not cover code in sheets and thisworkbook.  Look at Chris Peason site
 ' for creating an event procedure - can potentially use this for ThisWorkbook.Open to assign keyboard shortcuts
 '   http://www.cpearson.com/excel/vbe.aspx

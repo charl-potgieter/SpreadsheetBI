@@ -464,6 +464,120 @@ End Sub
 
 
 
+Sub TableLooper()
+
+'Implements a looping mechanism:
+' - that loops over various keys
+' - populates a calculation table utilising each of the above keys
+' - copies to a consolidated output sheet
+'
+'Precondition
+'-------------
+'Listobject tbl_LoopController exists on sheet LoopController
+'The listobject has the below fields
+' - item
+' - value
+' - notes
+'The below values appear in the item field
+' - Index range
+' - Input key
+' - Input calculation table
+' - Target sheet name
+' - Target sheet inserted after
+' - target sheet heading
+' - target sheet category
+
+
+    Dim arr
+    Dim i As Integer
+    Dim sht As Worksheet
+    Dim dblRowToPaste As Double
+    Dim loOutput As ListObject
+    Dim sActiveSheetName As String
+    Dim sActiveRangeAddress As String
+    Dim rngTableInputKey As Range
+    Dim sTargetSheetName As String
+    Dim sAfterSheet As String
+    Dim sSheetHeading As String
+    Dim sSheetCategory As String
+    Dim loCalc As ListObject
+    
+    Const iStartTableRow As Integer = 5
+    Const iStartTableCol As Integer = 2
+    
+    'Setup
+    sActiveSheetName = ActiveSheet.Name
+    sActiveRangeAddress = Selection.Address
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+
+    'Read inputs for looping function
+    arr = WorksheetFunction.Transpose(Range(LooperValue("Index Range")))
+    Set rngTableInputKey = Range(LooperValue("Input Key"))
+    Set loCalc = Range(LooperValue("Input Calculation Table")).ListObject
+    sTargetSheetName = LooperValue("Target Sheet Name")
+    sAfterSheet = LooperValue("Target Sheet Inserted After")
+    sSheetHeading = LooperValue("Target Sheet Heading")
+    sSheetCategory = LooperValue("Target Sheet Category")
+    
+    
+    'Create sheet for consolidated output of calculations
+    If SheetExists(ActiveWorkbook, sTargetSheetName) Then
+        ActiveWorkbook.Sheets(sTargetSheetName).Delete
+    End If
+    Set sht = ActiveWorkbook.Sheets.Add(After:=Worksheets(sAfterSheet))
+    FormatSheet sht
+    sht.Name = sTargetSheetName
+    sht.Range("SheetHeading") = sSheetHeading
+    sht.Range("A1") = sSheetCategory
+    
+    loCalc.HeaderRowRange.Copy
+    sht.Cells(iStartTableRow, iStartTableCol).PasteSpecial xlPasteValues
+
+    For i = LBound(arr) To UBound(arr)
+        rngTableInputKey = arr(i)
+        Application.CalculateFull
+        Application.Wait Now + #12:00:01 AM#
+        loCalc.DataBodyRange.Copy
+        dblRowToPaste = iStartTableRow + sht.Cells(iStartTableRow, iStartTableCol).CurrentRegion.Rows.Count
+        sht.Cells(dblRowToPaste, iStartTableCol).PasteSpecial xlPasteValues
+    Next i
+
+    Set loOutput = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Cells(iStartTableRow, iStartTableCol).CurrentRegion, XlListObjectHasHeaders:=xlYes)
+    loOutput.Name = "tbl_" & sTargetSheetName
+    
+    FormatTable loOutput
+    sht.Select
+    Rows("6:6").Select
+    ActiveWindow.FreezePanes = True
+    
+    CreateIndexPage
+    
+    'Cleanup
+    Worksheets(sActiveSheetName).Activate
+    Range(sActiveRangeAddress).Select
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts
+
+
+End Sub
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

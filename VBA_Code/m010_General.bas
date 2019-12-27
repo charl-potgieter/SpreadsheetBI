@@ -90,3 +90,18 @@ Sub SetNumberFormat(sNumberFormat)
     End If
 
 End Sub
+
+
+
+Function LooperValue(ByVal sItem As String) As String
+'Precondition: tbl_LoopController exists in active workbook and contans column Item and Value
+'This sub returns Value for corresponding sItem
+
+    Dim sFormulaString As String
+    
+    sFormulaString = "=INDEX(tbl_LoopController[Value], MATCH(""" & sItem & """, tbl_LoopController[Item], 0))"
+    LooperValue = Application.Evaluate(sFormulaString)
+
+
+End Function
+
