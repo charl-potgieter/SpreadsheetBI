@@ -1,2 +1,4 @@
 *.xlsx
 *.xlsm
+Test*
+test*
