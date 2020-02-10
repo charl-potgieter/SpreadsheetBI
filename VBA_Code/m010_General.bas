@@ -1,6 +1,7 @@
 Attribute VB_Name = "m010_General"
 Option Explicit
 Option Private Module
+Global Const gcsMenuName As String = "SpreadsheetBI"
 
 
 Sub FormatSheet(ByRef sht As Worksheet)
@@ -34,7 +35,6 @@ End Sub
 
 
 
-
 Sub FormatTable(lo As ListObject)
 
     Dim sty As TableStyle
@@ -43,7 +43,7 @@ Sub FormatTable(lo As ListObject)
     ActiveWorkbook.TableStyles("CustomTableStyle").Delete
     On Error GoTo 0
     
-    ActiveWorkbook.Styles.Add ("CustomTableStyle")
+    Set sty = ActiveWorkbook.TableStyles.Add("CustomTableStyle")
     
     'Set Header Format
     With sty.TableStyleElements(xlHeaderRow)
@@ -104,4 +104,101 @@ Function LooperValue(ByVal sItem As String) As String
 
 
 End Function
+
+
+
+
+Sub DeletePopUpMenu()
+'Delete PopUp menu if it exists
+    
+    On Error Resume Next
+    Application.CommandBars(gcsMenuName).Delete
+    On Error GoTo 0
+    
+End Sub
+
+
+
+Sub CreatePopUpMenu()
+
+    Dim cb As CommandBar
+    Dim MenuCategory As CommandBarPopup
+    Dim MenuItem As CommandBarControl
+    Dim i As Integer
+    Dim sCurrentMenuCategory As String
+    Dim sPreviousMenuCategory As String
+    Dim lo As ListObject
+    
+    
+    Set cb = Application.CommandBars.Add(Name:=gcsMenuName, Position:=msoBarPopup, _
+                                     MenuBar:=False, Temporary:=True)
+    Set lo = ThisWorkbook.Sheets("MenuGenerator").ListObjects("tbl_MenuGenerator")
+    sPreviousMenuCategory = ""
+    
+    With cb
+                                     
+        For i = 1 To lo.DataBodyRange.Rows.Count
+            sCurrentMenuCategory = lo.ListColumns("Category").DataBodyRange.Cells(i)
+            If sCurrentMenuCategory <> sPreviousMenuCategory Then
+                Set MenuCategory = .Controls.Add(Type:=msoControlPopup)
+                MenuCategory.Caption = sCurrentMenuCategory
+                sPreviousMenuCategory = sCurrentMenuCategory
+            End If
+        
+            Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+            MenuItem.Caption = lo.ListColumns("Menu Item").DataBodyRange.Cells(i)
+            MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & lo.ListColumns("Macro").DataBodyRange.Cells(i)
+        
+        Next i
+                                     
+                                     
+
+'        'First add two buttons
+'        With .Controls.Add(Type:=msoControlButton)
+'            .Caption = "Button 1"
+'            .FaceId = 71
+'            .OnAction = "'" & ThisWorkbook.Name & "'!" & "TestMacro"
+'        End With
+'
+'        With .Controls.Add(Type:=msoControlButton)
+'            .Caption = "Button 2"
+'            .FaceId = 72
+'            .OnAction = "'" & ThisWorkbook.Name & "'!" & "TestMacro"
+'        End With
+'
+'        'Second Add menu with two buttons
+'        Set MenuItem = .Controls.Add(Type:=msoControlPopup)
+'        With MenuItem
+'            .Caption = "My Special Menu"
+'
+'            With .Controls.Add(Type:=msoControlButton)
+'                .Caption = "Button 1 in menu"
+'                .FaceId = 71
+'                .OnAction = "'" & ThisWorkbook.Name & "'!" & "TestMacro"
+'            End With
+'
+'            With .Controls.Add(Type:=msoControlButton)
+'                .Caption = "Button 2 in menu"
+'                .FaceId = 72
+'                .OnAction = "'" & ThisWorkbook.Name & "'!" & "TestMacro"
+'            End With
+'        End With
+'
+'        'Third add one button
+'        With .Controls.Add(Type:=msoControlButton)
+'            .Caption = "Button 3"
+'            .FaceId = 73
+'            .OnAction = "'" & ThisWorkbook.Name & "'!" & "TestMacro"
+'        End With
+
+    End With
+End Sub
+
+
+Sub TestMacro()
+    MsgBox "Hi There, greetings from the Netherlands"
+End Sub
+
+
+
 

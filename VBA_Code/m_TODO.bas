@@ -2,57 +2,16 @@ Attribute VB_Name = "m_TODO"
 'TODO
 '--------
 '
-'Continue to work on userform code
-'
-' How does importing / exportng of user forms work.  What is in .frx file?
-'
-'
-'Code Import and Export does not cover code in sheets and thisworkbook.  Look at Chris Peason site
-' for creating an event procedure - can potentially use this for ThisWorkbook.Open to assign keyboard shortcuts
-'   http://www.cpearson.com/excel/vbe.aspx
+' - Power Query Consolidated Files in Folder
+'    - add functionality to select only first row of data if flag is set (don't want to return empty tables as will throw errors in power pivot lookup tables
+'    - maybe first create the functionality to do this on a single file?
 '
 '
+' - Continue to work on generating TestReport
+'        - Set properties of pivot table
 '
+' - Look at documenting M functions
+'    - Imke F github
+'    - https://ssbi-blog.de/blog/technical-topics-english/writing-documentation-for-custom-m-functions-part1/
 '
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
-'
+

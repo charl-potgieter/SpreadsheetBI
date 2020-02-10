@@ -1,38 +1,22 @@
 Attribute VB_Name = "Module1"
 Option Explicit
 
-
-Sub Test()
-
-    
-    Dim i
-    
-    For Each i In ActiveWorkbook.Connections
-        Debug.Print (i & " " & i.Type)
-    Next i
-    
-    
-    
-    
-
-
-End Sub
-
-
-
-
-
 Sub Macro2()
+Attribute Macro2.VB_ProcData.VB_Invoke_Func = " \n14"
 '
 ' Macro2 Macro
 '
 
 '
-    Selection.ListObject.TableObject.Refresh
-    Selection.ListObject.TableObject.Refresh
-    Workbooks("MasterBI.xlsm").Connections.Add2 "Query - Myquery", _
-        "Connection to the 'Myquery' query in the workbook.", _
-        "OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=Myquery;Extended Properties=" _
-        , """Myquery""", 6, True, False
+    ActiveSheet.ShowAllData
 End Sub
+Sub Macro3()
+Attribute Macro3.VB_ProcData.VB_Invoke_Func = " \n14"
+'
+' Macro3 Macro
+'
 
+'
+    ActiveSheet.ListObjects("tbl_ReportFields").Range.AutoFilter Field:=1, _
+        Criteria1:="Test Report 1"
+End Sub

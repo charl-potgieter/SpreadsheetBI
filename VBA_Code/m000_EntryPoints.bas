@@ -1,6 +1,15 @@
 Attribute VB_Name = "m000_EntryPoints"
 Option Explicit
 
+Sub AAAACreateDisplayPopUpMenu()
+Attribute AAAACreateDisplayPopUpMenu.VB_ProcData.VB_Invoke_Func = "M\n14"
+    
+    DeletePopUpMenu
+    CreatePopUpMenu
+    Application.CommandBars(gcsMenuName).ShowPopup
+    
+End Sub
+
 
 Sub FormatZeroDecimalNumberFormat()
     SetNumberFormat "#,##0_);(#,##0);-??"
@@ -309,7 +318,7 @@ Sub InsertParameterSheet()
     lo.HeaderRowRange.Cells(2) = "Value"
     lo.ListColumns("Parameter").DataBodyRange.Cells(1) = "Date_Start"
     lo.ListColumns("Parameter").DataBodyRange.Cells(2) = "Date_End"
-    lo.ListColumns("Value").DataBodyRange.NumberForma = "dd-mmm-yy"
+    lo.ListColumns("Value").DataBodyRange.NumberFormat = "dd-mmm-yy"
     
     FormatTable lo
     
@@ -413,6 +422,13 @@ Sub FormatPivotTableFlatten()
 
 
 
+End Sub
+
+
+Sub FormatActiveTable()
+
+    FormatTable ActiveCell.ListObject
+    
 End Sub
 
 
@@ -561,54 +577,10 @@ Sub TableLooper()
     Application.ScreenUpdating = True
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts
+    Application.DisplayAlerts = True
 
 
 End Sub
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
