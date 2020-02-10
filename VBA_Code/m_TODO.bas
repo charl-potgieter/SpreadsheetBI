@@ -10,8 +10,7 @@ Attribute VB_Name = "m_TODO"
 ' - Continue to work on generating TestReport
 '        - Set properties of pivot table
 '
-' - Look at documenting M functions
-'    - Imke F github
-'    - https://ssbi-blog.de/blog/technical-topics-english/writing-documentation-for-custom-m-functions-part1/
 '
+' - Create code to update / overwrite fn_std power queries in this workbook to the active workbook
+
 

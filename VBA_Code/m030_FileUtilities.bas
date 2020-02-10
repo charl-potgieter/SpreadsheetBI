@@ -135,17 +135,16 @@ Function GetFolder() As String
     Dim fldr As FileDialog
     Dim sItem As String
     
-    Set fldr = Application.FileDialog(msoFileDialogFilePicker)
+    Set fldr = Application.FileDialog(msoFileDialogFolderPicker)
     With fldr
         .Title = "Select a folder"
         .AllowMultiSelect = False
         .InitialFileName = ThisWorkbook.Path
-        If .Show = -1 Then GoTo NextCode
-        sItem = .SelectedItems(1)
+        If .Show = -1 Then
+            GetFolder = .SelectedItems(1)
+        End If
     End With
     
-NextCode:
-    GetFolder = sItem
     Set fldr = Nothing
 
 

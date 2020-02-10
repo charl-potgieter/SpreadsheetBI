@@ -104,7 +104,7 @@ Sub FormatHeadings()
     
     'Set header colour
     With Selection.Interior
-        .Color = RGB(255, 255, 153)
+        .Color = RGB(217, 225, 242)
         .Pattern = xlSolid
     End With
     
