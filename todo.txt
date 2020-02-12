@@ -1,13 +1,14 @@
 TODO
 --------
-  - Each time I set one table format it seems to mess up another one.
- 
- - See ReportList tab.  Reports are run from here.  Link this to Report dependency tab which will then drive refresh
+ - Create code to generate a spreadsheet BI workbook
+
+- See ReportList tab.  Reports are run from here.  Link this to Report dependency tab which will then drive refresh
 
 
- - Power Query Consolidated Files in Folder
+- Power Query Consolidated Files in Folder
     - add functionality to select only first row of data if flag is set (don't want to return empty tables as will throw errors in power pivot lookup tables).   Pick up first row of first file only, don't expand all files
     - maybe first create the functionality to do this on a single file?
+
 
 
  - Continue to work on generating TestReport
@@ -19,6 +20,6 @@ TODO
 
  - Create generic code to check for items in data tables not in lookup tables using EXCEPT function
  
-  - Create code for DAX query link back table in seperate file to avoid bloating working model file
+  - Create code for DAX query link back table in seperate file to avoid bloating working model file --> don't think it will be that practical putting in a seperate file but potentially could be better codified.
   
   - - Create code to set up a model sheet (containing all the required tables e.g. Paramaters, ReportFields, ReportDependencies) - most probably a lot easier to just save as a template somewhere but then I cannot generalise onto github.  Most probably lower priority

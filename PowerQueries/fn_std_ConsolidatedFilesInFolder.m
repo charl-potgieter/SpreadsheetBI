@@ -52,7 +52,7 @@ let
             AddPeriodEnd,
 
         // Add single file tables, remove excess columns and expand
-        AddTableCol = Table.AddColumn(FilteredOnPeiodEndPerFileName, "tbl", each fn([Folder Path], [Name]), Value.Type(fn(FolderContents[Folder Path]{0}, FolderContents[Name]{0}))),
+        AddTableCol = Table.AddColumn(FilteredOnPeiodEndPerFileName, "tbl", each fn([Folder Path], [Name]), Value.Type(fn(FilteredOutTildas[Folder Path]{0}, FilteredOutTildas[Name]{0}))),
         RemoveCols = Table.RemoveColumns(AddTableCol, {"Content", "Folder Path", "Name", "Extension", "Date accessed", "Date modified", "Date created", "Attributes"}),
         Expanded = Table.ExpandTableColumn(RemoveCols, "tbl", Table.ColumnNames(AddTableCol[tbl]{0})),
 

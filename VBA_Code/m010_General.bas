@@ -40,10 +40,9 @@ Sub FormatTable(lo As ListObject)
     Dim sty As TableStyle
     
     On Error Resume Next
-    ActiveWorkbook.TableStyles("CustomTableStyle").Delete
+    ActiveWorkbook.TableStyles.Add ("SpreadsheetBiStyle")
     On Error GoTo 0
-    
-    Set sty = ActiveWorkbook.TableStyles.Add("CustomTableStyle")
+    Set sty = ActiveWorkbook.TableStyles("SpreadsheetBiStyle")
     
     'Set Header Format
     With sty.TableStyleElements(xlHeaderRow)

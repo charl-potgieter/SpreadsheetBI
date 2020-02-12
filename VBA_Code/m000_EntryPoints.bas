@@ -584,3 +584,37 @@ End Sub
 
 
 
+
+Sub CreateBiSpreadsheet()
+
+    Dim wkb As Workbook
+    Dim i As Integer
+    
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    
+    
+    Set wkb = Application.Workbooks.Add
+    
+    'Ensure workbook consists of only one sheet
+    If wkb.Sheets.Count <> 1 Then
+        For i = 1 To wkb.Sheets.Count
+            wkb.Sheets(i).Delete
+        Next i
+    End If
+    
+    FormatSheet wkb.Sheets(1)
+    
+
+
+    'Cleanup
+    wkb.Activate
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+End Sub
