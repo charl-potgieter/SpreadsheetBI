@@ -290,83 +290,6 @@ Sub CreateIndexPage()
 End Sub
 
 
-Sub InsertParameterSheet()
-'Creates a parameter sheet for use in data models
-
-    Dim sht As Worksheet
-    Dim lo As ListObject
-    
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-    
-    
-    If SheetExists(ActiveWorkbook, "Parameters") Then
-        MsgBox ("Parameters sheet already exists, exiting...")
-        GoTo ExitPoint
-    End If
-    
-    Set sht = ActiveWorkbook.Sheets.Add(After:=ActiveSheet)
-    FormatSheet sht
-    sht.Name = "Parameters"
-    sht.Range("SheetHeading") = "Parameters"
-    
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B5:C6"), XlListObjectHasHeaders:=xlYes)
-    lo.Name = "tbl_Parameters"
-    lo.HeaderRowRange.Cells(1) = "Parameter"
-    lo.HeaderRowRange.Cells(2) = "Value"
-    lo.ListColumns("Parameter").DataBodyRange.Cells(1) = "Date_Start"
-    lo.ListColumns("Parameter").DataBodyRange.Cells(2) = "Date_End"
-    lo.ListColumns("Value").DataBodyRange.NumberFormat = "dd-mmm-yy"
-    
-    FormatTable lo
-    
-ExitPoint:
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-End Sub
-
-
-
-
-
-Function GetCellColour(rng As Range, Optional formatType As Integer = 0) As Variant
-
-'https://stackoverflow.com/questions/24132665/return-rgb-values-from-range-interior-color-or-any-other-color-property?rq=1
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'   Function            Color
-'   Purpose             Determine the Background Color Of a Cell
-'   @Param rng          Range to Determine Background Color of
-'   @Param formatType   Default Value = 0
-'                       0   Integer
-'                       1   Hex
-'                       2   RGB
-'                       3   Excel Color Index
-'   Usage               Color(A1)      -->   9507341
-'                       Color(A1, 0)   -->   9507341
-'                       Color(A1, 1)   -->   91120D
-'                       Color(A1, 2)   -->   13, 18, 145
-'                       Color(A1, 3)   -->   6
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-
-    Dim colorVal As Variant
-    colorVal = Cells(rng.Row, rng.Column).Interior.Color
-    Select Case formatType
-        Case 1
-            GetCellColour = Hex(colorVal)
-        Case 2
-            GetCellColour = (colorVal Mod 256) & ", " & ((colorVal \ 256) Mod 256) & ", " & (colorVal \ 65536)
-        Case 3
-            GetCellColour = Cells(rng.Row, rng.Column).Interior.ColorIndex
-        Case Else
-            GetCellColour = colorVal
-    End Select
-End Function
 
 
 
@@ -589,6 +512,8 @@ Sub CreateBiSpreadsheet()
 
     Dim wkb As Workbook
     Dim i As Integer
+    Dim sht As Worksheet
+    Dim lo As ListObject
     
     'Setup
     Application.ScreenUpdating = False
@@ -606,12 +531,56 @@ Sub CreateBiSpreadsheet()
         Next i
     End If
     
-    FormatSheet wkb.Sheets(1)
-    
+    'Create parameter sheet
+    Set sht = wkb.Sheets(1)
+    FormatSheet sht
+    sht.Name = "Parameters"
+    sht.Range("SheetHeading") = "Parameters"
+    sht.Range("SheetCategory") = "Setup"
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:C7"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_Parameters"
+        .HeaderRowRange.Cells(1) = "Parameter"
+        .HeaderRowRange.Cells(2) = "Value"
+        .ListColumns("Parameter").DataBodyRange.Cells(1) = "Date_Start"
+        .ListColumns("Parameter").DataBodyRange.Cells(2) = "Date_End"
+        .ListColumns("Value").DataBodyRange.Cells.NumberFormat = "dd-mmm-yy"
+        .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 30
+    sht.Range("C:C").ColumnWidth = 60
 
+    'Create report list sheet
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "ReportList"
+    sht.Range("SheetHeading") = "Report List"
+    sht.Range("SheetCategory") = "Setup"
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D7"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_ReportList"
+        .HeaderRowRange.Cells(1) = "Report Name"
+        .HeaderRowRange.Cells(2) = "Run with table refresh"
+        .HeaderRowRange.Cells(3) = "Run without table refresh"
+        .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 60
+    sht.Range("C:C").ColumnWidth = 30
+    sht.Range("D:D").ColumnWidth = 30
+    sht.Range("B4") = "Clear data from non-dependent tables (mark with X)"
+    With sht.Range("D4")
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .Interior.Color = RGB(217, 225, 242)
+    End With
+    SetOuterBorders sht.Range("D4")
 
     'Cleanup
     wkb.Activate
+    wkb.Sheets("Parameters").Activate
+    wkb.Sheets("Parameters").Range("C7").Select
     Application.ScreenUpdating = True
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic

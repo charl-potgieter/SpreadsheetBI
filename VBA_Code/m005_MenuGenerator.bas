@@ -71,10 +71,6 @@ Sub CreatePopUpMenu()
     MenuItem.Caption = "Formatted sheet"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertFormattedSheetIntoActiveWorkbook"
     
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Parameter sheet"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertParameterSheet"
-    
         
     'Pivot Table Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)

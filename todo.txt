@@ -1,6 +1,6 @@
 TODO
 --------
- - Create code to generate a spreadsheet BI workbook
+ - Continue working on Sub CreateBiSpreadsheet()
 
 - See ReportList tab.  Reports are run from here.  Link this to Report dependency tab which will then drive refresh
 

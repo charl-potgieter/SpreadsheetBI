@@ -22,6 +22,11 @@ Sub FormatSheet(ByRef sht As Worksheet)
     End If
     sht.Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
     
+    If SheetLevelRangeNameExists(sht, "SheetCategory") Then
+        sht.Names("SheetCategory").Delete
+    End If
+    sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
+    
     With sht.Range("SheetHeading")
         If .value = "" Then
             .value = "Heading"
@@ -38,11 +43,14 @@ End Sub
 Sub FormatTable(lo As ListObject)
 
     Dim sty As TableStyle
+    Dim wkb As Workbook
+    
+    Set wkb = lo.Parent.Parent
     
     On Error Resume Next
-    ActiveWorkbook.TableStyles.Add ("SpreadsheetBiStyle")
+    wkb.TableStyles.Add ("SpreadsheetBiStyle")
     On Error GoTo 0
-    Set sty = ActiveWorkbook.TableStyles("SpreadsheetBiStyle")
+    Set sty = wkb.TableStyles("SpreadsheetBiStyle")
     
     'Set Header Format
     With sty.TableStyleElements(xlHeaderRow)
@@ -65,7 +73,7 @@ Sub FormatTable(lo As ListObject)
 
     
     'Apply custom style and set other attributes
-    lo.TableStyle = "CustomTableStyle"
+    lo.TableStyle = "SpreadsheetBiStyle"
     With lo.HeaderRowRange
         .HorizontalAlignment = xlCenter
         .VerticalAlignment = xlTop
@@ -106,3 +114,67 @@ End Function
 
 
 
+Sub SetOuterBorders(ByRef rng As Range)
+
+    With rng.Borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .ColorIndex = xlAutomatic
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With rng.Borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .ColorIndex = xlAutomatic
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With rng.Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .ColorIndex = xlAutomatic
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With rng.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .ColorIndex = xlAutomatic
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+
+
+End Sub
+
+
+Function GetCellColour(rng As Range, Optional formatType As Integer = 0) As Variant
+
+'https://stackoverflow.com/questions/24132665/return-rgb-values-from-range-interior-color-or-any-other-color-property?rq=1
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'   Function            Color
+'   Purpose             Determine the Background Color Of a Cell
+'   @Param rng          Range to Determine Background Color of
+'   @Param formatType   Default Value = 0
+'                       0   Integer
+'                       1   Hex
+'                       2   RGB
+'                       3   Excel Color Index
+'   Usage               Color(A1)      -->   9507341
+'                       Color(A1, 0)   -->   9507341
+'                       Color(A1, 1)   -->   91120D
+'                       Color(A1, 2)   -->   13, 18, 145
+'                       Color(A1, 3)   -->   6
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+    Dim colorVal As Variant
+    colorVal = Cells(rng.Row, rng.Column).Interior.Color
+    Select Case formatType
+        Case 1
+            GetCellColour = Hex(colorVal)
+        Case 2
+            GetCellColour = (colorVal Mod 256) & ", " & ((colorVal \ 256) Mod 256) & ", " & (colorVal \ 65536)
+        Case 3
+            GetCellColour = Cells(rng.Row, rng.Column).Interior.ColorIndex
+        Case Else
+            GetCellColour = colorVal
+    End Select
+End Function
