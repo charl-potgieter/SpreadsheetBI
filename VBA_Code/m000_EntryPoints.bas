@@ -199,88 +199,15 @@ End Sub
 
 
 
-Sub CreateIndexPage()
+Sub InsertIndexPageActiveWorkbook()
 
-    Dim sht As Worksheet
-    Dim shtIndex As Worksheet
-    Dim i As Double
-    Dim sPreviousReportCategory As String
-    Dim sReportCategory As String
-    Dim sReportName As String
-    Dim rngCategoryCol As Range
-    Dim rngReportCol As Range
-    Dim rngSheetNameCol As Range
-    Dim rngShowRange As Range
-    
+
     Application.ScreenUpdating = False
     Application.EnableEvents = False
     Application.Calculation = xlCalculationManual
     Application.DisplayAlerts = False
     
-    'Delete any previous index sheet and create a new one
-    On Error Resume Next
-    ActiveWorkbook.Sheets("Index").Delete
-    On Error GoTo 0
-    Set shtIndex = ActiveWorkbook.Sheets.Add(Before:=ActiveWorkbook.Sheets(1))
-    FormatSheet shtIndex
-    
-    With shtIndex
-    
-        .Name = "Index"
-        .Range("A:A").Insert Shift:=xlToRight
-        .Range("A:A").EntireColumn.Hidden = True
-        .Range("C2") = "Index"
-        .Range("D5").Font.Bold = True
-        .Columns("D:D").ColumnWidth = 100
-        .Rows("4:4").Select
-        ActiveWindow.FreezePanes = True
-        
-        Set rngSheetNameCol = .Columns("A")
-        Set rngCategoryCol = .Columns("C")
-        Set rngReportCol = .Columns("D")
-       
-        sPreviousReportCategory = ""
-        i = 2
-        
-        
-        For Each sht In ActiveWorkbook.Worksheets
-        
-            sReportCategory = sht.Range("A1")
-            sReportName = sht.Range("B2")
-            
-            If (sReportCategory <> "" And sReportName <> "") And (sht.Name <> "Index") And (sht.Visible = xlSheetVisible) Then
-            
-                'Create return to Index links
-                sht.Hyperlinks.Add _
-                    Anchor:=sht.Range("B3"), _
-                    Address:="", _
-                    SubAddress:="Index!A1", _
-                    TextToDisplay:="<Return to Index>"
-                    
-                'Write the report category headers
-                If sReportCategory <> sPreviousReportCategory Then
-                    i = i + 3
-                    rngCategoryCol.Cells(i) = sReportCategory
-                    rngCategoryCol.Cells(i).Font.Bold = True
-                    sPreviousReportCategory = sReportCategory
-                End If
-    
-                i = i + 2
-                rngReportCol.Cells(i) = sReportName
-                rngSheetNameCol.Cells(i) = sht.Name
-                
-                ActiveSheet.Hyperlinks.Add _
-                    Anchor:=rngReportCol.Cells(i), _
-                    Address:="", _
-                    SubAddress:="'" & sht.Name & "'" & "!B$4"
-                    
-            End If
-            
-        Next sht
-        
-        .Range("C3").Select
-        
-    End With
+    InsertIndexPage ActiveWorkbook
         
     Application.ScreenUpdating = True
     Application.EnableEvents = True
@@ -492,7 +419,7 @@ Sub TableLooper()
     Rows("6:6").Select
     ActiveWindow.FreezePanes = True
     
-    CreateIndexPage
+    InsertIndexPageActiveWorkbook
     
     'Cleanup
     Worksheets(sActiveSheetName).Activate
@@ -537,7 +464,7 @@ Sub CreateBiSpreadsheet()
     sht.Name = "Parameters"
     sht.Range("SheetHeading") = "Parameters"
     sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:C7"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:C8"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_Parameters"
         .HeaderRowRange.Cells(1) = "Parameter"
@@ -577,10 +504,80 @@ Sub CreateBiSpreadsheet()
     End With
     SetOuterBorders sht.Range("D4")
 
-    'Cleanup
+    
+    'Create queries per report sheet
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "QueriesPerReport"
+    sht.Range("SheetHeading") = "Queries per report"
+    sht.Range("SheetCategory") = "Setup"
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D8"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_QueriesPerReport"
+        .HeaderRowRange.Cells(1) = "Report Name"
+        .HeaderRowRange.Cells(2) = "Report selected for run and query refresh"
+        .HeaderRowRange.Cells(3) = "Query Name"
+        .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
+        .ListColumns("Report selected for run and query refresh").DataBodyRange.Formula = _
+             "=(COUNTIFS(tbl_ReportList[Report Name], [@[Report Name]], tbl_ReportList[Run with table refresh], "" * "")) > 0"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 50
+    sht.Range("C:C").ColumnWidth = 30
+    sht.Range("D:D").ColumnWidth = 50
+    
+    
+    'Create report properties sheet
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "ReportProperties"
+    sht.Range("SheetHeading") = "Report properties"
+    sht.Range("SheetCategory") = "Setup"
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D8"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_ReportProperties"
+        .HeaderRowRange.Cells(1) = "Report Name"
+        .HeaderRowRange.Cells(2) = "AutoFit"
+        .HeaderRowRange.Cells(3) = "Total Rows"
+        .HeaderRowRange.Cells(3) = "Total Columns"
+        .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 50
+    sht.Range("C:C").ColumnWidth = 30
+    sht.Range("D:D").ColumnWidth = 30
+    sht.Range("E:E").ColumnWidth = 30
+    
+    
+    'Create report report fields sheet
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "ReportFields"
+    sht.Range("SheetHeading") = "Report fields"
+    sht.Range("SheetCategory") = "Setup"
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D8"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_ReportFields"
+        .HeaderRowRange.Cells(1) = "Report Name"
+        .HeaderRowRange.Cells(2) = "Cube Field Name"
+        .HeaderRowRange.Cells(3) = "Orientation"
+        .HeaderRowRange.Cells(3) = "Format"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 50
+    sht.Range("C:C").ColumnWidth = 50
+    sht.Range("D:D").ColumnWidth = 30
+    sht.Range("E:E").ColumnWidth = 30
+    
+        
+    'Copy Power Queries from this Workbook into the newly created workbook
+    CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
+    
+    
+    'Create index page and cleanup
+    InsertIndexPage wkb
     wkb.Activate
-    wkb.Sheets("Parameters").Activate
-    wkb.Sheets("Parameters").Range("C7").Select
+    wkb.Sheets("Index").Activate
     Application.ScreenUpdating = True
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic

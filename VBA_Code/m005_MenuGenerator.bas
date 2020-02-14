@@ -68,8 +68,14 @@ Sub CreatePopUpMenu()
     MenuCategory.Caption = "Insert"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Index page"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertIndexPageActiveWorkbook"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Formatted sheet"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertFormattedSheetIntoActiveWorkbook"
+    
+    
     
         
     'Pivot Table Menu
@@ -84,6 +90,10 @@ Sub CreatePopUpMenu()
     'Data Model Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
     MenuCategory.Caption = "Data model"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Create BI spreadsheet"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateBiSpreadsheet"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Export power queries"

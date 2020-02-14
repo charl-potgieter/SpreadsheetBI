@@ -178,3 +178,92 @@ Function GetCellColour(rng As Range, Optional formatType As Integer = 0) As Vari
             GetCellColour = colorVal
     End Select
 End Function
+
+
+
+Sub InsertIndexPage(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim shtIndex As Worksheet
+    Dim i As Double
+    Dim sPreviousReportCategory As String
+    Dim sReportCategory As String
+    Dim sReportName As String
+    Dim rngCategoryCol As Range
+    Dim rngReportCol As Range
+    Dim rngSheetNameCol As Range
+    Dim rngShowRange As Range
+    
+    'Delete any previous index sheet and create a new one
+    On Error Resume Next
+    wkb.Sheets("Index").Delete
+    On Error GoTo 0
+    Set shtIndex = wkb.Sheets.Add(Before:=ActiveWorkbook.Sheets(1))
+    FormatSheet shtIndex
+    
+    wkb.Activate
+    shtIndex.Activate
+    
+    With shtIndex
+    
+        .Name = "Index"
+        .Range("A:A").Insert Shift:=xlToRight
+        .Range("A:A").EntireColumn.Hidden = True
+        .Range("C2") = "Index"
+        .Range("D5").Font.Bold = True
+        .Columns("D:D").ColumnWidth = 100
+        .Rows("4:4").Select
+        ActiveWindow.FreezePanes = True
+        
+        Set rngSheetNameCol = .Columns("A")
+        Set rngCategoryCol = .Columns("C")
+        Set rngReportCol = .Columns("D")
+       
+        sPreviousReportCategory = ""
+        i = 2
+        
+        
+        For Each sht In wkb.Worksheets
+        
+            sReportCategory = sht.Range("A1")
+            sReportName = sht.Range("B2")
+            
+            If (sReportCategory <> "" And sReportName <> "") And (sht.Name <> "Index") And (sht.Visible = xlSheetVisible) Then
+            
+                'Create return to Index links
+                sht.Hyperlinks.Add _
+                    Anchor:=sht.Range("B3"), _
+                    Address:="", _
+                    SubAddress:="Index!A1", _
+                    TextToDisplay:="<Return to Index>"
+                    
+                'Write the report category headers
+                If sReportCategory <> sPreviousReportCategory Then
+                    i = i + 3
+                    rngCategoryCol.Cells(i) = sReportCategory
+                    rngCategoryCol.Cells(i).Font.Bold = True
+                    sPreviousReportCategory = sReportCategory
+                End If
+    
+                i = i + 2
+                rngReportCol.Cells(i) = sReportName
+                rngSheetNameCol.Cells(i) = sht.Name
+                
+                ActiveSheet.Hyperlinks.Add _
+                    Anchor:=rngReportCol.Cells(i), _
+                    Address:="", _
+                    SubAddress:="'" & sht.Name & "'" & "!B$4"
+                    
+            End If
+            
+        Next sht
+        
+        .Range("C3").Select
+        
+    End With
+
+
+End Sub
+
+
+

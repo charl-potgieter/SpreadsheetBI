@@ -116,3 +116,26 @@ Sub CreateDaxQueryTable()
     
 End Sub
 
+
+Sub CopyPowerQueriesBetweenFiles(ByRef wkbSource As Workbook, ByRef wkbTarget As Workbook)
+
+
+    Dim qry As WorkbookQuery
+    
+    For Each qry In wkbSource.Queries
+        If QueryExists(qry.Name, wkbTarget) Then
+            wkbTarget.Queries(qry.Name).Formula = qry.Formula
+        Else
+            wkbTarget.Queries.Add qry.Name, qry.Formula
+        End If
+    Next qry
+
+
+End Sub
+
+
+Sub Test()
+
+
+End Sub
+

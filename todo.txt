@@ -1,6 +1,8 @@
 TODO
 --------
  - Continue working on Sub CreateBiSpreadsheet()
+    - Maybe create a dummy data table for example to set up the spreadsheet
+    
 
 - See ReportList tab.  Reports are run from here.  Link this to Report dependency tab which will then drive refresh
 
@@ -20,6 +22,12 @@ TODO
 
  - Create generic code to check for items in data tables not in lookup tables using EXCEPT function
  
+- create code to generate dax query table on worksheet 
+
   - Create code for DAX query link back table in seperate file to avoid bloating working model file --> don't think it will be that practical putting in a seperate file but potentially could be better codified.
   
   - - Create code to set up a model sheet (containing all the required tables e.g. Paramaters, ReportFields, ReportDependencies) - most probably a lot easier to just save as a template somewhere but then I cannot generalise onto github.  Most probably lower priority
+  
+  
+  In the date table - is there an issue with using list.dates - see comment from Ken Puls here
+  https://blog.crossjoin.co.uk/2016/06/03/creating-tables-in-power-bipower-query-m-code-using-table/
