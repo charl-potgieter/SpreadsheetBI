@@ -29,8 +29,8 @@ Public Sub ExportVBAModules()
     Dim cmpComponent As VBIDE.VBComponent
 
     
-    ActiveWorkbook.Save
-    sExportPath = ThisWorkbook.Path & Application.PathSeparator & "VBA_Code"
+    'ActiveWorkbook.Save
+    sExportPath = ActiveWorkbook.Path & Application.PathSeparator & "VBA_Code"
     On Error Resume Next
         MkDir sExportPath
         Kill sExportPath & "\*.*"
@@ -42,7 +42,7 @@ Public Sub ExportVBAModules()
         Exit Sub
     End If
     
-    For Each cmpComponent In ActiveWorkbook.VBProject.VBComponents
+    For Each cmpComponent In ThisWorkbook.VBProject.VBComponents
         
         bExport = True
         sFileName = cmpComponent.Name

@@ -1,5 +1,7 @@
 Attribute VB_Name = "m005_MenuGenerator"
 Option Explicit
+Option Private Module
+
 
 Sub DeletePopUpMenu()
 'Delete PopUp menu if it exists
@@ -94,6 +96,10 @@ Sub CreatePopUpMenu()
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Create BI spreadsheet"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateBiSpreadsheet"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Update report field validation"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "AddValidationToReportFields"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Export power queries"

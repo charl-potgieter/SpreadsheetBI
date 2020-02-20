@@ -1,7 +1,14 @@
 TODO
 --------
+
  - Continue working on Sub CreateBiSpreadsheet()
-    - Maybe create a dummy data table for example to set up the spreadsheet
+  - Need to go back to the ADO approach as visible / non-visible columns are not exposed via VBA (can be seen in the DIMENSION_IS_VISIBLE field of MDSCHEMA_HIERARCHIES)
+  - For background see below  (loop through all dmvs and see which ones are active in power pivot)
+   - https://social.technet.microsoft.com/wiki/contents/articles/19941.ssas-query-power-pivot-dmvs-with-vba.aspx
+     -  power pivot utilities VBA code
+     - https://docs.microsoft.com/en-us/analysis-services/instances/use-dynamic-management-views-dmvs-to-monitor-analysis-services?view=asallproducts-allversions
+     
+    - Any way I can get cube fields to appear as data validation on Report Fields tab --> yes
     
 
 - See ReportList tab.  Reports are run from here.  Link this to Report dependency tab which will then drive refresh

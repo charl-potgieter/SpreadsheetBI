@@ -519,7 +519,7 @@ Sub CreateBiSpreadsheet()
         .HeaderRowRange.Cells(3) = "Query Name"
         .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
         .ListColumns("Report selected for run and query refresh").DataBodyRange.Formula = _
-             "=(COUNTIFS(tbl_ReportList[Report Name], [@[Report Name]], tbl_ReportList[Run with table refresh], "" * "")) > 0"
+             "=(COUNTIFS(tbl_ReportList[Report Name], [@[Report Name]], tbl_ReportList[Run with table refresh], ""*"")) > 0"
     End With
     FormatTable lo
     sht.Range("B:B").ColumnWidth = 50
@@ -539,14 +539,14 @@ Sub CreateBiSpreadsheet()
         .HeaderRowRange.Cells(1) = "Report Name"
         .HeaderRowRange.Cells(2) = "AutoFit"
         .HeaderRowRange.Cells(3) = "Total Rows"
-        .HeaderRowRange.Cells(3) = "Total Columns"
+        .HeaderRowRange.Cells(4) = "Total Columns"
         .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
     End With
     FormatTable lo
     sht.Range("B:B").ColumnWidth = 50
-    sht.Range("C:C").ColumnWidth = 30
-    sht.Range("D:D").ColumnWidth = 30
-    sht.Range("E:E").ColumnWidth = 30
+    sht.Range("C:C").ColumnWidth = 20
+    sht.Range("D:D").ColumnWidth = 20
+    sht.Range("E:E").ColumnWidth = 20
     
     
     'Create report report fields sheet
@@ -555,24 +555,33 @@ Sub CreateBiSpreadsheet()
     sht.Name = "ReportFields"
     sht.Range("SheetHeading") = "Report fields"
     sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D8"), XlListObjectHasHeaders:=xlYes)
+    sht.Range("B5") = "Run ""Data model update > Update report field validation"" to refresh "
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:F15"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_ReportFields"
         .HeaderRowRange.Cells(1) = "Report Name"
         .HeaderRowRange.Cells(2) = "Cube Field Name"
         .HeaderRowRange.Cells(3) = "Orientation"
-        .HeaderRowRange.Cells(3) = "Format"
+        .HeaderRowRange.Cells(4) = "Format"
+        .HeaderRowRange.Cells(5) = "Custom Format"
     End With
     FormatTable lo
-    sht.Range("B:B").ColumnWidth = 50
-    sht.Range("C:C").ColumnWidth = 50
-    sht.Range("D:D").ColumnWidth = 30
-    sht.Range("E:E").ColumnWidth = 30
+    sht.Range("B:B").ColumnWidth = 40
+    sht.Range("C:C").ColumnWidth = 40
+    sht.Range("D:D").ColumnWidth = 20
+    sht.Range("E:E").ColumnWidth = 20
+    sht.Range("F:F").ColumnWidth = 20
+    
+    lo.ListColumns("Orientation").DataBodyRange.Validation.Add _
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Row, Column, Data"
+    
+    
+    lo.ListColumns("Format").DataBodyRange.Validation.Add _
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Zero Decimals,One Decimal,Two Decimals,Custom"
     
         
     'Copy Power Queries from this Workbook into the newly created workbook
     CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
-    
     
     'Create index page and cleanup
     InsertIndexPage wkb
@@ -582,5 +591,47 @@ Sub CreateBiSpreadsheet()
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic
     Application.DisplayAlerts = True
+
+End Sub
+
+
+
+
+Sub AddValidationToReportFields()
+    
+    Dim asMeasureList() As String
+    Dim asColumnList() As String
+    Dim sValidationString As String
+    Dim i As Integer
+    Dim lo As ListObject
+
+    sValidationString = ""
+    GetModelMeasureNames asMeasureList
+    GetModelColumnNames asColumnList
+    
+    For i = LBound(asMeasureList) To UBound(asMeasureList)
+        If sValidationString = "" Then
+            sValidationString = asMeasureList(i)
+        Else
+            sValidationString = sValidationString & "," & asMeasureList(i)
+        End If
+    Next i
+    
+    For i = LBound(asColumnList) To UBound(asColumnList)
+        If sValidationString = "" Then
+            sValidationString = asColumnList(i)
+        Else
+            sValidationString = sValidationString & "," & asColumnList(i)
+        End If
+    Next i
+    
+    Set lo = ActiveWorkbook.Sheets("ReportFields").ListObjects("tbl_ReportFields")
+    On Error Resume Next
+    lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Delete
+    On Error GoTo 0
+    
+    lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Add _
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:=sValidationString
+
 
 End Sub

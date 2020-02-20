@@ -1,7 +1,7 @@
 #table(
  type table
     [
-        #"Date"=number, 
+        #"Date"=date, 
         #"Description"=text,
         #"Amount"=number
     ], 

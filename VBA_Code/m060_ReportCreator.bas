@@ -70,11 +70,11 @@ Sub SetPivotField(ByRef pvt As PivotTable, ByRef loPivotFieldSettings As ListObj
                 
                 'Format field
                 Select Case .ListColumns("Format").DataBodyRange.Cells(i)
-                    Case "ZeroDecimals"
+                    Case "Zero Decimals"
                         pvt.PivotFields(sCubeFieldName).NumberFormat = "#,##0_);(#,##0);-??"
-                    Case "OneDecimal"
+                    Case "One Decimal"
                         pvt.PivotFields(sCubeFieldName).NumberFormat = "#,##0.0_);(#,##0.0);-??"
-                    Case "TwoDecimals"
+                    Case "Two Decimals"
                         pvt.PivotFields(sCubeFieldName).NumberFormat = "#,##0.00_);(#,##0.00);-??"
                 End Select
                 

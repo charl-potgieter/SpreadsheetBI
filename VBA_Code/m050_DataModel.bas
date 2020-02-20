@@ -86,10 +86,10 @@ Sub AddMeasureToDataModel(ByVal sMeasureName As String, ByVal sTableName As Stri
         
     If wkb Is Nothing Then Set wkb = ActiveWorkbook
     
-    wkb.Model.Add _
+    wkb.Model.ModelMeasures.Add _
         MeasureName:=sMeasureName, _
         AssociatedTable:=wkb.Model.ModelTables(sTableName), _
-        Formula:=sMeasure, _
+        Formula:=1, _
         FormatInformation:=wkb.Model.ModelFormatGeneral, _
         Description:=sDescription
     
@@ -134,8 +134,123 @@ Sub CopyPowerQueriesBetweenFiles(ByRef wkbSource As Workbook, ByRef wkbTarget As
 End Sub
 
 
-Sub Test()
+
+
+Sub GetModelColumnNames(ByRef asColumnList() As String, Optional bReturnVisibleOnly As Boolean = True)
+'Requires reference to Microsoft ActiveX Data Objects
+'Returns columns in the data model
+
+    Dim conn As ADODB.Connection
+    Dim rs As ADODB.Recordset
+    Dim sht As Excel.Worksheet
+    Dim iRowNum As Integer
+    Dim i As Integer
+    Dim sSQL As String
+
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    i = 0
+
+    ' SQL like query to get result of DMV from schema $SYSTEM
+    If bReturnVisibleOnly Then
+        sSQL = "select [HIERARCHY_UNIQUE_NAME] from $SYSTEM.MDSCHEMA_HIERARCHIES " & _
+            "WHERE [HIERARCHY_UNIQUE_NAME] <> '[MEASURES]' AND " & _
+            "[CUBE_NAME] = 'MODEL' AND " & _
+            "[HIERARCHY_IS_VISIBLE] " & _
+            "ORDER BY [HIERARCHY_UNIQUE_NAME]"
+    Else
+        sSQL = "select [HIERARCHY_UNIQUE_NAME] from $SYSTEM.MDSCHEMA_HIERARCHIES " & _
+            "WHERE [HIERARCHY_UNIQUE_NAME] <> '[MEASURES]' AND " & _
+            "[CUBE_NAME] = 'MODEL' " & _
+            "ORDER BY [HIERARCHY_UNIQUE_NAME]"
+    End If
+
+    ' Open connection to PowerPivot engine
+    Set conn = ActiveWorkbook.Model.DataModelConnection.ModelConnection.ADOConnection
+    Set rs = New ADODB.Recordset
+    rs.ActiveConnection = conn
+    rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
+        
+    ReDim asColumnList(0 To rs.RecordCount - 1)
+    ' Output of the query results
+    Do Until rs.EOF
+        asColumnList(i) = rs.Fields(0).value
+        rs.MoveNext
+        i = i + 1
+        
+    Loop
+
+    
+    rs.Close
+    Set rs = Nothing
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
 
 
 End Sub
+
+
+Sub GetModelMeasureNames(ByRef asMeasureList() As String, Optional bReturnVisibleOnly As Boolean = True)
+'Requires reference to Microsoft ActiveX Data Objects
+'Returns measures names in the data model
+
+    Dim conn As ADODB.Connection
+    Dim rs As ADODB.Recordset
+    Dim sht As Excel.Worksheet
+    Dim iRowNum As Integer
+    Dim i As Integer
+    Dim sSQL As String
+
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    i = 0
+
+    ' SQL like query to get result of DMV from schema $SYSTEM
+    If bReturnVisibleOnly Then
+        sSQL = "select [MEASURE_UNIQUE_NAME] from $SYSTEM.MDSCHEMA_MEASURES  " & _
+            "WHERE LEN([EXPRESSION]) > 0 AND " & _
+            "[EXPRESSION] <> '1' AND " & _
+            "[MEASURE_IS_VISIBLE] " & _
+            "ORDER BY [MEASURE_UNIQUE_NAME]"
+    Else
+        sSQL = "select [MEASURE_UNIQUE_NAME] from $SYSTEM.MDSCHEMA_MEASURES  " & _
+            "WHERE LEN([EXPRESSION]) > 0 AND " & _
+            "[EXPRESSION] <> '1' " & _
+            "ORDER BY [MEASURE_UNIQUE_NAME]"
+    End If
+
+    ' Open connection to PowerPivot engine
+    Set conn = ActiveWorkbook.Model.DataModelConnection.ModelConnection.ADOConnection
+    Set rs = New ADODB.Recordset
+    rs.ActiveConnection = conn
+    rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
+        
+    ReDim asMeasureList(0 To rs.RecordCount - 1)
+    ' Output of the query results
+    Do Until rs.EOF
+        asMeasureList(i) = rs.Fields(0).value
+        rs.MoveNext
+        i = i + 1
+        
+    Loop
+
+    
+    rs.Close
+    Set rs = Nothing
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+
+End Sub
+
+
+
 
