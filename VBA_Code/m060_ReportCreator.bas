@@ -4,7 +4,7 @@ Option Explicit
 Sub AAATestCreateReport()
 
 
-    CreatePivotTable "Test Report 1"
+    CreatePivotTable "Report 1"
 
 
 End Sub

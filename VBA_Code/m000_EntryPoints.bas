@@ -354,7 +354,7 @@ Sub TableLooper()
 ' - target sheet category
 
 
-    Dim arr
+    Dim Arr
     Dim i As Integer
     Dim sht As Worksheet
     Dim dblRowToPaste As Double
@@ -380,7 +380,7 @@ Sub TableLooper()
     Application.DisplayAlerts = False
 
     'Read inputs for looping function
-    arr = WorksheetFunction.Transpose(Range(LooperValue("Index Range")))
+    Arr = WorksheetFunction.Transpose(Range(LooperValue("Index Range")))
     Set rngTableInputKey = Range(LooperValue("Input Key"))
     Set loCalc = Range(LooperValue("Input Calculation Table")).ListObject
     sTargetSheetName = LooperValue("Target Sheet Name")
@@ -402,8 +402,8 @@ Sub TableLooper()
     loCalc.HeaderRowRange.Copy
     sht.Cells(iStartTableRow, iStartTableCol).PasteSpecial xlPasteValues
 
-    For i = LBound(arr) To UBound(arr)
-        rngTableInputKey = arr(i)
+    For i = LBound(Arr) To UBound(Arr)
+        rngTableInputKey = Arr(i)
         Application.CalculateFull
         Application.Wait Now + #12:00:01 AM#
         loCalc.DataBodyRange.Copy
@@ -573,7 +573,7 @@ Sub CreateBiSpreadsheet()
     sht.Range("F:F").ColumnWidth = 20
     
     lo.ListColumns("Orientation").DataBodyRange.Validation.Add _
-        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Row, Column, Data"
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Row, Column, Filter, Data"
     
     
     lo.ListColumns("Format").DataBodyRange.Validation.Add _
@@ -605,33 +605,47 @@ Sub AddValidationToReportFields()
     Dim i As Integer
     Dim lo As ListObject
 
+
+
     sValidationString = ""
     GetModelMeasureNames asMeasureList
     GetModelColumnNames asColumnList
+        
+    If ArrayIsDimensioned(asMeasureList) Then
+        For i = LBound(asMeasureList) To UBound(asMeasureList)
+            If sValidationString = "" Then
+                sValidationString = asMeasureList(i)
+            Else
+                sValidationString = sValidationString & "," & asMeasureList(i)
+            End If
+        Next i
+    End If
     
-    For i = LBound(asMeasureList) To UBound(asMeasureList)
-        If sValidationString = "" Then
-            sValidationString = asMeasureList(i)
-        Else
-            sValidationString = sValidationString & "," & asMeasureList(i)
-        End If
-    Next i
+    If ArrayIsDimensioned(asColumnList) Then
+        For i = LBound(asColumnList) To UBound(asColumnList)
+            If sValidationString = "" Then
+                sValidationString = asColumnList(i)
+            Else
+                sValidationString = sValidationString & "," & asColumnList(i)
+            End If
+        Next i
+    End If
     
-    For i = LBound(asColumnList) To UBound(asColumnList)
-        If sValidationString = "" Then
-            sValidationString = asColumnList(i)
-        Else
-            sValidationString = sValidationString & "," & asColumnList(i)
-        End If
-    Next i
-    
-    Set lo = ActiveWorkbook.Sheets("ReportFields").ListObjects("tbl_ReportFields")
-    On Error Resume Next
-    lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Delete
-    On Error GoTo 0
-    
-    lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Add _
-        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:=sValidationString
+    If sValidationString <> "" Then
+        Set lo = ActiveWorkbook.Sheets("ReportFields").ListObjects("tbl_ReportFields")
+        
+        On Error Resume Next
+        lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Delete
+        On Error GoTo 0
+        
+        lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Add _
+            Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:=sValidationString
+    End If
 
+
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
 
 End Sub

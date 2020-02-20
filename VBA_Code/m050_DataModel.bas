@@ -173,14 +173,15 @@ Sub GetModelColumnNames(ByRef asColumnList() As String, Optional bReturnVisibleO
     rs.ActiveConnection = conn
     rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
         
-    ReDim asColumnList(0 To rs.RecordCount - 1)
-    ' Output of the query results
-    Do Until rs.EOF
-        asColumnList(i) = rs.Fields(0).value
-        rs.MoveNext
-        i = i + 1
-        
-    Loop
+    If rs.RecordCount > 0 Then
+        ReDim asColumnList(0 To rs.RecordCount - 1)
+        ' Output of the query results
+        Do Until rs.EOF
+            asColumnList(i) = rs.Fields(0).value
+            rs.MoveNext
+            i = i + 1
+        Loop
+    End If
 
     
     rs.Close
@@ -231,15 +232,15 @@ Sub GetModelMeasureNames(ByRef asMeasureList() As String, Optional bReturnVisibl
     rs.ActiveConnection = conn
     rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
         
-    ReDim asMeasureList(0 To rs.RecordCount - 1)
-    ' Output of the query results
-    Do Until rs.EOF
-        asMeasureList(i) = rs.Fields(0).value
-        rs.MoveNext
-        i = i + 1
-        
-    Loop
-
+    If rs.RecordCount > 0 Then
+        ReDim asMeasureList(0 To rs.RecordCount - 1)
+        ' Output of the query results
+        Do Until rs.EOF
+            asMeasureList(i) = rs.Fields(0).value
+            rs.MoveNext
+            i = i + 1
+        Loop
+    End If
     
     rs.Close
     Set rs = Nothing

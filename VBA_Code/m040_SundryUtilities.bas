@@ -29,12 +29,12 @@ End Function
 
 
 
-Function ArrayIsInitialised(arr) As Boolean
+Function ArrayIsInitialised(Arr) As Boolean
 
     Dim value
     
     On Error Resume Next
-    value = arr(0)
+    value = Arr(0)
     ArrayIsInitialised = (Err.Number = 0)
     On Error GoTo 0
 
@@ -117,7 +117,15 @@ End Function
 
 
 
+Function ArrayIsDimensioned(Arr As Variant) As Boolean
 
+    Dim b As Boolean
+    
+    On Error Resume Next
+    ArrayIsDimensioned = (UBound(Arr, 1)) >= 0 And UBound(Arr) >= LBound(Arr)
+    If Err.Number <> 0 Then ArrayIsDimensioned = False
+
+End Function
 
 
 
