@@ -2,7 +2,8 @@ TODO
 --------
 
   - ReportsField tab --> Do not allow columns as data orientation (they would need some sort of sum or someting anyway and this generates VBA error).  Better practice to have measure as data anyway.
-     - Maybe even seperate "Data" item into a seperate pivot table on same field.  (as format will also not be relevant for row, column and filter)
+     - Conditional formatting on the error formula already created
+     - run check before running macro
 
 - See ReportList tab.  Reports are run from here.  Link this to Report dependency tab which will then drive refresh
 

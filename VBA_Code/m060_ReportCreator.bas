@@ -1,5 +1,6 @@
 Attribute VB_Name = "m060_ReportCreator"
 Option Explicit
+Option Private Module
 
 Sub AAATestCreateReport()
 

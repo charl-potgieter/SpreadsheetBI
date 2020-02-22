@@ -439,8 +439,6 @@ Sub CreateBiSpreadsheet()
 
     Dim wkb As Workbook
     Dim i As Integer
-    Dim sht As Worksheet
-    Dim lo As ListObject
     
     'Setup
     Application.ScreenUpdating = False
@@ -448,141 +446,20 @@ Sub CreateBiSpreadsheet()
     Application.Calculation = xlCalculationManual
     Application.DisplayAlerts = False
     
-    
+    'Create workbook and ensure it consists of only one sheet
     Set wkb = Application.Workbooks.Add
-    
-    'Ensure workbook consists of only one sheet
     If wkb.Sheets.Count <> 1 Then
-        For i = 1 To wkb.Sheets.Count
+        For i = 2 To wkb.Sheets.Count
             wkb.Sheets(i).Delete
         Next i
     End If
     
-    'Create parameter sheet
-    Set sht = wkb.Sheets(1)
-    FormatSheet sht
-    sht.Name = "Parameters"
-    sht.Range("SheetHeading") = "Parameters"
-    sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:C8"), XlListObjectHasHeaders:=xlYes)
-    With lo
-        .Name = "tbl_Parameters"
-        .HeaderRowRange.Cells(1) = "Parameter"
-        .HeaderRowRange.Cells(2) = "Value"
-        .ListColumns("Parameter").DataBodyRange.Cells(1) = "Date_Start"
-        .ListColumns("Parameter").DataBodyRange.Cells(2) = "Date_End"
-        .ListColumns("Value").DataBodyRange.Cells.NumberFormat = "dd-mmm-yy"
-        .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
-    End With
-    FormatTable lo
-    sht.Range("B:B").ColumnWidth = 30
-    sht.Range("C:C").ColumnWidth = 60
-
-    'Create report list sheet
-    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
-    FormatSheet sht
-    sht.Name = "ReportList"
-    sht.Range("SheetHeading") = "Report List"
-    sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D7"), XlListObjectHasHeaders:=xlYes)
-    With lo
-        .Name = "tbl_ReportList"
-        .HeaderRowRange.Cells(1) = "Report Name"
-        .HeaderRowRange.Cells(2) = "Run with table refresh"
-        .HeaderRowRange.Cells(3) = "Run without table refresh"
-        .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
-    End With
-    FormatTable lo
-    sht.Range("B:B").ColumnWidth = 60
-    sht.Range("C:C").ColumnWidth = 30
-    sht.Range("D:D").ColumnWidth = 30
-    sht.Range("B4") = "Clear data from non-dependent tables (mark with X)"
-    With sht.Range("D4")
-        .Font.Bold = True
-        .HorizontalAlignment = xlCenter
-        .Interior.Color = RGB(217, 225, 242)
-    End With
-    SetOuterBorders sht.Range("D4")
-
-    
-    'Create queries per report sheet
-    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
-    FormatSheet sht
-    sht.Name = "QueriesPerReport"
-    sht.Range("SheetHeading") = "Queries per report"
-    sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D8"), XlListObjectHasHeaders:=xlYes)
-    With lo
-        .Name = "tbl_QueriesPerReport"
-        .HeaderRowRange.Cells(1) = "Report Name"
-        .HeaderRowRange.Cells(2) = "Report selected for run and query refresh"
-        .HeaderRowRange.Cells(3) = "Query Name"
-        .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
-        .ListColumns("Report selected for run and query refresh").DataBodyRange.Formula = _
-             "=(COUNTIFS(tbl_ReportList[Report Name], [@[Report Name]], tbl_ReportList[Run with table refresh], ""*"")) > 0"
-    End With
-    FormatTable lo
-    sht.Range("B:B").ColumnWidth = 50
-    sht.Range("C:C").ColumnWidth = 30
-    sht.Range("D:D").ColumnWidth = 50
-    
-    
-    'Create report properties sheet
-    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
-    FormatSheet sht
-    sht.Name = "ReportProperties"
-    sht.Range("SheetHeading") = "Report properties"
-    sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D8"), XlListObjectHasHeaders:=xlYes)
-    With lo
-        .Name = "tbl_ReportProperties"
-        .HeaderRowRange.Cells(1) = "Report Name"
-        .HeaderRowRange.Cells(2) = "AutoFit"
-        .HeaderRowRange.Cells(3) = "Total Rows"
-        .HeaderRowRange.Cells(4) = "Total Columns"
-        .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
-    End With
-    FormatTable lo
-    sht.Range("B:B").ColumnWidth = 50
-    sht.Range("C:C").ColumnWidth = 20
-    sht.Range("D:D").ColumnWidth = 20
-    sht.Range("E:E").ColumnWidth = 20
-    
-    
-    'Create report report fields sheet
-    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
-    FormatSheet sht
-    sht.Name = "ReportFields"
-    sht.Range("SheetHeading") = "Report fields"
-    sht.Range("SheetCategory") = "Setup"
-    sht.Range("B5") = "Run ""Data model update > Update report field validation"" to refresh "
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:F15"), XlListObjectHasHeaders:=xlYes)
-    With lo
-        .Name = "tbl_ReportFields"
-        .HeaderRowRange.Cells(1) = "Report Name"
-        .HeaderRowRange.Cells(2) = "Cube Field Name"
-        .HeaderRowRange.Cells(3) = "Orientation"
-        .HeaderRowRange.Cells(4) = "Format"
-        .HeaderRowRange.Cells(5) = "Custom Format"
-    End With
-    FormatTable lo
-    sht.Range("B:B").ColumnWidth = 40
-    sht.Range("C:C").ColumnWidth = 40
-    sht.Range("D:D").ColumnWidth = 20
-    sht.Range("E:E").ColumnWidth = 20
-    sht.Range("F:F").ColumnWidth = 20
-    
-    lo.ListColumns("Orientation").DataBodyRange.Validation.Add _
-        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Row, Column, Filter, Data"
-    
-    
-    lo.ListColumns("Format").DataBodyRange.Validation.Add _
-        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Zero Decimals,One Decimal,Two Decimals,Custom"
-    
-        
-    'Copy Power Queries from this Workbook into the newly created workbook
+    CreateParamaterSheet wkb
+    CreateReportListSheet wkb
+    CreateQueriesPerReportSheet wkb
+    CreateReportPropertiesSheet wkb
     CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
-    
+
     'Create index page and cleanup
     InsertIndexPage wkb
     wkb.Activate
