@@ -1,13 +1,13 @@
 Attribute VB_Name = "m000_EntryPoints"
 Option Explicit
 
-Sub AAAACreateDisplayPopUpMenu()
-Attribute AAAACreateDisplayPopUpMenu.VB_ProcData.VB_Invoke_Func = "M\n14"
-    
+Sub DisplayPopUpMenu()
+Attribute DisplayPopUpMenu.VB_ProcData.VB_Invoke_Func = "M\n14"
+
     DeletePopUpMenu
     CreatePopUpMenu
     Application.CommandBars(gcsMenuName).ShowPopup
-    
+
 End Sub
 
 
@@ -524,5 +524,33 @@ Sub AddValidationToReportFields()
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic
     Application.DisplayAlerts = True
+
+End Sub
+
+
+Sub GenerateReports()
+
+    Dim bValidSettings As Boolean
+    Dim i As Integer
+    Dim lo As ListObject
+    Dim pvt As PivotTable
+    
+
+    bValidSettings = ReportSettingsAreValid
+    If Not bValidSettings Then Exit Sub
+    
+    Set lo = ActiveWorkbook.Worksheets("ReportList").ListObjects("tbl_ReportList")
+    
+    With lo
+        For i = 1 To lo.DataBodyRange.Rows.Count
+            If .ListColumns("Run without table refresh").DataBodyRange.Cells(i) <> "" Then
+                CreatePivotTable .ListColumns("ReportName").DataBodyRange.Cells(i)
+                CustomisePivotTable .ListColumns("ReportName").DataBodyRange.Cells(i)
+                SetPivotFields .ListColumns("ReportName").DataBodyRange.Cells(i)
+            End If
+        Next i
+    End With
+
+
 
 End Sub

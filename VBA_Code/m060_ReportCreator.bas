@@ -2,44 +2,33 @@ Attribute VB_Name = "m060_ReportCreator"
 Option Explicit
 Option Private Module
 
-Sub AAATestCreateReport()
+
+Function ReportSettingsAreValid() As Boolean
+
+    MsgBox ("was here")
 
 
-    CreatePivotTable "Report 1"
+End Function
 
 
-End Sub
 
+Sub CreatePivotTable(ByVal sReportName As String, ByRef pvt As PivotTable)
 
-Sub CreatePivotTable(ByVal sReportName As String)
-
-    Dim pvt As PivotTable
     Dim loPivotTableSettings As ListObject
     Dim loPivotFieldSettings As ListObject
-    
+
 
     Set pvt = ActiveWorkbook.PivotCaches.Create(SourceType:=xlExternal, SourceData:= _
         ActiveWorkbook.Connections("ThisWorkbookDataModel"), Version:=6). _
         CreatePivotTable(ActiveCell)
     
- 
-
-    
-    
-    'Set pivot table properties
-    Set loPivotFieldSettings = ActiveWorkbook.Sheets("ReportFields").ListObjects("tbl_ReportFields")
-    
-    'Set pivot field properties
-    Set loPivotFieldSettings = ActiveWorkbook.Sheets("ReportFields").ListObjects("tbl_ReportFields")
-    SetPivotField pvt, loPivotFieldSettings, sReportName
-    
     
 End Sub
 
 
-Sub CustomisePivotTable()
+Sub CustomisePivotTable(ByVal sReportName As String)
 
-
+'!!!!!!!!!!!!!!!!!!!!! TO BUILD
 
 
 End Sub
@@ -47,7 +36,7 @@ End Sub
 
 
 
-Sub SetPivotField(ByRef pvt As PivotTable, ByRef loPivotFieldSettings As ListObject, sReportName As String)
+Sub SetPivotFields(ByRef pvt As PivotTable, ByRef loPivotFieldSettings As ListObject, sReportName As String)
 
     Dim i As Double
     Dim sCubeFieldName As String

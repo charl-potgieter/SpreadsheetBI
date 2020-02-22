@@ -13,14 +13,17 @@ Sub CreateParamaterSheet(ByRef wkb As Workbook)
     sht.Name = "Parameters"
     sht.Range("SheetHeading") = "Parameters"
     sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:C8"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:C12"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_Parameters"
         .HeaderRowRange.Cells(1) = "Parameter"
         .HeaderRowRange.Cells(2) = "Value"
         .ListColumns("Parameter").DataBodyRange.Cells(1) = "Date_Start"
         .ListColumns("Parameter").DataBodyRange.Cells(2) = "Date_End"
-        .ListColumns("Value").DataBodyRange.Cells.NumberFormat = "dd-mmm-yy"
+        .ListColumns("Value").DataBodyRange.Cells(1) = DateSerial(2018, 1, 1)
+        .ListColumns("Value").DataBodyRange.Cells(2) = DateSerial(2020, 12, 31)
+        .ListColumns("Value").DataBodyRange.Cells(1).NumberFormat = "dd-mmm-yy"
+        .ListColumns("Value").DataBodyRange.Cells(2).NumberFormat = "dd-mmm-yy"
         .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
     End With
     FormatTable lo
@@ -42,12 +45,13 @@ Sub CreateReportListSheet(ByRef wkb As Workbook)
     sht.Name = "ReportList"
     sht.Range("SheetHeading") = "Report List"
     sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:D10"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:E10"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_ReportList"
         .HeaderRowRange.Cells(1) = "Report Name"
-        .HeaderRowRange.Cells(2) = "Run with table refresh"
-        .HeaderRowRange.Cells(3) = "Run without table refresh"
+        .HeaderRowRange.Cells(2) = "Sheet Name"
+        .HeaderRowRange.Cells(3) = "Run with table refresh"
+        .HeaderRowRange.Cells(4) = "Run without table refresh"
         .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
     End With
     FormatTable lo
@@ -56,7 +60,7 @@ Sub CreateReportListSheet(ByRef wkb As Workbook)
     sht.Range("D:D").ColumnWidth = 30
     sht.Range("B5") = "Clear data from non-dependent tables (mark with X)"
     
-    sht.Names.Add Name:="ClearData", RefersTo:="=$D$5"
+    sht.Names.Add Name:="ClearData", RefersTo:="=$E$5"
 
     With sht.Range("ClearData")
         .Font.Bold = True
