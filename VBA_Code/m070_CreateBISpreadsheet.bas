@@ -45,13 +45,14 @@ Sub CreateReportListSheet(ByRef wkb As Workbook)
     sht.Name = "ReportList"
     sht.Range("SheetHeading") = "Report List"
     sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:E10"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:F10"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_ReportList"
         .HeaderRowRange.Cells(1) = "Report Name"
         .HeaderRowRange.Cells(2) = "Sheet Name"
-        .HeaderRowRange.Cells(3) = "Run with table refresh"
-        .HeaderRowRange.Cells(4) = "Run without table refresh"
+        .HeaderRowRange.Cells(3) = "Report Category"
+        .HeaderRowRange.Cells(4) = "Run with table refresh"
+        .HeaderRowRange.Cells(5) = "Run without table refresh"
         .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
     End With
     FormatTable lo
@@ -60,7 +61,7 @@ Sub CreateReportListSheet(ByRef wkb As Workbook)
     sht.Range("D:D").ColumnWidth = 30
     sht.Range("B5") = "Clear data from non-dependent tables (mark with X)"
     
-    sht.Names.Add Name:="ClearData", RefersTo:="=$E$5"
+    sht.Names.Add Name:="ClearData", RefersTo:="=$F$5"
 
     With sht.Range("ClearData")
         .Font.Bold = True

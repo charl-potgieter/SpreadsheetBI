@@ -532,25 +532,34 @@ Sub GenerateReports()
 
     Dim bValidSettings As Boolean
     Dim i As Integer
-    Dim lo As ListObject
+    Dim j As Integer
+    Dim loReportList As ListObject
+    Dim loReportFields As ListObject
     Dim pvt As PivotTable
     
 
     bValidSettings = ReportSettingsAreValid
     If Not bValidSettings Then Exit Sub
     
-    Set lo = ActiveWorkbook.Worksheets("ReportList").ListObjects("tbl_ReportList")
+    Set loReportList = ActiveWorkbook.Worksheets("ReportList").ListObjects("tbl_ReportList")
+    Set loReportFields = ActiveWorkbook.Worksheets("ReportFields").ListObjects("tbl_ReportFields")
     
-    With lo
-        For i = 1 To lo.DataBodyRange.Rows.Count
+    With loReportList
+        For i = 1 To .DataBodyRange.Rows.Count
             If .ListColumns("Run without table refresh").DataBodyRange.Cells(i) <> "" Then
-                CreatePivotTable .ListColumns("ReportName").DataBodyRange.Cells(i)
-                CustomisePivotTable .ListColumns("ReportName").DataBodyRange.Cells(i)
-                SetPivotFields .ListColumns("ReportName").DataBodyRange.Cells(i)
+                CreatePivotTable .ListColumns("Sheet Name").DataBodyRange.Cells(i), .ListColumns("Report Name").DataBodyRange.Cells(i), .ListColumns("Report Category"), pvt
+                CustomisePivotTable .ListColumns("Report Name").DataBodyRange.Cells(i)
+                With loReportFields
+                    For j = 1 To .DataBodyRange.Rows.Count
+                        If .ListColumns("Report Name").DataBodyRange.Cells(j) = loReportList.ListColumns("Report Name").DataBodyRange(i) Then
+                            SetPivotFields pvt, .ListColumns("Cube Field Name").DataBodyRange.Cells(i), .ListColumns("Orientation").DataBodyRange.Cells(i)
+                        End If
+                    Next j
+                End With
             End If
         Next i
     End With
 
-
+    InsertIndexPageActiveWorkbook
 
 End Sub
