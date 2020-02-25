@@ -26,14 +26,18 @@ Sub CreatePivotTable(ByVal sSheetName As String, ByVal sReportName As String, By
     End If
 
     Set sht = ActiveWorkbook.Sheets.Add(After:=ActiveWorkbook.Sheets(ActiveWorkbook.Sheets.Count))
+    
+    'Create pivot in first row and then shift down.  This is easiest approach to get correct location
+    Set pvt = ActiveWorkbook.PivotCaches.Create(SourceType:=xlExternal, SourceData:= _
+        ActiveWorkbook.Connections("ThisWorkbookDataModel"), Version:=6). _
+        CreatePivotTable(sht.Range("B1"))
+    
+    sht.Rows("1:5").Insert Shift:=xlDown
     sht.Name = sSheetName
     FormatSheet sht
     sht.Range("SheetHeading") = sReportName
     sht.Range("SheetCategory") = sReportCategory
-    
-    Set pvt = ActiveWorkbook.PivotCaches.Create(SourceType:=xlExternal, SourceData:= _
-        ActiveWorkbook.Connections("ThisWorkbookDataModel"), Version:=6). _
-        CreatePivotTable(sht.Range("B10"))
+
     
     
 End Sub

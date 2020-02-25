@@ -1,5 +1,7 @@
 TODO
 --------
+- Date Table has an issue when first date is not starf of year.  Need to work from start of year variable
+
 
  - Continue to work on generating EntryPoints\GenerateReport
         - Set properties of pivot table (see empty CustomisePivotTable Sub)

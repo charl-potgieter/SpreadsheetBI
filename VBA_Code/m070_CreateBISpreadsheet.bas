@@ -54,12 +54,16 @@ Sub CreateReportListSheet(ByRef wkb As Workbook)
         .HeaderRowRange.Cells(4) = "Run with table refresh"
         .HeaderRowRange.Cells(5) = "Run without table refresh"
         .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
+        .ListColumns("Run with table refresh").DataBodyRange.HorizontalAlignment = xlCenter
+        .ListColumns("Run without table refresh").DataBodyRange.HorizontalAlignment = xlCenter
     End With
     FormatTable lo
     sht.Range("B:B").ColumnWidth = 60
     sht.Range("C:C").ColumnWidth = 30
     sht.Range("D:D").ColumnWidth = 30
     sht.Range("B5") = "Clear data from non-dependent tables (mark with X)"
+    
+    
     
     sht.Names.Add Name:="ClearData", RefersTo:="=$F$5"
 

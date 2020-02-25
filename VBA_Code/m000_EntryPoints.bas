@@ -552,7 +552,7 @@ Sub GenerateReports()
                 With loReportFields
                     For j = 1 To .DataBodyRange.Rows.Count
                         If .ListColumns("Report Name").DataBodyRange.Cells(j) = loReportList.ListColumns("Report Name").DataBodyRange(i) Then
-                            SetPivotFields pvt, .ListColumns("Cube Field Name").DataBodyRange.Cells(i), .ListColumns("Orientation").DataBodyRange.Cells(i)
+                            SetPivotFields pvt, .ListColumns("Cube Field Name").DataBodyRange.Cells(j), .ListColumns("Orientation").DataBodyRange.Cells(j)
                         End If
                     Next j
                 End With
