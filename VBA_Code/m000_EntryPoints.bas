@@ -1,6 +1,13 @@
 Attribute VB_Name = "m000_EntryPoints"
 Option Explicit
 
+Public Type ReportProperties
+    AutoFit As Boolean
+    RowTotals As Boolean
+    ColumnTotals As Boolean
+End Type
+
+
 Sub DisplayPopUpMenu()
 Attribute DisplayPopUpMenu.VB_ProcData.VB_Invoke_Func = "M\n14"
 

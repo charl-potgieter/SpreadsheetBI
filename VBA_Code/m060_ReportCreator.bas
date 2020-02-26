@@ -43,9 +43,10 @@ Sub CreatePivotTable(ByVal sSheetName As String, ByVal sReportName As String, By
 End Sub
 
 
-Sub CustomisePivotTable(ByVal sReportName As String)
+Sub CustomisePivotTable(ByRef pvt)
 
-'!!!!!!!!!!!!!!!!!!!!! TO BUILD
+    
+    
 
 
 End Sub

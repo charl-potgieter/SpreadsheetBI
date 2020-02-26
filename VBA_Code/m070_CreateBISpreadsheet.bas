@@ -120,7 +120,7 @@ Sub CreateReportPropertiesSheet(ByRef wkb As Workbook)
     sht.Name = "ReportProperties"
     sht.Range("SheetHeading") = "Report properties"
     sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D8"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:E8"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_ReportProperties"
         .HeaderRowRange.Cells(1) = "Report Name"

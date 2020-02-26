@@ -1,7 +1,6 @@
 TODO
 --------
-- Date Table has an issue when first date is not starf of year.  Need to work from start of year variable
-
+ - Segregate the reading of report /field data etc into a seperate module which reads into an array of records   - I have briefly started work on m002_DataAccess
 
  - Continue to work on generating EntryPoints\GenerateReport
         - Set properties of pivot table (see empty CustomisePivotTable Sub)
