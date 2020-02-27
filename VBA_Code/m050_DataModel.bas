@@ -245,7 +245,7 @@ Sub GetModelMeasureNames(ByRef asMeasureList() As String, Optional bReturnVisibl
 End Sub
 
 
-Sub GetModelMeasures(ByRef ModelMeasures() As TypeModelMeasures)
+Sub GetModelMeasures(ByRef aModelMeasures() As TypeModelMeasures)
 'Requires reference to Microsoft ActiveX Data Objects
 'Returns measures names in the data model
 
@@ -259,7 +259,7 @@ Sub GetModelMeasures(ByRef ModelMeasures() As TypeModelMeasures)
     i = 0
 
     ' SQL like query to get result of DMV from schema $SYSTEM
-     sSQL = "select [MEASURE_NAME], [MEASURE_UNIQUE_NAME], [MEASURE_IS_VISIBLE] from $SYSTEM.MDSCHEMA_MEASURES  " & _
+     sSQL = "select [MEASURE_NAME], [MEASURE_UNIQUE_NAME], [MEASURE_IS_VISIBLE], [EXPRESSION] from $SYSTEM.MDSCHEMA_MEASURES  " & _
             "WHERE LEN([EXPRESSION]) > 0 AND " & _
             "[MEASURE_NAME] <> '__No measures defined' " & _
             "ORDER BY [MEASURE_UNIQUE_NAME]"
@@ -272,11 +272,13 @@ Sub GetModelMeasures(ByRef ModelMeasures() As TypeModelMeasures)
     rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
         
     If rs.RecordCount > 0 Then
-        ReDim asMeasureList(0 To rs.RecordCount - 1)
+        ReDim aModelMeasures(0 To rs.RecordCount - 1)
         ' Output of the query results
         Do Until rs.EOF
-            Debug.Print rs.Fields("MEASURE_UNIQUE_NAME")
-            Debug.Print rs.Fields("MEASURE_IS_VISIBLE")
+            aModelMeasures(i).Name = rs.Fields("MEASURE_NAME")
+            aModelMeasures(i).Visible = rs.Fields("MEASURE_IS_VISIBLE")
+            aModelMeasures(i).UniqueName = rs.Fields("MEASURE_UNIQUE_NAME")
+            aModelMeasures(i).Expression = rs.Fields("EXPRESSION")
             rs.MoveNext
             i = i + 1
         Loop
@@ -288,11 +290,3 @@ Sub GetModelMeasures(ByRef ModelMeasures() As TypeModelMeasures)
 
 End Sub
 
-
-Sub Test()
-
-    Dim md() As TypeModelMeasures
-    
-    GetModelMeasures md
-
-End Sub

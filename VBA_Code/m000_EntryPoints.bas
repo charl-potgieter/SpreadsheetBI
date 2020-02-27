@@ -571,6 +571,12 @@ Sub GenerateReports()
     Dim ReportFieldSettings() As TypeReportFieldSettings
     Dim pvt As PivotTable
 
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+
     GetReportList ReportList
     
     For i = 0 To UBound(ReportList)
@@ -588,6 +594,52 @@ Sub GenerateReports()
         End With
     Next i
 
-    InsertIndexPageActiveWorkbook
+    InsertIndexPage ActiveWorkbook
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
 
 End Sub
+
+Sub WritesMeasuresAndColumnsToSheets()
+
+    Dim aMeasures() As TypeModelMeasures
+    Dim lo As ListObject
+    Dim i As Integer
+    
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    
+    If SheetExists(ActiveWorkbook, "Measures") Then
+        ActiveWorkbook.Sheets("Measures").Delete
+    End If
+    
+    
+    GetModelMeasures aMeasures
+    CreateMeasuresSheet ActiveWorkbook
+    Set lo = ActiveWorkbook.Sheets("Measures").ListObjects("tbl_Measures")
+    
+    With lo
+        For i = 0 To UBound(aMeasures)
+            .ListColumns("Name").DataBodyRange.Cells(i + 1) = aMeasures(i).Name
+            .ListColumns("Visible").DataBodyRange.Cells(i + 1) = aMeasures(i).Visible
+            .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aMeasures(i).UniqueName
+            .ListColumns("Expression").DataBodyRange.Cells(i + 1) = aMeasures(i).Expression
+            .ListColumns("Name and Expression").DataBodyRange.Cells(i + 1) = aMeasures(i).Name & ":=" & aMeasures(i).Expression
+        Next i
+    End With
+    
+    
+
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+    
+
+End Sub
+

@@ -196,7 +196,7 @@ Sub CreateMeasuresSheet(ByRef wkb As Workbook)
    
     Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:F15"), XlListObjectHasHeaders:=xlYes)
     With lo
-        .Name = "tbl_ReportFields"
+        .Name = "tbl_Measures"
         .HeaderRowRange.Cells(1) = "Name"
         .HeaderRowRange.Cells(2) = "Visible"
         .HeaderRowRange.Cells(3) = "Unique Name"

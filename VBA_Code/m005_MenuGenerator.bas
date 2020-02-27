@@ -98,6 +98,10 @@ Sub CreatePopUpMenu()
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateBiSpreadsheet"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Write measures and columns to sheets"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WritesMeasuresAndColumnsToSheets"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Update report field validation"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "AddValidationToReportFields"
     
