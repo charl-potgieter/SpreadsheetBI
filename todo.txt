@@ -1,15 +1,24 @@
 TODO
 --------
- - Segregate the reading of report /field data etc into a seperate module which reads into an array of records   - I have briefly started work on m002_DataAccess
+
+ - Data validation on report field settings is somehow corrupting the listobject
+   (i) Maybe divert a bit and create subs to list measures
+   (ii) create sub to list columms
+   (iii) First create sheets and tables for above
+   (iv) Create data validations linked to these sheets
+   (v) On reportfield settings list first choose measure versus column
 
  - Continue to work on generating EntryPoints\GenerateReport
         - Set properties of pivot table (see empty CustomisePivotTable Sub)
+        - set pivot field number format
+        - Only allow measure on data and vice versa
 
   - ReportsField tab --> Do not allow columns as data orientation (they would need some sort of sum or someting anyway and this generates VBA error).  Better practice to have measure as data anyway.
      - Conditional formatting on the error formula already created
      - run check before running macro
 
-- See ReportList tab.  Reports are run from here.  Link this to Report dependency tab which will then drive refresh
+
+ - Check if setup is correct before generating reports
 
 
 - Power Query Consolidated Files in Folder

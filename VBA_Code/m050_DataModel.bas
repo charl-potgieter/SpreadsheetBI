@@ -206,10 +206,6 @@ Sub GetModelMeasureNames(ByRef asMeasureList() As String, Optional bReturnVisibl
     Dim i As Integer
     Dim sSQL As String
 
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
     i = 0
 
     ' SQL like query to get result of DMV from schema $SYSTEM
@@ -244,14 +240,59 @@ Sub GetModelMeasureNames(ByRef asMeasureList() As String, Optional bReturnVisibl
     
     rs.Close
     Set rs = Nothing
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
 
 
 End Sub
 
 
+Sub GetModelMeasures(ByRef ModelMeasures() As TypeModelMeasures)
+'Requires reference to Microsoft ActiveX Data Objects
+'Returns measures names in the data model
+
+    Dim conn As ADODB.Connection
+    Dim rs As ADODB.Recordset
+    Dim sht As Excel.Worksheet
+    Dim iRowNum As Integer
+    Dim i As Integer
+    Dim sSQL As String
+
+    i = 0
+
+    ' SQL like query to get result of DMV from schema $SYSTEM
+     sSQL = "select [MEASURE_NAME], [MEASURE_UNIQUE_NAME], [MEASURE_IS_VISIBLE] from $SYSTEM.MDSCHEMA_MEASURES  " & _
+            "WHERE LEN([EXPRESSION]) > 0 AND " & _
+            "[MEASURE_NAME] <> '__No measures defined' " & _
+            "ORDER BY [MEASURE_UNIQUE_NAME]"
+    
+
+    ' Open connection to PowerPivot engine
+    Set conn = ActiveWorkbook.Model.DataModelConnection.ModelConnection.ADOConnection
+    Set rs = New ADODB.Recordset
+    rs.ActiveConnection = conn
+    rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
+        
+    If rs.RecordCount > 0 Then
+        ReDim asMeasureList(0 To rs.RecordCount - 1)
+        ' Output of the query results
+        Do Until rs.EOF
+            Debug.Print rs.Fields("MEASURE_UNIQUE_NAME")
+            Debug.Print rs.Fields("MEASURE_IS_VISIBLE")
+            rs.MoveNext
+            i = i + 1
+        Loop
+    End If
+    
+    rs.Close
+    Set rs = Nothing
 
 
+End Sub
+
+
+Sub Test()
+
+    Dim md() As TypeModelMeasures
+    
+    GetModelMeasures md
+
+End Sub

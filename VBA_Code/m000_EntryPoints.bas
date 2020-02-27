@@ -1,11 +1,35 @@
 Attribute VB_Name = "m000_EntryPoints"
 Option Explicit
 
-Public Type ReportProperties
+Public Type TypeReportList
+    ReportName As String
+    SheetName As String
+    ReportCategory As String
+    RunWithRefresh As String
+    RunWithoutRefresh As String
+End Type
+
+Public Type TypeReportProperties
     AutoFit As Boolean
     RowTotals As Boolean
     ColumnTotals As Boolean
 End Type
+
+Public Type TypeReportFieldSettings
+    CubeFieldName As String
+    Orientation As String
+    Format As String
+    CustomFormat As String
+End Type
+
+Public Type TypeModelMeasures
+    Name As String
+    UniqueName As String
+    Visible As Boolean
+    Expression As String
+End Type
+
+Public Const MaxInt As Integer = 32767
 
 
 Sub DisplayPopUpMenu()
@@ -465,6 +489,8 @@ Sub CreateBiSpreadsheet()
     CreateReportListSheet wkb
     CreateQueriesPerReportSheet wkb
     CreateReportPropertiesSheet wkb
+    CreateReportFieldSettingsSheet wkb
+    CreateMeasuresSheet wkb
     CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
 
     'Create index page and cleanup
@@ -516,7 +542,7 @@ Sub AddValidationToReportFields()
     End If
     
     If sValidationString <> "" Then
-        Set lo = ActiveWorkbook.Sheets("ReportFields").ListObjects("tbl_ReportFields")
+        Set lo = ActiveWorkbook.Sheets("ReportFieldSettings").ListObjects("tbl_ReportFields")
         
         On Error Resume Next
         lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Delete
@@ -540,32 +566,27 @@ Sub GenerateReports()
     Dim bValidSettings As Boolean
     Dim i As Integer
     Dim j As Integer
-    Dim loReportList As ListObject
-    Dim loReportFields As ListObject
+    Dim ReportList() As TypeReportList
+    Dim ReportProperties As TypeReportProperties
+    Dim ReportFieldSettings() As TypeReportFieldSettings
     Dim pvt As PivotTable
-    
 
-    bValidSettings = ReportSettingsAreValid
-    If Not bValidSettings Then Exit Sub
+    GetReportList ReportList
     
-    Set loReportList = ActiveWorkbook.Worksheets("ReportList").ListObjects("tbl_ReportList")
-    Set loReportFields = ActiveWorkbook.Worksheets("ReportFields").ListObjects("tbl_ReportFields")
-    
-    With loReportList
-        For i = 1 To .DataBodyRange.Rows.Count
-            If .ListColumns("Run without table refresh").DataBodyRange.Cells(i) <> "" Then
-                CreatePivotTable .ListColumns("Sheet Name").DataBodyRange.Cells(i), .ListColumns("Report Name").DataBodyRange.Cells(i), .ListColumns("Report Category"), pvt
-                CustomisePivotTable .ListColumns("Report Name").DataBodyRange.Cells(i)
-                With loReportFields
-                    For j = 1 To .DataBodyRange.Rows.Count
-                        If .ListColumns("Report Name").DataBodyRange.Cells(j) = loReportList.ListColumns("Report Name").DataBodyRange(i) Then
-                            SetPivotFields pvt, .ListColumns("Cube Field Name").DataBodyRange.Cells(j), .ListColumns("Orientation").DataBodyRange.Cells(j)
-                        End If
-                    Next j
-                End With
+    For i = 0 To UBound(ReportList)
+        With ReportList(i)
+            If .RunWithoutRefresh <> "" Or .RunWithRefresh <> "" Then
+                'Get report setup
+                GetReportProperties .ReportName, ReportProperties
+                GetReportFieldSettings .ReportName, ReportFieldSettings
+                
+                'Create Report
+                CreatePivotTable .SheetName, .ReportName, .ReportCategory, pvt
+                SetPivotFields pvt, ReportFieldSettings
+                
             End If
-        Next i
-    End With
+        End With
+    Next i
 
     InsertIndexPageActiveWorkbook
 

@@ -112,7 +112,6 @@ Sub CreateReportPropertiesSheet(ByRef wkb As Workbook)
 
     Dim sht As Worksheet
     Dim lo As ListObject
-    Dim sFormulaStr As String
 
     'Create report properties sheet
     Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
@@ -136,53 +135,88 @@ Sub CreateReportPropertiesSheet(ByRef wkb As Workbook)
     sht.Range("E:E").ColumnWidth = 20
 
 
+End Sub
+
+
+Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+
     'Create report report fields sheet
     Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
     FormatSheet sht
-    sht.Name = "ReportFields"
-    sht.Range("SheetHeading") = "Report fields"
+    sht.Name = "ReportFieldSettings"
+    sht.Range("SheetHeading") = "Report field settings"
     sht.Range("SheetCategory") = "Setup"
     sht.Range("B5") = "Run ""Data model update > Update report field validation"" to refresh "
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:F15"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:G15"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_ReportFields"
         .HeaderRowRange.Cells(1) = "Report Name"
-        .HeaderRowRange.Cells(2) = "Cube Field Name"
-        .HeaderRowRange.Cells(3) = "Orientation"
-        .HeaderRowRange.Cells(4) = "Format"
-        .HeaderRowRange.Cells(5) = "Custom Format"
+        .HeaderRowRange.Cells(2) = "Data Model Field Type"
+        .HeaderRowRange.Cells(3) = "Cube Field Name"
+        .HeaderRowRange.Cells(4) = "Orientation"
+        .HeaderRowRange.Cells(5) = "Format"
+        .HeaderRowRange.Cells(6) = "Custom Format"
     End With
     FormatTable lo
     sht.Range("B:B").ColumnWidth = 40
-    sht.Range("C:C").ColumnWidth = 40
-    sht.Range("D:D").ColumnWidth = 20
+    sht.Range("C:C").ColumnWidth = 20
+    sht.Range("D:D").ColumnWidth = 40
     sht.Range("E:E").ColumnWidth = 20
     sht.Range("F:F").ColumnWidth = 20
+    sht.Range("G:G").ColumnWidth = 20
+
+    lo.ListColumns("Data Model Field Type").DataBodyRange.Validation.Add _
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Measure, Column"
 
     lo.ListColumns("Orientation").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Row, Column, Filter, Data"
 
-
     lo.ListColumns("Format").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Zero Decimals,One Decimal,Two Decimals,Custom"
-
-    'Create check to ensure that measure and fields have correct orientation
-    sFormulaStr = "=IF(" & Chr(10) & _
-        "       OR(" & Chr(10) & _
-        "                 COUNTIFS(tbl_ReportFields[Cube Field Name], ""*measure*"", tbl_ReportFields[Orientation], ""<>Data"") >0," & Chr(10) & _
-        "                 COUNTIFS(tbl_ReportFields[Cube Field Name], ""<>*measure*"", tbl_ReportFields[Orientation], ""Data"") >0" & Chr(10) & _
-        "               )," & Chr(10) & _
-        "            ""Orientation for measures need to be set as 'data', all other fields must be either row, column or filter""," & Chr(10) & _
-        "            ""Ok""" & Chr(10) & _
-        "      )"
         
-    With sht.Range("C3")
-        .Formula = sFormulaStr
-        .FormatConditions.Add Type:=xlExpression, Formula1:="=$C$3<>""OK"""
-        .FormatConditions(1).Font.Bold = True
-        .FormatConditions(1).Font.Color = RGB(255, 0, 0)
-        '.FormatConditions(1).Font.Color = -16776961
+
+End Sub
+
+
+
+Sub CreateMeasuresSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+
+    'Create report report fields sheet
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "Measures"
+    sht.Range("SheetHeading") = "Data model measures"
+    sht.Range("SheetCategory") = "Setup"
+   
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:F15"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_ReportFields"
+        .HeaderRowRange.Cells(1) = "Name"
+        .HeaderRowRange.Cells(2) = "Visible"
+        .HeaderRowRange.Cells(3) = "Unique Name"
+        .HeaderRowRange.Cells(4) = "Expression"
+        .HeaderRowRange.Cells(5) = "Name and Expression"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 40
+    sht.Range("C:C").ColumnWidth = 20
+    sht.Range("D:D").ColumnWidth = 40
+    sht.Range("E:E").ColumnWidth = 80
+    sht.Range("F:F").ColumnWidth = 80
+
+    With lo.DataBodyRange
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+        .WrapText = True
     End With
 
 
 End Sub
+
+
