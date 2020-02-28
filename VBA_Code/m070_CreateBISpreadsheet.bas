@@ -30,6 +30,11 @@ Sub CreateParamaterSheet(ByRef wkb As Workbook)
     sht.Range("B:B").ColumnWidth = 30
     sht.Range("C:C").ColumnWidth = 60
     
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
+
 
 End Sub
 
@@ -74,6 +79,12 @@ Sub CreateReportListSheet(ByRef wkb As Workbook)
     End With
     SetOuterBorders sht.Range("ClearData")
 
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 7
+    ActiveWindow.FreezePanes = True
+
+
 End Sub
 
 
@@ -101,6 +112,11 @@ Sub CreateQueriesPerReportSheet(ByRef wkb As Workbook)
     sht.Range("B:B").ColumnWidth = 50
     sht.Range("C:C").ColumnWidth = 30
     sht.Range("D:D").ColumnWidth = 50
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
 
 End Sub
 
@@ -133,6 +149,11 @@ Sub CreateReportPropertiesSheet(ByRef wkb As Workbook)
     sht.Range("C:C").ColumnWidth = 20
     sht.Range("D:D").ColumnWidth = 20
     sht.Range("E:E").ColumnWidth = 20
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
 
 
 End Sub
@@ -177,12 +198,16 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     lo.ListColumns("Format").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Zero Decimals,One Decimal,Two Decimals,Custom"
         
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 7
+    ActiveWindow.FreezePanes = True
 
 End Sub
 
 
 
-Sub CreateMeasuresSheet(ByRef wkb As Workbook)
+Sub CreateModelMeasuresSheet(ByRef wkb As Workbook)
 
     Dim sht As Worksheet
     Dim lo As ListObject
@@ -190,13 +215,13 @@ Sub CreateMeasuresSheet(ByRef wkb As Workbook)
     'Create report report fields sheet
     Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
     FormatSheet sht
-    sht.Name = "Measures"
+    sht.Name = "ModelMeasures"
     sht.Range("SheetHeading") = "Data model measures"
     sht.Range("SheetCategory") = "Setup"
    
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:F15"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:F7"), XlListObjectHasHeaders:=xlYes)
     With lo
-        .Name = "tbl_Measures"
+        .Name = "tbl_ModelMeasures"
         .HeaderRowRange.Cells(1) = "Name"
         .HeaderRowRange.Cells(2) = "Visible"
         .HeaderRowRange.Cells(3) = "Unique Name"
@@ -216,7 +241,87 @@ Sub CreateMeasuresSheet(ByRef wkb As Workbook)
         .WrapText = True
     End With
 
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
 
 End Sub
 
 
+Sub CreateModelColumnsSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+
+    'Create report report fields sheet
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "ModelColumns"
+    sht.Range("SheetHeading") = "Data model columns"
+    sht.Range("SheetCategory") = "Setup"
+    sht.Range("B4") = "Includes calculated columns"
+   
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:F7"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_ModelColumns"
+        .HeaderRowRange.Cells(1) = "Name"
+        .HeaderRowRange.Cells(2) = "Table Name"
+        .HeaderRowRange.Cells(3) = "Unique Name"
+        .HeaderRowRange.Cells(4) = "Visible"
+        .HeaderRowRange.Cells(5) = "Is calculated column"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 30
+    sht.Range("C:C").ColumnWidth = 30
+    sht.Range("D:D").ColumnWidth = 50
+    sht.Range("E:E").ColumnWidth = 20
+    sht.Range("F:F").ColumnWidth = 20
+    
+    lo.ListColumns("Is calculated column").DataBodyRange.Formula = "=""Formula TBA once calc column sheet is created"""
+
+    With lo.DataBodyRange
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+        .WrapText = True
+    End With
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
+
+
+End Sub
+
+
+
+Sub CreateValidationSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+
+    'Create report report fields sheet
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "Validations"
+    sht.Range("SheetHeading") = "Validations"
+    sht.Range("SheetCategory") = "Setup"
+   
+    sht.Range("B6") = "Model Measures"
+    sht.Range("C6") = "Model Columns"
+    sht.Range("6:6").Font.Bold = True
+    sht.Range("6:6").HorizontalAlignment = xlCenter
+    sht.Names.Add Name:="val_Measures", RefersTo:="=$B$7"
+    sht.Names.Add Name:="val_Columns", RefersTo:="=$C$7"
+    
+    sht.Range("B:B").ColumnWidth = 40
+    sht.Range("C:C").ColumnWidth = 40
+
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
+
+
+End Sub

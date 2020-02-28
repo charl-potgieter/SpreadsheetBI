@@ -290,3 +290,55 @@ Sub GetModelMeasures(ByRef aModelMeasures() As TypeModelMeasures)
 
 End Sub
 
+
+Sub GetModelColumns(ByRef aModelColumns() As TypeModelColumns)
+'Requires reference to Microsoft ActiveX Data Objects
+'Returns measures names in the data model
+
+    Dim conn As ADODB.Connection
+    Dim rs As ADODB.Recordset
+    Dim sht As Excel.Worksheet
+    Dim iRowNum As Integer
+    Dim i As Integer
+    Dim sSQL As String
+
+    i = 0
+
+    ' SQL like query to get result of DMV from schema $SYSTEM
+    sSQL = "select [DIMENSION_UNIQUE_NAME], [HIERARCHY_NAME], [HIERARCHY_UNIQUE_NAME], [DIMENSION_IS_VISIBLE] from $SYSTEM.MDSCHEMA_HIERARCHIES " & _
+        "WHERE [HIERARCHY_UNIQUE_NAME] <> '[MEASURES]' AND " & _
+        "[CUBE_NAME] = 'MODEL' " & _
+        "ORDER BY [HIERARCHY_UNIQUE_NAME]"
+
+    ' Open connection to PowerPivot engine
+    Set conn = ActiveWorkbook.Model.DataModelConnection.ModelConnection.ADOConnection
+    Set rs = New ADODB.Recordset
+    rs.ActiveConnection = conn
+    rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
+        
+    If rs.RecordCount > 0 Then
+        ReDim aModelColumns(0 To rs.RecordCount - 1)
+        ' Output of the query results
+        Do Until rs.EOF
+            aModelColumns(i).Name = rs.Fields("HIERARCHY_NAME")
+            aModelColumns(i).UniqueName = rs.Fields("HIERARCHY_UNIQUE_NAME")
+            aModelColumns(i).Visible = rs.Fields("DIMENSION_IS_VISIBLE")
+            aModelColumns(i).TableName = Replace(Replace(rs.Fields("DIMENSION_UNIQUE_NAME"), "[", ""), "]", "")
+            rs.MoveNext
+            i = i + 1
+        Loop
+    End If
+    
+    rs.Close
+    Set rs = Nothing
+
+
+End Sub
+
+
+Sub Test()
+
+    Dim a() As TypeModelColumns
+    GetModelColumns a
+
+End Sub

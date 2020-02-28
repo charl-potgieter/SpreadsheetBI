@@ -2,12 +2,21 @@ TODO
 --------
 
  - Data validation on report field settings is somehow corrupting the listobject
-   (i) Maybe divert a bit and create subs to list measures
-   (ii) create sub to list columms
-   (iii) First create sheets and tables for above
-   (iv) Create data validations linked to these sheets
-   (v) On reportfield settings list first choose measure versus column
+   (i) Maybe divert a bit and create subs to list measures --> done
+   (ii) create sub to list columms (put in the same sub as above but list on a seperate sheet--> first create in "create spreadsheet BI") -> Done
+   (iii) First create sheets and tables for above ---> Done
+   (iv) Write the visible items to a data validation sheet 
+        - maybe better option than the below steps is to write directely to validation sheet from the recordset at the same time I am populating the measures and column sheeets
+        - filter on visible in columns and measures
+        - copy range.SpecialCells(xlVisible).Copy
+        - paste onto validation sheet and update the named range on the validation sheet based on the number of visible cellls
+   (v) On reportfield settings list first choose measure versus column  -> use cascading validation once measure or column is chosen as to type of orientation etc
+   (vi) I have been testing on SpreadsheetBI -> test all of the above on the automatically generated spreadsheet
+   
+ - Create a sub to list calculated columns (and their formulas -refer power pivot utilities for guidance)
 
+ -  Create ability to format DAX (see power pivot utilities add in)
+ 
  - Continue to work on generating EntryPoints\GenerateReport
         - Set properties of pivot table (see empty CustomisePivotTable Sub)
         - set pivot field number format

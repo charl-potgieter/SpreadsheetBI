@@ -29,6 +29,14 @@ Public Type TypeModelMeasures
     Expression As String
 End Type
 
+Public Type TypeModelColumns
+    Name As String
+    UniqueName As String
+    TableName As String
+    Visible As Boolean
+End Type
+
+
 Public Const MaxInt As Integer = 32767
 
 
@@ -490,7 +498,9 @@ Sub CreateBiSpreadsheet()
     CreateQueriesPerReportSheet wkb
     CreateReportPropertiesSheet wkb
     CreateReportFieldSettingsSheet wkb
-    CreateMeasuresSheet wkb
+    CreateModelMeasuresSheet wkb
+    CreateModelColumnsSheet wkb
+    CreateValidationSheet wkb
     CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
 
     'Create index page and cleanup
@@ -605,6 +615,7 @@ End Sub
 Sub WritesMeasuresAndColumnsToSheets()
 
     Dim aMeasures() As TypeModelMeasures
+    Dim aColumns() As TypeModelColumns
     Dim lo As ListObject
     Dim i As Integer
     
@@ -614,14 +625,17 @@ Sub WritesMeasuresAndColumnsToSheets()
     Application.Calculation = xlCalculationManual
     Application.DisplayAlerts = False
     
-    If SheetExists(ActiveWorkbook, "Measures") Then
-        ActiveWorkbook.Sheets("Measures").Delete
+    
+    
+    '----------------- Create Model Measures Sheet ---------------
+    
+    If SheetExists(ActiveWorkbook, "ModelMeasures") Then
+        ActiveWorkbook.Sheets("ModelMeasures").Delete
     End If
-    
-    
+
     GetModelMeasures aMeasures
-    CreateMeasuresSheet ActiveWorkbook
-    Set lo = ActiveWorkbook.Sheets("Measures").ListObjects("tbl_Measures")
+    CreateModelMeasuresSheet ActiveWorkbook
+    Set lo = ActiveWorkbook.Sheets("ModelMeasures").ListObjects("tbl_ModelMeasures")
     
     With lo
         For i = 0 To UBound(aMeasures)
@@ -633,8 +647,27 @@ Sub WritesMeasuresAndColumnsToSheets()
         Next i
     End With
     
-    
 
+    '----------------- Create Model Columns Sheet ---------------
+
+    If SheetExists(ActiveWorkbook, "ModelColumns") Then
+        ActiveWorkbook.Sheets("ModelColumns").Delete
+    End If
+
+    GetModelColumns aColumns
+    CreateModelColumnsSheet ActiveWorkbook
+    Set lo = ActiveWorkbook.Sheets("ModelColumns").ListObjects("tbl_ModelColumns")
+
+    With lo
+        For i = 0 To UBound(aColumns)
+            .ListColumns("Name").DataBodyRange.Cells(i + 1) = aColumns(i).Name
+            .ListColumns("Table Name").DataBodyRange.Cells(i + 1) = aColumns(i).TableName
+            .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aColumns(i).UniqueName
+            .ListColumns("Visible").DataBodyRange.Cells(i + 1) = aColumns(i).Visible
+        Next i
+    End With
+    
+    
     Application.ScreenUpdating = True
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic
