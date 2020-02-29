@@ -494,13 +494,13 @@ Sub CreateBiSpreadsheet()
     End If
     
     CreateParamaterSheet wkb
+    CreateValidationSheet wkb
     CreateReportListSheet wkb
     CreateQueriesPerReportSheet wkb
     CreateReportPropertiesSheet wkb
     CreateReportFieldSettingsSheet wkb
     CreateModelMeasuresSheet wkb
     CreateModelColumnsSheet wkb
-    CreateValidationSheet wkb
     CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
 
     'Create index page and cleanup
@@ -517,58 +517,58 @@ End Sub
 
 
 
-Sub AddValidationToReportFields()
-    
-    Dim asMeasureList() As String
-    Dim asColumnList() As String
-    Dim sValidationString As String
-    Dim i As Integer
-    Dim lo As ListObject
-
-
-
-    sValidationString = ""
-    GetModelMeasureNames asMeasureList
-    GetModelColumnNames asColumnList
-        
-    If ArrayIsDimensioned(asMeasureList) Then
-        For i = LBound(asMeasureList) To UBound(asMeasureList)
-            If sValidationString = "" Then
-                sValidationString = asMeasureList(i)
-            Else
-                sValidationString = sValidationString & "," & asMeasureList(i)
-            End If
-        Next i
-    End If
-    
-    If ArrayIsDimensioned(asColumnList) Then
-        For i = LBound(asColumnList) To UBound(asColumnList)
-            If sValidationString = "" Then
-                sValidationString = asColumnList(i)
-            Else
-                sValidationString = sValidationString & "," & asColumnList(i)
-            End If
-        Next i
-    End If
-    
-    If sValidationString <> "" Then
-        Set lo = ActiveWorkbook.Sheets("ReportFieldSettings").ListObjects("tbl_ReportFields")
-        
-        On Error Resume Next
-        lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Delete
-        On Error GoTo 0
-        
-        lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Add _
-            Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:=sValidationString
-    End If
-
-
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-End Sub
+'Sub AddValidationToReportFields()
+'
+'    Dim asMeasureList() As String
+'    Dim asColumnList() As String
+'    Dim sValidationString As String
+'    Dim i As Integer
+'    Dim lo As ListObject
+'
+'
+'
+'    sValidationString = ""
+'    GetModelMeasureNames asMeasureList
+'    GetModelColumnNames asColumnList
+'
+'    If ArrayIsDimensioned(asMeasureList) Then
+'        For i = LBound(asMeasureList) To UBound(asMeasureList)
+'            If sValidationString = "" Then
+'                sValidationString = asMeasureList(i)
+'            Else
+'                sValidationString = sValidationString & "," & asMeasureList(i)
+'            End If
+'        Next i
+'    End If
+'
+'    If ArrayIsDimensioned(asColumnList) Then
+'        For i = LBound(asColumnList) To UBound(asColumnList)
+'            If sValidationString = "" Then
+'                sValidationString = asColumnList(i)
+'            Else
+'                sValidationString = sValidationString & "," & asColumnList(i)
+'            End If
+'        Next i
+'    End If
+'
+'    If sValidationString <> "" Then
+'        Set lo = ActiveWorkbook.Sheets("ReportFieldSettings").ListObjects("tbl_ReportFields")
+'
+'        On Error Resume Next
+'        lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Delete
+'        On Error GoTo 0
+'
+'        lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Add _
+'            Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:=sValidationString
+'    End If
+'
+'
+'    Application.ScreenUpdating = True
+'    Application.EnableEvents = True
+'    Application.Calculation = xlCalculationAutomatic
+'    Application.DisplayAlerts = True
+'
+'End Sub
 
 
 Sub GenerateReports()
@@ -616,8 +616,10 @@ Sub WritesMeasuresAndColumnsToSheets()
 
     Dim aMeasures() As TypeModelMeasures
     Dim aColumns() As TypeModelColumns
+    Dim rngValidations As Range
     Dim lo As ListObject
     Dim i As Integer
+    Dim j As Integer
     
     'Setup
     Application.ScreenUpdating = False
@@ -627,16 +629,16 @@ Sub WritesMeasuresAndColumnsToSheets()
     
     
     
-    '----------------- Create Model Measures Sheet ---------------
+    '----------------- Create Model Measures Sheet and write visible measures to validation sheet ---------------
     
-    If SheetExists(ActiveWorkbook, "ModelMeasures") Then
-        ActiveWorkbook.Sheets("ModelMeasures").Delete
-    End If
-
     GetModelMeasures aMeasures
-    CreateModelMeasuresSheet ActiveWorkbook
     Set lo = ActiveWorkbook.Sheets("ModelMeasures").ListObjects("tbl_ModelMeasures")
+    lo.DataBodyRange.ClearContents
+    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
+    Set rngValidations = ActiveWorkbook.Sheets("Validations").Range("val_Measures")
+    rngValidations.ClearContents
     
+    j = 0
     With lo
         For i = 0 To UBound(aMeasures)
             .ListColumns("Name").DataBodyRange.Cells(i + 1) = aMeasures(i).Name
@@ -644,29 +646,42 @@ Sub WritesMeasuresAndColumnsToSheets()
             .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aMeasures(i).UniqueName
             .ListColumns("Expression").DataBodyRange.Cells(i + 1) = aMeasures(i).Expression
             .ListColumns("Name and Expression").DataBodyRange.Cells(i + 1) = aMeasures(i).Name & ":=" & aMeasures(i).Expression
+            If aMeasures(i).Visible Then
+                rngValidations.Cells(1).Offset(j) = aMeasures(i).UniqueName
+                j = j + 1
+            End If
         Next i
     End With
+    
+    ActiveWorkbook.Names("val_Measures").RefersTo = "=Validations!" & rngValidations.Cells(1).Resize(j).Address
     
 
     '----------------- Create Model Columns Sheet ---------------
 
-    If SheetExists(ActiveWorkbook, "ModelColumns") Then
-        ActiveWorkbook.Sheets("ModelColumns").Delete
-    End If
 
     GetModelColumns aColumns
-    CreateModelColumnsSheet ActiveWorkbook
     Set lo = ActiveWorkbook.Sheets("ModelColumns").ListObjects("tbl_ModelColumns")
+    lo.DataBodyRange.ClearContents
+    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
+    Set rngValidations = ActiveWorkbook.Names("val_Columns").RefersToRange
+    rngValidations.ClearContents
 
+    
+    j = 0
     With lo
         For i = 0 To UBound(aColumns)
             .ListColumns("Name").DataBodyRange.Cells(i + 1) = aColumns(i).Name
             .ListColumns("Table Name").DataBodyRange.Cells(i + 1) = aColumns(i).TableName
             .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aColumns(i).UniqueName
             .ListColumns("Visible").DataBodyRange.Cells(i + 1) = aColumns(i).Visible
+            If aColumns(i).Visible Then
+                rngValidations.Cells(1).Offset(j) = aColumns(i).UniqueName
+                j = j + 1
+            End If
         Next i
     End With
     
+    ActiveWorkbook.Names("val_Columns").RefersTo = "=Validations!" & rngValidations.Cells(1).Resize(j).Address
     
     Application.ScreenUpdating = True
     Application.EnableEvents = True

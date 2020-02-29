@@ -102,10 +102,6 @@ Sub CreatePopUpMenu()
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WritesMeasuresAndColumnsToSheets"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Update report field validation"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "AddValidationToReportFields"
-    
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Generate Reports"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "GenerateReports"
     

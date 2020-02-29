@@ -38,6 +38,36 @@ Sub CreateParamaterSheet(ByRef wkb As Workbook)
 
 End Sub
 
+Sub CreateValidationSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+
+    'Create report report fields sheet
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "Validations"
+    sht.Range("SheetHeading") = "Validations"
+    sht.Range("SheetCategory") = "Setup"
+   
+    sht.Range("B6") = "Model Measures"
+    sht.Range("C6") = "Model Columns"
+    sht.Range("6:6").Font.Bold = True
+    sht.Range("6:6").HorizontalAlignment = xlCenter
+    wkb.Names.Add Name:="val_Measures", RefersTo:="=Validations!$B$7"
+    wkb.Names.Add Name:="val_Columns", RefersTo:="=Validations!$C$7"
+    
+    sht.Range("B:B").ColumnWidth = 40
+    sht.Range("C:C").ColumnWidth = 40
+
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
+
+
+End Sub
+
 
 
 Sub CreateReportListSheet(ByRef wkb As Workbook)
@@ -163,6 +193,8 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
 
     Dim sht As Worksheet
     Dim lo As ListObject
+    Dim sRelativeReferenceOfDataFieldType As String
+    Dim sValidationStr As String
 
     'Create report report fields sheet
     Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
@@ -170,7 +202,7 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     sht.Name = "ReportFieldSettings"
     sht.Range("SheetHeading") = "Report field settings"
     sht.Range("SheetCategory") = "Setup"
-    sht.Range("B5") = "Run ""Data model update > Update report field validation"" to refresh "
+    sht.Range("B5") = "Run ""Data model update > Write Measures to columns and sheets"" to refresh validation "
     Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:G15"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_ReportFields"
@@ -189,11 +221,19 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     sht.Range("F:F").ColumnWidth = 20
     sht.Range("G:G").ColumnWidth = 20
 
+    'Set cube field validations (cascading depending on field type)
+    sRelativeReferenceOfDataFieldType = Replace(lo.ListColumns("Data Model Field Type").DataBodyRange.Cells(1).Address, "$", "")
+    sValidationStr = "=INDIRECT(""val_"" & IF(" & sRelativeReferenceOfDataFieldType & " ="""", ""Measure"", " & sRelativeReferenceOfDataFieldType & ") & ""s"")"
+    lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Add _
+        Type:=xlValidateList, Formula1:=sValidationStr
+    
+    'Set other validations
     lo.ListColumns("Data Model Field Type").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Measure, Column"
 
+
     lo.ListColumns("Orientation").DataBodyRange.Validation.Add _
-        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Row, Column, Filter, Data"
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Row, Column, Filter"
 
     lo.ListColumns("Format").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Zero Decimals,One Decimal,Two Decimals,Custom"
@@ -296,32 +336,3 @@ End Sub
 
 
 
-Sub CreateValidationSheet(ByRef wkb As Workbook)
-
-    Dim sht As Worksheet
-
-    'Create report report fields sheet
-    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
-    FormatSheet sht
-    sht.Name = "Validations"
-    sht.Range("SheetHeading") = "Validations"
-    sht.Range("SheetCategory") = "Setup"
-   
-    sht.Range("B6") = "Model Measures"
-    sht.Range("C6") = "Model Columns"
-    sht.Range("6:6").Font.Bold = True
-    sht.Range("6:6").HorizontalAlignment = xlCenter
-    sht.Names.Add Name:="val_Measures", RefersTo:="=$B$7"
-    sht.Names.Add Name:="val_Columns", RefersTo:="=$C$7"
-    
-    sht.Range("B:B").ColumnWidth = 40
-    sht.Range("C:C").ColumnWidth = 40
-
-
-    'Freeze Panes
-    sht.Activate
-    ActiveWindow.SplitRow = 6
-    ActiveWindow.FreezePanes = True
-
-
-End Sub
