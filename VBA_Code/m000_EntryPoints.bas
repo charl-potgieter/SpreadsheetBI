@@ -36,6 +36,12 @@ Public Type TypeModelColumns
     Visible As Boolean
 End Type
 
+Public Type TypeModelCalcColumns
+    Name As String
+    TableName As String
+    Expression As String
+End Type
+
 
 Public Const MaxInt As Integer = 32767
 
@@ -493,7 +499,7 @@ Sub CreateBiSpreadsheet()
         Next i
     End If
     
-    CreateParamaterSheet wkb
+    CreateParameterSheet wkb
     CreateValidationSheet wkb
     CreateReportListSheet wkb
     CreateQueriesPerReportSheet wkb
@@ -501,6 +507,7 @@ Sub CreateBiSpreadsheet()
     CreateReportFieldSettingsSheet wkb
     CreateModelMeasuresSheet wkb
     CreateModelColumnsSheet wkb
+    CreateModelCalculatedColumnsSheet wkb
     CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
 
     'Create index page and cleanup
@@ -616,6 +623,7 @@ Sub WritesMeasuresAndColumnsToSheets()
 
     Dim aMeasures() As TypeModelMeasures
     Dim aColumns() As TypeModelColumns
+    Dim aCalcColumns() As TypeModelCalcColumns
     Dim rngValidations As Range
     Dim lo As ListObject
     Dim i As Integer
@@ -629,7 +637,7 @@ Sub WritesMeasuresAndColumnsToSheets()
     
     
     
-    '----------------- Create Model Measures Sheet and write visible measures to validation sheet ---------------
+    '----------------- Populate Model Measures Sheet and write visible measures to validation sheet ---------------
     
     GetModelMeasures aMeasures
     Set lo = ActiveWorkbook.Sheets("ModelMeasures").ListObjects("tbl_ModelMeasures")
@@ -644,7 +652,7 @@ Sub WritesMeasuresAndColumnsToSheets()
             .ListColumns("Name").DataBodyRange.Cells(i + 1) = aMeasures(i).Name
             .ListColumns("Visible").DataBodyRange.Cells(i + 1) = aMeasures(i).Visible
             .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aMeasures(i).UniqueName
-            .ListColumns("Expression").DataBodyRange.Cells(i + 1) = aMeasures(i).Expression
+            .ListColumns("DAX Expression").DataBodyRange.Cells(i + 1) = "':=" & aMeasures(i).Expression
             .ListColumns("Name and Expression").DataBodyRange.Cells(i + 1) = aMeasures(i).Name & ":=" & aMeasures(i).Expression
             If aMeasures(i).Visible Then
                 rngValidations.Cells(1).Offset(j) = aMeasures(i).UniqueName
@@ -656,7 +664,7 @@ Sub WritesMeasuresAndColumnsToSheets()
     ActiveWorkbook.Names("val_Measures").RefersTo = "=Validations!" & rngValidations.Cells(1).Resize(j).Address
     
 
-    '----------------- Create Model Columns Sheet ---------------
+    '----------------- Populate Model Columns Sheet and write visible columns to validation sheet ---------------
 
 
     GetModelColumns aColumns
@@ -674,6 +682,7 @@ Sub WritesMeasuresAndColumnsToSheets()
             .ListColumns("Table Name").DataBodyRange.Cells(i + 1) = aColumns(i).TableName
             .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aColumns(i).UniqueName
             .ListColumns("Visible").DataBodyRange.Cells(i + 1) = aColumns(i).Visible
+            .ListColumns("Is calculated column").DataBodyRange.Cells(i + 1).Formula = "=COUNTIFS(tbl_ModelCalcColumns[Name], [@Name]) = 1"
             If aColumns(i).Visible Then
                 rngValidations.Cells(1).Offset(j) = aColumns(i).UniqueName
                 j = j + 1
@@ -682,6 +691,23 @@ Sub WritesMeasuresAndColumnsToSheets()
     End With
     
     ActiveWorkbook.Names("val_Columns").RefersTo = "=Validations!" & rngValidations.Cells(1).Resize(j).Address
+    
+    
+    '----------------- Populate Model Calculated Columns Sheet ---------------
+
+
+    GetModelCalculatedColumns aCalcColumns
+    Set lo = ActiveWorkbook.Sheets("ModelCalcColumns").ListObjects("tbl_ModelCalcColumns")
+    lo.DataBodyRange.ClearContents
+    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
+    
+    With lo
+        For i = 0 To UBound(aCalcColumns)
+            .ListColumns("Name").DataBodyRange.Cells(i + 1) = aCalcColumns(i).Name
+            .ListColumns("Table Name").DataBodyRange.Cells(i + 1) = aCalcColumns(i).TableName
+            .ListColumns("Expression").DataBodyRange.Cells(i + 1) = aCalcColumns(i).Expression
+        Next i
+    End With
     
     Application.ScreenUpdating = True
     Application.EnableEvents = True

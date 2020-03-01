@@ -3,7 +3,7 @@ Option Explicit
 Option Private Module
 
 
-Sub CreateParamaterSheet(ByRef wkb As Workbook)
+Sub CreateParameterSheet(ByRef wkb As Workbook)
 
     Dim sht As Worksheet
     Dim lo As ListObject
@@ -195,6 +195,7 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     Dim lo As ListObject
     Dim sRelativeReferenceOfDataFieldType As String
     Dim sValidationStr As String
+    Dim DataVal As FormatCondition
 
     'Create report report fields sheet
     Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
@@ -238,6 +239,24 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     lo.ListColumns("Format").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Zero Decimals,One Decimal,Two Decimals,Custom"
         
+        
+    'Set conditionalFormatting
+    Set DataVal = lo.ListColumns("Orientation").DataBodyRange.FormatConditions.Add _
+        (Type:=xlExpression, _
+        Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Measure""")
+    DataVal.Interior.Color = RGB(0, 0, 0)
+    
+    Set DataVal = lo.ListColumns("Format").DataBodyRange.FormatConditions.Add _
+        (Type:=xlExpression, _
+        Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Column""")
+    DataVal.Interior.Color = RGB(0, 0, 0)
+    
+    Set DataVal = lo.ListColumns("Custom Format").DataBodyRange.FormatConditions.Add _
+        (Type:=xlExpression, _
+        Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Column""")
+    DataVal.Interior.Color = RGB(0, 0, 0)
+        
+        
     'Freeze Panes
     sht.Activate
     ActiveWindow.SplitRow = 7
@@ -252,7 +271,7 @@ Sub CreateModelMeasuresSheet(ByRef wkb As Workbook)
     Dim sht As Worksheet
     Dim lo As ListObject
 
-    'Create report report fields sheet
+    
     Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
     FormatSheet sht
     sht.Name = "ModelMeasures"
@@ -265,7 +284,7 @@ Sub CreateModelMeasuresSheet(ByRef wkb As Workbook)
         .HeaderRowRange.Cells(1) = "Name"
         .HeaderRowRange.Cells(2) = "Visible"
         .HeaderRowRange.Cells(3) = "Unique Name"
-        .HeaderRowRange.Cells(4) = "Expression"
+        .HeaderRowRange.Cells(4) = "DAX Expression"
         .HeaderRowRange.Cells(5) = "Name and Expression"
     End With
     FormatTable lo
@@ -294,7 +313,7 @@ Sub CreateModelColumnsSheet(ByRef wkb As Workbook)
     Dim sht As Worksheet
     Dim lo As ListObject
 
-    'Create report report fields sheet
+   
     Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
     FormatSheet sht
     sht.Name = "ModelColumns"
@@ -317,8 +336,6 @@ Sub CreateModelColumnsSheet(ByRef wkb As Workbook)
     sht.Range("D:D").ColumnWidth = 50
     sht.Range("E:E").ColumnWidth = 20
     sht.Range("F:F").ColumnWidth = 20
-    
-    lo.ListColumns("Is calculated column").DataBodyRange.Formula = "=""Formula TBA once calc column sheet is created"""
 
     With lo.DataBodyRange
         .HorizontalAlignment = xlLeft
@@ -336,3 +353,42 @@ End Sub
 
 
 
+
+
+
+Sub CreateModelCalculatedColumnsSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "ModelCalcColumns"
+    sht.Range("SheetHeading") = "Data model calculated columns"
+    sht.Range("SheetCategory") = "Setup"
+   
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D7"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_ModelCalcColumns"
+        .HeaderRowRange.Cells(1) = "Name"
+        .HeaderRowRange.Cells(2) = "Table Name"
+        .HeaderRowRange.Cells(3) = "Expression"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 30
+    sht.Range("C:C").ColumnWidth = 30
+    sht.Range("D:D").ColumnWidth = 50
+
+    With lo.DataBodyRange
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+        .WrapText = True
+    End With
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
+
+
+End Sub

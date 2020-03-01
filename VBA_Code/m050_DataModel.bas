@@ -247,7 +247,7 @@ End Sub
 
 Sub GetModelMeasures(ByRef aModelMeasures() As TypeModelMeasures)
 'Requires reference to Microsoft ActiveX Data Objects
-'Returns measures names in the data model
+'Returns measures in the data model
 
     Dim conn As ADODB.Connection
     Dim rs As ADODB.Recordset
@@ -293,7 +293,7 @@ End Sub
 
 Sub GetModelColumns(ByRef aModelColumns() As TypeModelColumns)
 'Requires reference to Microsoft ActiveX Data Objects
-'Returns measures names in the data model
+'Returns columns the data model
 
     Dim conn As ADODB.Connection
     Dim rs As ADODB.Recordset
@@ -335,10 +335,53 @@ Sub GetModelColumns(ByRef aModelColumns() As TypeModelColumns)
 
 End Sub
 
+Sub GetModelCalculatedColumns(ByRef aCalcColumns() As TypeModelCalcColumns)
+'Requires reference to Microsoft ActiveX Data Objects
+'Returns calcualted columns the data model
+
+    Dim conn As ADODB.Connection
+    Dim rs As ADODB.Recordset
+    Dim sht As Excel.Worksheet
+    Dim iRowNum As Integer
+    Dim i As Integer
+    Dim sSQL As String
+
+    i = 0
+
+    ' SQL like query to get result of DMV from schema $SYSTEM
+    sSQL = "select Distinct  [TABLE], [OBJECT], TRIM( '=' +  [EXPRESSION] ) as [DAX Expression]  " & _
+             "from $SYSTEM.DISCOVER_CALC_DEPENDENCY  WHERE OBJECT_TYPE = 'CALC_COLUMN'  ORDER BY [TABLE] +[OBJECT]"
+
+    ' Open connection to PowerPivot engine
+    Set conn = ActiveWorkbook.Model.DataModelConnection.ModelConnection.ADOConnection
+    Set rs = New ADODB.Recordset
+    rs.ActiveConnection = conn
+    rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
+        
+    If rs.RecordCount > 0 Then
+        ReDim aCalcColumns(0 To rs.RecordCount - 1)
+        ' Output of the query results
+        Do Until rs.EOF
+            aCalcColumns(i).Name = rs.Fields("OBJECT")
+            aCalcColumns(i).TableName = rs.Fields("TABLE")
+            aCalcColumns(i).Expression = rs.Fields("DAX Expression")
+            rs.MoveNext
+            i = i + 1
+        Loop
+    End If
+    
+    rs.Close
+    Set rs = Nothing
+
+
+
+
+End Sub
+
 
 Sub Test()
 
-    Dim a() As TypeModelColumns
-    GetModelColumns a
+    Dim a() As TypeModelCalcColumns
+    GetModelCalculatedColumns a
 
 End Sub
