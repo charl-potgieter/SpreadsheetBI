@@ -1,34 +1,17 @@
 TODO
 --------
 
- - Modify generation of ReportFieldSetting tab by applying conditional formatting for example:
-     - black out orientation when measure is selected
-     - black out format and custom format when column is selected
-   
- - Create a sub to list calculated columns (and their formulas -refer power pivot utilities for guidance)
-
- -  Create ability to format DAX (see power pivot utilities add in)
- 
  - Continue to work on generating EntryPoints\GenerateReport
         - Set properties of pivot table (see empty CustomisePivotTable Sub)
         - set pivot field number format
         - Only allow measure on data and vice versa
 
-  - ReportsField tab --> Do not allow columns as data orientation (they would need some sort of sum or someting anyway and this generates VBA error).  Better practice to have measure as data anyway.
-     - Conditional formatting on the error formula already created
-     - run check before running macro
-
-
- - Check if setup is correct before generating reports
-
 
 - Power Query Consolidated Files in Folder
- - use table. First 
+ - use table.First 
     - add functionality to select only first row of data if flag is set (don't want to return empty tables as will throw errors in power pivot lookup tables).   Pick up first row of first file only, don't expand all files
 
     - maybe first create the functionality to do this on a single file?
-
-
 
 
 
@@ -47,3 +30,7 @@ TODO
   
   In the date table - is there an issue with using list.dates - see comment from Ken Puls here
   https://blog.crossjoin.co.uk/2016/06/03/creating-tables-in-power-bipower-query-m-code-using-table/
+  
+  
+
+ -   See if I can add table name to the measures output written to spreadsheet
