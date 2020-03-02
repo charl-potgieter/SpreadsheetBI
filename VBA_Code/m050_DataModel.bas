@@ -379,9 +379,22 @@ Sub GetModelCalculatedColumns(ByRef aCalcColumns() As TypeModelCalcColumns)
 End Sub
 
 
-Sub Test()
+Sub GetModelRelationships(aRelationships() As TypeModelRelationship)
 
-    Dim a() As TypeModelCalcColumns
-    GetModelCalculatedColumns a
+    Dim mdlRelationship As ModelRelationship
+    Dim i As Integer
+    
+    
+    i = 0
+    ReDim aRelationships(0 To ActiveWorkbook.Model.ModelRelationships.Count - 1)
+    For Each mdlRelationship In ActiveWorkbook.Model.ModelRelationships
+        aRelationships(i).PrimaryKeyTable = mdlRelationship.PrimaryKeyTable.Name
+        aRelationships(i).PrimaryKeyColumn = mdlRelationship.PrimaryKeyColumn.Name
+        aRelationships(i).ForeignKeyTable = mdlRelationship.ForeignKeyTable.Name
+        aRelationships(i).ForeignKeyColumn = mdlRelationship.ForeignKeyColumn.Name
+        aRelationships(i).Active = mdlRelationship.Active
+        i = i + 1
+    Next mdlRelationship
 
 End Sub
+

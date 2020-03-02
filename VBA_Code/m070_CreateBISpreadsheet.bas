@@ -392,3 +392,47 @@ Sub CreateModelCalculatedColumnsSheet(ByRef wkb As Workbook)
 
 
 End Sub
+
+
+
+Sub CreateModelRelationshipsSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "ModelRelationships"
+    sht.Range("SheetHeading") = "Data model relationships"
+    sht.Range("SheetCategory") = "Setup"
+   
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:F7"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_ModelRelationships"
+        .HeaderRowRange.Cells(1) = "Primary Key Table"
+        .HeaderRowRange.Cells(2) = "Primary Key Column"
+        .HeaderRowRange.Cells(3) = "Foreign Key Table"
+        .HeaderRowRange.Cells(4) = "Foreign Key Column"
+        .HeaderRowRange.Cells(5) = "Active"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 40
+    sht.Range("C:C").ColumnWidth = 40
+    sht.Range("D:D").ColumnWidth = 40
+    sht.Range("E:E").ColumnWidth = 40
+    sht.Range("F:F").ColumnWidth = 20
+
+    With lo.DataBodyRange
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+        .WrapText = True
+    End With
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
+
+
+End Sub
+

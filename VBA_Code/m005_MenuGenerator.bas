@@ -98,8 +98,8 @@ Sub CreatePopUpMenu()
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateBiSpreadsheet"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Write measures and columns to sheets"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WritesMeasuresAndColumnsToSheets"
+    MenuItem.Caption = "Write measures, columns and relationships to sheets"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WritesMeasuresColumnsRelationshipsToSheets"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Generate Reports"

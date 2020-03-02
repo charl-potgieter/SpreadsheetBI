@@ -42,6 +42,14 @@ Public Type TypeModelCalcColumns
     Expression As String
 End Type
 
+Public Type TypeModelRelationship
+    ForeignKeyTable As String
+    ForeignKeyColumn As String
+    PrimaryKeyTable As String
+    PrimaryKeyColumn As String
+    Active As Boolean
+End Type
+
 
 Public Const MaxInt As Integer = 32767
 
@@ -508,6 +516,7 @@ Sub CreateBiSpreadsheet()
     CreateModelMeasuresSheet wkb
     CreateModelColumnsSheet wkb
     CreateModelCalculatedColumnsSheet wkb
+    CreateModelRelationshipsSheet wkb
     CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
 
     'Create index page and cleanup
@@ -619,11 +628,12 @@ Sub GenerateReports()
 
 End Sub
 
-Sub WritesMeasuresAndColumnsToSheets()
+Sub WritesMeasuresColumnsRelationshipsToSheets()
 
     Dim aMeasures() As TypeModelMeasures
     Dim aColumns() As TypeModelColumns
     Dim aCalcColumns() As TypeModelCalcColumns
+    Dim aModelRelationships() As TypeModelRelationship
     Dim rngValidations As Range
     Dim lo As ListObject
     Dim i As Integer
@@ -666,7 +676,6 @@ Sub WritesMeasuresAndColumnsToSheets()
 
     '----------------- Populate Model Columns Sheet and write visible columns to validation sheet ---------------
 
-
     GetModelColumns aColumns
     Set lo = ActiveWorkbook.Sheets("ModelColumns").ListObjects("tbl_ModelColumns")
     lo.DataBodyRange.ClearContents
@@ -695,7 +704,6 @@ Sub WritesMeasuresAndColumnsToSheets()
     
     '----------------- Populate Model Calculated Columns Sheet ---------------
 
-
     GetModelCalculatedColumns aCalcColumns
     Set lo = ActiveWorkbook.Sheets("ModelCalcColumns").ListObjects("tbl_ModelCalcColumns")
     lo.DataBodyRange.ClearContents
@@ -708,6 +716,26 @@ Sub WritesMeasuresAndColumnsToSheets()
             .ListColumns("Expression").DataBodyRange.Cells(i + 1) = aCalcColumns(i).Expression
         Next i
     End With
+    
+    
+    '----------------- Populate Model Relationship Sheet ---------------
+
+    GetModelRelationships aModelRelationships
+    Set lo = ActiveWorkbook.Sheets("ModelRelationships").ListObjects("tbl_ModelRelationships")
+    lo.DataBodyRange.ClearContents
+    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
+    
+    With lo
+        For i = 0 To UBound(aModelRelationships)
+            .ListColumns("Primary Key Table").DataBodyRange.Cells(i + 1) = aModelRelationships(i).PrimaryKeyTable
+            .ListColumns("Primary Key Column").DataBodyRange.Cells(i + 1) = aModelRelationships(i).PrimaryKeyColumn
+            .ListColumns("Foreign Key Table").DataBodyRange.Cells(i + 1) = aModelRelationships(i).ForeignKeyTable
+            .ListColumns("Foreign Key Column").DataBodyRange.Cells(i + 1) = aModelRelationships(i).ForeignKeyColumn
+            .ListColumns("Active").DataBodyRange.Cells(i + 1) = aModelRelationships(i).Active
+        Next i
+    End With
+    
+    
     
     Application.ScreenUpdating = True
     Application.EnableEvents = True

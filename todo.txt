@@ -1,5 +1,8 @@
 TODO
 --------
+- in same sub as measures and columns write relationships to sheet
+
+- add ability to filter items on filter column and row fields (all non measure fields) 
 
  - Continue to work on generating EntryPoints\GenerateReport
         - Set properties of pivot table (see empty CustomisePivotTable Sub)
@@ -13,20 +16,17 @@ TODO
 
     - maybe first create the functionality to do this on a single file?
 
-
-
+Data_Access power queries should provide access to all fields and rows without filters.  Filters, combining etc can be applied in other queries 
 
  - Create code to update / overwrite fn_std power queries in this workbook to the active workbook
 
 
  - Create generic code to check for items in data tables not in lookup tables using EXCEPT function
- 
-- create code to generate dax query table on worksheet 
 
-  - Create code for DAX query link back table in seperate file to avoid bloating working model file --> don't think it will be that practical putting in a seperate file but potentially could be better codified.
-  
-  - - Create code to set up a model sheet (containing all the required tables e.g. Paramaters, ReportFields, ReportDependencies) - most probably a lot easier to just save as a template somewhere but then I cannot generalise onto github.  Most probably lower priority
-  
+
+  - Create code for DAX query link back table in seperate file to avoid bloating working model file --> don't think it will be that practical putting in a seperate file but potentially could be better codified --> maybe rather work in techniques for faster power queries rather than complications of link back tables.
+
+- create code to generate dax query table on worksheet   
   
   In the date table - is there an issue with using list.dates - see comment from Ken Puls here
   https://blog.crossjoin.co.uk/2016/06/03/creating-tables-in-power-bipower-query-m-code-using-table/
