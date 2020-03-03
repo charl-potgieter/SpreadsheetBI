@@ -204,7 +204,7 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     sht.Range("SheetHeading") = "Report field settings"
     sht.Range("SheetCategory") = "Setup"
     sht.Range("B5") = "Run ""Data model update > Write Measures to columns and sheets"" to refresh validation "
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:G15"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:I15"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_ReportFields"
         .HeaderRowRange.Cells(1) = "Report Name"
@@ -213,6 +213,8 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
         .HeaderRowRange.Cells(4) = "Orientation"
         .HeaderRowRange.Cells(5) = "Format"
         .HeaderRowRange.Cells(6) = "Custom Format"
+        .HeaderRowRange.Cells(7) = "Filter Type"
+        .HeaderRowRange.Cells(8) = "Filter Values"
     End With
     FormatTable lo
     sht.Range("B:B").ColumnWidth = 40
@@ -221,7 +223,8 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     sht.Range("E:E").ColumnWidth = 20
     sht.Range("F:F").ColumnWidth = 20
     sht.Range("G:G").ColumnWidth = 20
-
+    sht.Range("H:H").ColumnWidth = 20
+    sht.Range("I:I").ColumnWidth = 50
     'Set cube field validations (cascading depending on field type)
     sRelativeReferenceOfDataFieldType = Replace(lo.ListColumns("Data Model Field Type").DataBodyRange.Cells(1).Address, "$", "")
     sValidationStr = "=INDIRECT(""val_"" & IF(" & sRelativeReferenceOfDataFieldType & " ="""", ""Measure"", " & sRelativeReferenceOfDataFieldType & ") & ""s"")"
@@ -239,7 +242,10 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     lo.ListColumns("Format").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Zero Decimals,One Decimal,Two Decimals,Custom"
         
+    lo.ListColumns("Filter type").DataBodyRange.Validation.Add _
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Include,Exclude"
         
+                
     'Set conditionalFormatting
     Set DataVal = lo.ListColumns("Orientation").DataBodyRange.FormatConditions.Add _
         (Type:=xlExpression, _
@@ -254,6 +260,16 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     Set DataVal = lo.ListColumns("Custom Format").DataBodyRange.FormatConditions.Add _
         (Type:=xlExpression, _
         Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Column""")
+    DataVal.Interior.Color = RGB(0, 0, 0)
+        
+    Set DataVal = lo.ListColumns("Filter Type").DataBodyRange.FormatConditions.Add _
+        (Type:=xlExpression, _
+        Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Measure""")
+    DataVal.Interior.Color = RGB(0, 0, 0)
+        
+    Set DataVal = lo.ListColumns("Filter Values").DataBodyRange.FormatConditions.Add _
+        (Type:=xlExpression, _
+        Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Measure""")
     DataVal.Interior.Color = RGB(0, 0, 0)
         
         

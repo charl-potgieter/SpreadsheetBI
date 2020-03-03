@@ -67,6 +67,7 @@ Sub GetReportFieldSettings(ByVal sReportName As String, ByRef ReportFieldSetting
         For i = 1 To lo.DataBodyRange.Rows.Count
             If .ListColumns("Report Name").DataBodyRange.Cells(i) = sReportName Then
                 ReportFieldSettings(j).CubeFieldName = .ListColumns("Cube Field Name").DataBodyRange.Cells(i)
+                ReportFieldSettings(j).FieldType = .ListColumns("Data Model Field Type").DataBodyRange.Cells(i)
                 ReportFieldSettings(j).Orientation = .ListColumns("Orientation").DataBodyRange.Cells(i)
                 ReportFieldSettings(j).Format = .ListColumns("Format").DataBodyRange.Cells(i)
                 ReportFieldSettings(j).CustomFormat = .ListColumns("Custom Format").DataBodyRange.Cells(i)

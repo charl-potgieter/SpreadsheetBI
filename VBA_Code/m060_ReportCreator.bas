@@ -33,11 +33,13 @@ Sub CreatePivotTable(ByVal sSheetName As String, ByVal sReportName As String, By
 End Sub
 
 
-Sub CustomisePivotTable(ByRef pvt)
+Sub CustomisePivotTable(ByRef pvt As PivotTable, ReportProperties As TypeReportProperties)
 
     
+    pvt.HasAutoFormat = ReportProperties.AutoFit
+    pvt.ColumnGrand = ReportProperties.ColumnTotals
+    pvt.RowGrand = ReportProperties.RowTotals
     
-
 
 End Sub
 
@@ -48,12 +50,12 @@ Sub SetPivotFields(ByRef pvt As PivotTable, ByRef ReportFieldSettings() As TypeR
     
     For i = 0 To UBound(ReportFieldSettings)
         With ReportFieldSettings(i)
-            Select Case .Orientation
-                Case "Data"
+            Select Case True
+                Case .FieldType = "Measure"
                     pvt.CubeFields(.CubeFieldName).Orientation = xlDataField
-                Case "Row"
+                Case .Orientation = "Row"
                     pvt.CubeFields(.CubeFieldName).Orientation = xlRowField
-                Case "Column"
+                Case .Orientation = "Column"
                     pvt.CubeFields(.CubeFieldName).Orientation = xlColumnField
             End Select
         End With

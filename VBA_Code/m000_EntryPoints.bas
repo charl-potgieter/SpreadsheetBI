@@ -17,6 +17,7 @@ End Type
 
 Public Type TypeReportFieldSettings
     CubeFieldName As String
+    FieldType As String
     Orientation As String
     Format As String
     CustomFormat As String
@@ -614,6 +615,7 @@ Sub GenerateReports()
                 
                 'Create Report
                 CreatePivotTable .SheetName, .ReportName, .ReportCategory, pvt
+                CustomisePivotTable pvt, ReportProperties
                 SetPivotFields pvt, ReportFieldSettings
                 
             End If

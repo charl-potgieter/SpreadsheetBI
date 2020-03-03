@@ -1,13 +1,11 @@
 TODO
 --------
-- in same sub as measures and columns write relationships to sheet
-
-- add ability to filter items on filter column and row fields (all non measure fields) 
 
  - Continue to work on generating EntryPoints\GenerateReport
-        - Set properties of pivot table (see empty CustomisePivotTable Sub)
+        - add ability to filter items on filter column and row fields (all non measure fields)  --> potentially use pivotfilter object
+            - specify as comma delimited list on the spreadsheet
         - set pivot field number format
-        - Only allow measure on data and vice versa
+        - Set other properties of pivot table (see empty CustomisePivotTable Sub)
 
 
 - Power Query Consolidated Files in Folder
