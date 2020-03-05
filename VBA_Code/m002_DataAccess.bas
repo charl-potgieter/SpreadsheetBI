@@ -71,6 +71,10 @@ Sub GetReportFieldSettings(ByVal sReportName As String, ByRef ReportFieldSetting
                 ReportFieldSettings(j).Orientation = .ListColumns("Orientation").DataBodyRange.Cells(i)
                 ReportFieldSettings(j).Format = .ListColumns("Format").DataBodyRange.Cells(i)
                 ReportFieldSettings(j).CustomFormat = .ListColumns("Custom Format").DataBodyRange.Cells(i)
+                ReportFieldSettings(j).FilterType = .ListColumns("Filter Type").DataBodyRange.Cells(i)
+                If ReportFieldSettings(j).FilterType <> "" Then
+                    CommaSeperatedDelimit .ListColumns("Filter Values").DataBodyRange.Cells(i), ReportFieldSettings(j).FilterValues
+                End If
                 j = j + 1
             End If
         Next i

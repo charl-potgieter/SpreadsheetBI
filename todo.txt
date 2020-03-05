@@ -2,8 +2,8 @@ TODO
 --------
 
  - Continue to work on generating EntryPoints\GenerateReport
-        - add ability to filter items on filter column and row fields (all non measure fields)  --> potentially use pivotfilter object
-            - specify as comma delimited list on the spreadsheet
+        -  See module ZZZ_Testing for hiding details (=collapsing rows and fields) and hiding subtotals
+        - How do I collapse multiple items on row or column?  Drilldown seems to only handle one --> only way I can see how to do this is set drill down for the pvot field as false.  Then loop and set relevant items as true
         - set pivot field number format
         - Set other properties of pivot table (see empty CustomisePivotTable Sub)
 

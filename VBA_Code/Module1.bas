@@ -8,35 +8,12 @@ Attribute Macro1.VB_ProcData.VB_Invoke_Func = " \n14"
 '
 
 '
-    Range("C34").Select
-    ActiveSheet.PivotTables("PivotTable3").HasAutoFormat = False
-    Range("C32").Select
-    With ActiveSheet.PivotTables("PivotTable3").PivotFields("[Measures].[MyAmount]" _
-        )
-        .NumberFormat = "_-$* #,##0.00_-;-$* #,##0.00_-;_-$* ""-""??_-;_-@_-"
-    End With
-End Sub
-Sub Macro2()
-Attribute Macro2.VB_ProcData.VB_Invoke_Func = " \n14"
-'
-' Macro2 Macro
-'
-
-'
-    Range("C28").Select
-    With ActiveSheet.PivotTables("PivotTable3")
-        .ColumnGrand = False
-        .RowGrand = False
-    End With
-End Sub
-Sub Macro3()
-Attribute Macro3.VB_ProcData.VB_Invoke_Func = " \n14"
-'
-' Macro3 Macro
-'
-
-'
+    Range("B8").Select
     ActiveSheet.PivotTables("PivotTable6").PivotFields( _
-        "[DummyData].[Description].[Description]").VisibleItemsList = Array( _
-        "[DummyData].[Description].&[hello]")
+        "[DummyData].[Description].[Description]").PivotItems( _
+        "[DummyData].[Description].&[blah]").DrilledDown = False
+    Range("B9").Select
+    ActiveSheet.PivotTables("PivotTable6").PivotFields( _
+        "[DummyData].[Description].[Description]").PivotItems( _
+        "[DummyData].[Description].&[hello]").DrilledDown = False
 End Sub

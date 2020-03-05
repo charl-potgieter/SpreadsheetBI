@@ -215,6 +215,7 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
         .HeaderRowRange.Cells(6) = "Custom Format"
         .HeaderRowRange.Cells(7) = "Filter Type"
         .HeaderRowRange.Cells(8) = "Filter Values"
+        .ListColumns("Filter Values").DataBodyRange.NumberFormat = "@"
     End With
     FormatTable lo
     sht.Range("B:B").ColumnWidth = 40
@@ -225,6 +226,9 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     sht.Range("G:G").ColumnWidth = 20
     sht.Range("H:H").ColumnWidth = 20
     sht.Range("I:I").ColumnWidth = 50
+    
+    
+    
     'Set cube field validations (cascading depending on field type)
     sRelativeReferenceOfDataFieldType = Replace(lo.ListColumns("Data Model Field Type").DataBodyRange.Cells(1).Address, "$", "")
     sValidationStr = "=INDIRECT(""val_"" & IF(" & sRelativeReferenceOfDataFieldType & " ="""", ""Measure"", " & sRelativeReferenceOfDataFieldType & ") & ""s"")"
@@ -451,4 +455,7 @@ Sub CreateModelRelationshipsSheet(ByRef wkb As Workbook)
 
 
 End Sub
+
+
+
 

@@ -21,6 +21,8 @@ Public Type TypeReportFieldSettings
     Orientation As String
     Format As String
     CustomFormat As String
+    FilterType As String
+    FilterValues() As String
 End Type
 
 Public Type TypeModelMeasures
@@ -597,6 +599,7 @@ Sub GenerateReports()
     Dim ReportProperties As TypeReportProperties
     Dim ReportFieldSettings() As TypeReportFieldSettings
     Dim pvt As PivotTable
+    Dim sht As Worksheet
 
     'Setup
     Application.ScreenUpdating = False
@@ -614,9 +617,17 @@ Sub GenerateReports()
                 GetReportFieldSettings .ReportName, ReportFieldSettings
                 
                 'Create Report
-                CreatePivotTable .SheetName, .ReportName, .ReportCategory, pvt
+                CreatePivotTable .SheetName, pvt
                 CustomisePivotTable pvt, ReportProperties
                 SetPivotFields pvt, ReportFieldSettings
+                
+                'Format and populate valuues on report sheet
+                Set sht = ActiveWorkbook.Sheets(.SheetName)
+                sht.Rows("1:5").Insert Shift:=xlDown
+                sht.Name = .SheetName
+                FormatSheet sht
+                sht.Range("SheetHeading") = .ReportName
+                sht.Range("SheetCategory") = .ReportCategory
                 
             End If
         End With

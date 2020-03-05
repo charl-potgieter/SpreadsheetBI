@@ -29,16 +29,6 @@ End Function
 
 
 
-Function ArrayIsInitialised(Arr) As Boolean
-
-    Dim value
-    
-    On Error Resume Next
-    value = Arr(0)
-    ArrayIsInitialised = (Err.Number = 0)
-    On Error GoTo 0
-
-End Function
 
 
 Function WorkbookIsOpen(ByVal sWbkName As String) As Boolean
@@ -129,9 +119,34 @@ End Function
 
 
 
+Sub CommaSeperatedDelimit(ByVal sInput As String, ByRef aDelimited() As String)
+    
+    Dim i As Double
+
+    aDelimited = Split(sInput, ",")
+    
+    'Trim any whitespace before or after commas
+    For i = LBound(aDelimited) To UBound(aDelimited)
+        aDelimited(i) = Trim(aDelimited(i))
+    Next i
+
+End Sub
 
 
 
+Function ValueIsInStringArray(ByVal aValueToTest As Variant, ByRef aArray() As String) As Boolean
+
+    Dim item As Variant
+    
+    ValueIsInStringArray = False
+    For Each item In aArray
+        If item = aValueToTest Then
+            ValueIsInStringArray = True
+            Exit Function
+        End If
+    Next item
+
+End Function
 
 
 
