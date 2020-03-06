@@ -2,11 +2,17 @@ TODO
 --------
 
  - Continue to work on generating EntryPoints\GenerateReport
-        -  See module ZZZ_Testing for hiding details (=collapsing rows and fields) and hiding subtotals
+        - Add ability to insert blank row after field
+        -  See module ZZZ_Testing for hiding details (=collapsing rows and fields)
         - How do I collapse multiple items on row or column?  Drilldown seems to only handle one --> only way I can see how to do this is set drill down for the pvot field as false.  Then loop and set relevant items as true
         - set pivot field number format
         - Set other properties of pivot table (see empty CustomisePivotTable Sub)
 
+ - See QueryFlow.pdf
+        
+ - Create templates to assist in creation of query flow         
+        
+Potentially easier to set types after consolidation.  Keep data access raw and return all values  --> can then change fn_ConsoldidatedFiles so that it doesn't ahve to set types
 
 - Power Query Consolidated Files in Folder
  - use table.First 

@@ -204,7 +204,7 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     sht.Range("SheetHeading") = "Report field settings"
     sht.Range("SheetCategory") = "Setup"
     sht.Range("B5") = "Run ""Data model update > Write Measures to columns and sheets"" to refresh validation "
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:I15"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:K15"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_ReportFields"
         .HeaderRowRange.Cells(1) = "Report Name"
@@ -213,8 +213,10 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
         .HeaderRowRange.Cells(4) = "Orientation"
         .HeaderRowRange.Cells(5) = "Format"
         .HeaderRowRange.Cells(6) = "Custom Format"
-        .HeaderRowRange.Cells(7) = "Filter Type"
-        .HeaderRowRange.Cells(8) = "Filter Values"
+        .HeaderRowRange.Cells(7) = "Subtotal"
+        .HeaderRowRange.Cells(8) = "Subtotal at top"
+        .HeaderRowRange.Cells(9) = "Filter Type"
+        .HeaderRowRange.Cells(10) = "Filter Values"
         .ListColumns("Filter Values").DataBodyRange.NumberFormat = "@"
     End With
     FormatTable lo
@@ -224,9 +226,10 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     sht.Range("E:E").ColumnWidth = 20
     sht.Range("F:F").ColumnWidth = 20
     sht.Range("G:G").ColumnWidth = 20
-    sht.Range("H:H").ColumnWidth = 20
-    sht.Range("I:I").ColumnWidth = 50
-    
+    sht.Range("H:H").ColumnWidth = 15
+    sht.Range("I:I").ColumnWidth = 15
+    sht.Range("J:J").ColumnWidth = 15
+    sht.Range("K:K").ColumnWidth = 50
     
     
     'Set cube field validations (cascading depending on field type)
@@ -239,12 +242,17 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     lo.ListColumns("Data Model Field Type").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Measure, Column"
 
-
     lo.ListColumns("Orientation").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Row, Column, Filter"
 
     lo.ListColumns("Format").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Zero Decimals,One Decimal,Two Decimals,Custom"
+    
+    lo.ListColumns("Subtotal").DataBodyRange.Validation.Add _
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="True,False"
+        
+    lo.ListColumns("Subtotal at top").DataBodyRange.Validation.Add _
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="True,False"
         
     lo.ListColumns("Filter type").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Include,Exclude"
@@ -264,6 +272,16 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     Set DataVal = lo.ListColumns("Custom Format").DataBodyRange.FormatConditions.Add _
         (Type:=xlExpression, _
         Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Column""")
+    DataVal.Interior.Color = RGB(0, 0, 0)
+        
+    Set DataVal = lo.ListColumns("Subtotal").DataBodyRange.FormatConditions.Add _
+        (Type:=xlExpression, _
+        Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Measure""")
+    DataVal.Interior.Color = RGB(0, 0, 0)
+        
+    Set DataVal = lo.ListColumns("Subtotal at top").DataBodyRange.FormatConditions.Add _
+        (Type:=xlExpression, _
+        Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Measure""")
     DataVal.Interior.Color = RGB(0, 0, 0)
         
     Set DataVal = lo.ListColumns("Filter Type").DataBodyRange.FormatConditions.Add _

@@ -21,6 +21,8 @@ Public Type TypeReportFieldSettings
     Orientation As String
     Format As String
     CustomFormat As String
+    Subtotal As Boolean
+    SubtotalAtTop As Boolean
     FilterType As String
     FilterValues() As String
 End Type

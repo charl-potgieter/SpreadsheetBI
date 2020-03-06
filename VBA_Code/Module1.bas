@@ -9,11 +9,6 @@ Attribute Macro1.VB_ProcData.VB_Invoke_Func = " \n14"
 
 '
     Range("B8").Select
-    ActiveSheet.PivotTables("PivotTable6").PivotFields( _
-        "[DummyData].[Description].[Description]").PivotItems( _
-        "[DummyData].[Description].&[blah]").DrilledDown = False
-    Range("B9").Select
-    ActiveSheet.PivotTables("PivotTable6").PivotFields( _
-        "[DummyData].[Description].[Description]").PivotItems( _
-        "[DummyData].[Description].&[hello]").DrilledDown = False
+    ActiveSheet.PivotTables("PivotTable5").PivotFields( _
+        "[DummyData].[Description].[Description]").LayoutSubtotalLocation = xlAtTop
 End Sub

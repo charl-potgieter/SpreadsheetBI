@@ -65,11 +65,33 @@ Sub SetPivotFields(ByRef pvt As PivotTable, ByRef ReportFieldSettings() As TypeR
             End Select
             
             'Filter columns, rows, filters if required
-            Select Case .FilterType
-                Case "Include"
+            Select Case True
+                Case .FieldType = "Measure"
+                    'Do Nothing
+                Case .FilterType = "Include"
                     PivotFilterInclude pvt, .CubeFieldName, .FilterValues
-                Case "Exclude"
+                Case .FilterType = "Exclude"
                     PivotFilterExclude pvt, .CubeFieldName, .FilterValues
+            End Select
+            
+            'Set subtotals
+            Select Case True
+                Case .FieldType = "Measure"
+                    'Do Nothing
+                Case .Subtotal
+                    ShowPivotMeasureSubtotals pvt, .CubeFieldName
+                Case Not (.Subtotal)
+                    HidePivotMeasureSubtotals pvt, .CubeFieldName
+            End Select
+            
+            'Set subtotal location
+            Select Case True
+                Case .FieldType = "Measure" Or Not (.Subtotal)
+                    'Do Nothing
+                Case .SubtotalAtTop
+                    SetPivotSubtotalsAtTop pvt, .CubeFieldName
+                Case Not (.SubtotalAtTop)
+                    SetPivotSubtotalsAtBottom pvt, .CubeFieldName
             End Select
             
         End With
@@ -176,5 +198,46 @@ Sub PivotFilterExclude(ByRef pvt As PivotTable, ByVal sCubeFieldName, ByRef aExc
         
 End Sub
 
+
+Sub ShowPivotMeasureSubtotals(ByRef pvt As PivotTable, ByVal sCubeFieldName As String)
+
+    Dim pf As PivotField
+
+    Set pf = pvt.CubeFields(sCubeFieldName).PivotFields(1)
+    pf.Subtotals = Array(True, False, False, False, False, False, False, _
+        False, False, False, False, False)
+
+End Sub
+
+
+Sub HidePivotMeasureSubtotals(ByRef pvt As PivotTable, ByVal sCubeFieldName As String)
+
+    Dim pf As PivotField
+
+    Set pf = pvt.CubeFields(sCubeFieldName).PivotFields(1)
+    pf.Subtotals = Array(False, False, False, False, False, False, False, _
+        False, False, False, False, False)
+
+End Sub
+
+
+Sub SetPivotSubtotalsAtTop(ByRef pvt As PivotTable, ByVal sCubeFieldName As String)
+
+    Dim pf As PivotField
+
+    Set pf = pvt.CubeFields(sCubeFieldName).PivotFields(1)
+    pf.LayoutSubtotalLocation = xlAtTop
+
+End Sub
+
+
+Sub SetPivotSubtotalsAtBottom(ByRef pvt As PivotTable, ByVal sCubeFieldName As String)
+
+    Dim pf As PivotField
+
+    Set pf = pvt.CubeFields(sCubeFieldName).PivotFields(1)
+    pf.LayoutSubtotalLocation = xlAtBottom
+
+End Sub
 
 

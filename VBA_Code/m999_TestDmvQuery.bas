@@ -101,7 +101,7 @@ Private Sub WriteFormatedCellValue(ByRef cell As Excel.Range, ByRef field As ADO
 ' Write and Format the value depending on the data type
 
     On Error GoTo ExitPoint
-    cell = field.value
+    cell = field.Value
     
     Select Case field.Type
         

@@ -177,7 +177,7 @@ Sub GetModelColumnNames(ByRef asColumnList() As String, Optional bReturnVisibleO
         ReDim asColumnList(0 To rs.RecordCount - 1)
         ' Output of the query results
         Do Until rs.EOF
-            asColumnList(i) = rs.Fields(0).value
+            asColumnList(i) = rs.Fields(0).Value
             rs.MoveNext
             i = i + 1
         Loop
@@ -232,7 +232,7 @@ Sub GetModelMeasureNames(ByRef asMeasureList() As String, Optional bReturnVisibl
         ReDim asMeasureList(0 To rs.RecordCount - 1)
         ' Output of the query results
         Do Until rs.EOF
-            asMeasureList(i) = rs.Fields(0).value
+            asMeasureList(i) = rs.Fields(0).Value
             rs.MoveNext
             i = i + 1
         Loop

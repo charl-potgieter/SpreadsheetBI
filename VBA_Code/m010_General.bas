@@ -28,8 +28,8 @@ Sub FormatSheet(ByRef sht As Worksheet)
     sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
     
     With sht.Range("SheetHeading")
-        If .value = "" Then
-            .value = "Heading"
+        If .Value = "" Then
+            .Value = "Heading"
         End If
         .Font.Bold = True
         .Font.Size = 16
