@@ -21,16 +21,7 @@ Sub TestHideDetails()
 End Sub
 
 
-Sub TestHideSubtotals()
 
-    Dim pvt As PivotTable
-
-    Set pvt = ActiveSheet.PivotTables(1)
-    
-    pvt.PivotFields("blah").Subtotals = Array(False, False, False, False, False, False, False, _
-        False, False, False, False, False)
-
-End Sub
 
 
 

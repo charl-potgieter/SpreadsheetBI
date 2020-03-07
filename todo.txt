@@ -1,9 +1,7 @@
 TODO
 --------
-
  - Continue to work on generating EntryPoints\GenerateReport
-        - Add ability to insert blank row after field
-        -  See module ZZZ_Testing for hiding details (=collapsing rows and fields)
+        Continue working on CollapsePivotFieldValues to solve for multiple items as below.
         - How do I collapse multiple items on row or column?  Drilldown seems to only handle one --> only way I can see how to do this is set drill down for the pvot field as false.  Then loop and set relevant items as true
         - set pivot field number format
         - Set other properties of pivot table (see empty CustomisePivotTable Sub)

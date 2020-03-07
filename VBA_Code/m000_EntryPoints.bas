@@ -23,8 +23,10 @@ Public Type TypeReportFieldSettings
     CustomFormat As String
     Subtotal As Boolean
     SubtotalAtTop As Boolean
+    BlankLine As Boolean
     FilterType As String
     FilterValues() As String
+    CollapseFieldValues() As String
 End Type
 
 Public Type TypeModelMeasures

@@ -194,6 +194,7 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     Dim sht As Worksheet
     Dim lo As ListObject
     Dim sRelativeReferenceOfDataFieldType As String
+    Dim sRelativeReferenceOfOrientation As String
     Dim sValidationStr As String
     Dim DataVal As FormatCondition
 
@@ -204,7 +205,7 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     sht.Range("SheetHeading") = "Report field settings"
     sht.Range("SheetCategory") = "Setup"
     sht.Range("B5") = "Run ""Data model update > Write Measures to columns and sheets"" to refresh validation "
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:K15"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:M15"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_ReportFields"
         .HeaderRowRange.Cells(1) = "Report Name"
@@ -215,25 +216,39 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
         .HeaderRowRange.Cells(6) = "Custom Format"
         .HeaderRowRange.Cells(7) = "Subtotal"
         .HeaderRowRange.Cells(8) = "Subtotal at top"
-        .HeaderRowRange.Cells(9) = "Filter Type"
-        .HeaderRowRange.Cells(10) = "Filter Values"
+        .HeaderRowRange.Cells(9) = "Blank line between items"
+        .HeaderRowRange.Cells(10) = "Filter type"
+        .HeaderRowRange.Cells(11) = "Filter values"
+        .HeaderRowRange.Cells(12) = "Collapse field values"
+        
+        FormatTable lo
+        
         .ListColumns("Filter Values").DataBodyRange.NumberFormat = "@"
+        .ListColumns("Subtotal").DataBodyRange.NumberFormat = "@"
+        .ListColumns("Subtotal at top").DataBodyRange.NumberFormat = "@"
+        .ListColumns("Blank line between items").DataBodyRange.NumberFormat = "@"
+        
+        .ListColumns("Report Name").Range.EntireColumn.ColumnWidth = 40
+        .ListColumns("Data Model Field Type").Range.EntireColumn.ColumnWidth = 20
+        .ListColumns("Cube Field Name").Range.EntireColumn.ColumnWidth = 40
+        .ListColumns("Orientation").Range.EntireColumn.ColumnWidth = 20
+        .ListColumns("Format").Range.EntireColumn.ColumnWidth = 20
+        .ListColumns("Custom Format").Range.EntireColumn.ColumnWidth = 15
+        .ListColumns("Subtotal").Range.EntireColumn.ColumnWidth = 15
+        .ListColumns("Subtotal at top").Range.EntireColumn.ColumnWidth = 15
+        .ListColumns("Blank line between items").Range.EntireColumn.ColumnWidth = 15
+        .ListColumns("Filter type").Range.EntireColumn.ColumnWidth = 15
+        .ListColumns("Filter values").Range.EntireColumn.ColumnWidth = 50
+        .ListColumns("Collapse field values").Range.EntireColumn.ColumnWidth = 50
+        
     End With
-    FormatTable lo
-    sht.Range("B:B").ColumnWidth = 40
-    sht.Range("C:C").ColumnWidth = 20
-    sht.Range("D:D").ColumnWidth = 40
-    sht.Range("E:E").ColumnWidth = 20
-    sht.Range("F:F").ColumnWidth = 20
-    sht.Range("G:G").ColumnWidth = 20
-    sht.Range("H:H").ColumnWidth = 15
-    sht.Range("I:I").ColumnWidth = 15
-    sht.Range("J:J").ColumnWidth = 15
-    sht.Range("K:K").ColumnWidth = 50
     
+    
+    'Set range relative reference strings
+    sRelativeReferenceOfDataFieldType = Replace(lo.ListColumns("Data Model Field Type").DataBodyRange.Cells(1).Address, "$", "")
+    sRelativeReferenceOfOrientation = Replace(lo.ListColumns("Orientation").DataBodyRange.Cells(1).Address, "$", "")
     
     'Set cube field validations (cascading depending on field type)
-    sRelativeReferenceOfDataFieldType = Replace(lo.ListColumns("Data Model Field Type").DataBodyRange.Cells(1).Address, "$", "")
     sValidationStr = "=INDIRECT(""val_"" & IF(" & sRelativeReferenceOfDataFieldType & " ="""", ""Measure"", " & sRelativeReferenceOfDataFieldType & ") & ""s"")"
     lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Add _
         Type:=xlValidateList, Formula1:=sValidationStr
@@ -252,6 +267,9 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="True,False"
         
     lo.ListColumns("Subtotal at top").DataBodyRange.Validation.Add _
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="True,False"
+        
+    lo.ListColumns("Blank line between items").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="True,False"
         
     lo.ListColumns("Filter type").DataBodyRange.Validation.Add _
@@ -284,6 +302,11 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
         Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Measure""")
     DataVal.Interior.Color = RGB(0, 0, 0)
         
+    Set DataVal = lo.ListColumns("Blank line between items").DataBodyRange.FormatConditions.Add _
+        (Type:=xlExpression, _
+        Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Measure""")
+    DataVal.Interior.Color = RGB(0, 0, 0)
+        
     Set DataVal = lo.ListColumns("Filter Type").DataBodyRange.FormatConditions.Add _
         (Type:=xlExpression, _
         Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Measure""")
@@ -292,6 +315,11 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     Set DataVal = lo.ListColumns("Filter Values").DataBodyRange.FormatConditions.Add _
         (Type:=xlExpression, _
         Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Measure""")
+    DataVal.Interior.Color = RGB(0, 0, 0)
+        
+    Set DataVal = lo.ListColumns("Collapse field values").DataBodyRange.FormatConditions.Add _
+        (Type:=xlExpression, _
+        Formula1:="=OR(" & sRelativeReferenceOfDataFieldType & " = ""Measure"", " & sRelativeReferenceOfOrientation & "= ""Filter"")")
     DataVal.Interior.Color = RGB(0, 0, 0)
         
         

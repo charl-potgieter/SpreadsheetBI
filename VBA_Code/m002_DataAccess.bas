@@ -73,9 +73,13 @@ Sub GetReportFieldSettings(ByVal sReportName As String, ByRef ReportFieldSetting
                 ReportFieldSettings(j).CustomFormat = .ListColumns("Custom Format").DataBodyRange.Cells(i)
                 ReportFieldSettings(j).Subtotal = CBool(.ListColumns("Subtotal").DataBodyRange.Cells(i))
                 ReportFieldSettings(j).SubtotalAtTop = CBool(.ListColumns("Subtotal at top").DataBodyRange.Cells(i))
+                ReportFieldSettings(j).BlankLine = CBool(.ListColumns("Blank line between items").DataBodyRange.Cells(i))
                 ReportFieldSettings(j).FilterType = .ListColumns("Filter Type").DataBodyRange.Cells(i)
                 If ReportFieldSettings(j).FilterType <> "" Then
                     CommaSeperatedDelimit .ListColumns("Filter Values").DataBodyRange.Cells(i), ReportFieldSettings(j).FilterValues
+                End If
+                If .ListColumns("Collapse field values").DataBodyRange.Cells(i) <> "" Then
+                    CommaSeperatedDelimit .ListColumns("Collapse field values").DataBodyRange.Cells(i), ReportFieldSettings(j).CollapseFieldValues
                 End If
                 j = j + 1
             End If

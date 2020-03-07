@@ -47,11 +47,11 @@ Sub SetPivotFields(ByRef pvt As PivotTable, ByRef ReportFieldSettings() As TypeR
     Dim j As Integer
 
     
-    For i = 0 To UBound(ReportFieldSettings)
     
-        
+    
+    For i = 0 To UBound(ReportFieldSettings)
         With ReportFieldSettings(i)
-            
+                    
             'Set field orientation
             Select Case True
                 Case .FieldType = "Measure"
@@ -66,7 +66,7 @@ Sub SetPivotFields(ByRef pvt As PivotTable, ByRef ReportFieldSettings() As TypeR
             
             'Filter columns, rows, filters if required
             Select Case True
-                Case .FieldType = "Measure"
+                Case .FieldType = "Measure" Or Not (ArrayIsDimensioned(.FilterValues))
                     'Do Nothing
                 Case .FilterType = "Include"
                     PivotFilterInclude pvt, .CubeFieldName, .FilterValues
@@ -94,13 +94,27 @@ Sub SetPivotFields(ByRef pvt As PivotTable, ByRef ReportFieldSettings() As TypeR
                     SetPivotSubtotalsAtBottom pvt, .CubeFieldName
             End Select
             
+            'Insert blank line if appropriate
+            If .FieldType = "Column" And .BlankLine Then
+                pvt.CubeFields(.CubeFieldName).PivotFields(1).LayoutBlankLine = True
+            End If
         End With
-          
-        
     Next i
+        
+        
+    'Need to handle collapsing fields on a seperate loop as cannot collapse before underlying rows or
+    'columns are in place
+    For i = 0 To UBound(ReportFieldSettings)
+        With ReportFieldSettings(i)
+            If (.FieldType <> "Measure") And (ArrayIsDimensioned(.CollapseFieldValues)) And (.Orientation <> "Filter") Then
+                CollapsePivotFieldValues pvt, .CubeFieldName, .CollapseFieldValues
+            End If
+        End With
+    Next i
+        
+        
     
-    
-                
+                    
                 
     'Set field on either data, row of colum
     
@@ -241,3 +255,36 @@ Sub SetPivotSubtotalsAtBottom(ByRef pvt As PivotTable, ByVal sCubeFieldName As S
 End Sub
 
 
+
+Sub CollapsePivotFieldValues(ByRef pvt As PivotTable, ByVal sCubeFieldName, ByRef aCollapseValues() As String)
+'Collapse rows / columns of sCubeFieldName where they have values equal to those in aCollapseValues array
+
+    Dim pf As PivotField
+    Dim pi As PivotItem
+    Dim sPivotItemName As String
+    Dim sItemExclField As String
+    Dim i As Integer
+
+    Set pf = pvt.CubeFields(sCubeFieldName).PivotFields(1)
+    
+    'Cannot simply loop all values to collapse and if multiple need to be collapse, collapsing the
+    '2nd item makes the first visible.  Solution is to hide all and then selectively unhide if more
+    'than one item needs to be collapsed
+    If UBound(aCollapseValues) = 0 Then
+        Set pf = pvt.CubeFields(sCubeFieldName).PivotFields(1)
+        sPivotItemName = sCubeFieldName & ".&[" & aCollapseValues(0) & "]"
+        Set pi = pf.PivotItems(sPivotItemName)
+        pi.DrilledDown = False
+    Else
+        pf.DrilledDown = False
+        For Each pi In pf.PivotItems
+            sItemExclField = Replace(Replace(Replace(pi.Value, sCubeFieldName & ".&", ""), "[", ""), "]", "")
+            If Not ValueIsInStringArray(sItemExclField, aCollapseValues) Then
+                pi.DrilledDown = True
+            End If
+        Next pi
+    End If
+
+
+
+End Sub
