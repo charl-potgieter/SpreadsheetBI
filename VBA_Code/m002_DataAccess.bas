@@ -45,6 +45,8 @@ Sub GetReportProperties(ByVal sReportName As String, ByRef ReportProperties As T
                 ReportProperties.AutoFit = .ListColumns("AutoFit").DataBodyRange.Cells(i)
                 ReportProperties.RowTotals = .ListColumns("Total Rows").DataBodyRange.Cells(i)
                 ReportProperties.ColumnTotals = .ListColumns("Total Columns").DataBodyRange.Cells(i)
+                ReportProperties.DisplayExpandButtons = .ListColumns("Display expand buttons").DataBodyRange.Cells(i)
+                ReportProperties.DisplayFieldHeaders = .ListColumns("Display field headers").DataBodyRange.Cells(i)
             End If
         Next i
     End With

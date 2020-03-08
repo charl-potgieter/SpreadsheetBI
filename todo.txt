@@ -1,10 +1,10 @@
 TODO
 --------
  - Continue to work on generating EntryPoints\GenerateReport
-        Continue working on CollapsePivotFieldValues to solve for multiple items as below.
-        - How do I collapse multiple items on row or column?  Drilldown seems to only handle one --> only way I can see how to do this is set drill down for the pvot field as false.  Then loop and set relevant items as true
-        - set pivot field number format
-        - Set other properties of pivot table (see empty CustomisePivotTable Sub)
+        
+        - Set other properties of pivot table (see empty CustomisePivotTable Sub) for example
+            - Freeze pane cell
+             - Column Widths?
 
  - See QueryFlow.pdf
         

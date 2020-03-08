@@ -33,11 +33,13 @@ End Sub
 
 Sub CustomisePivotTable(ByRef pvt As PivotTable, ReportProperties As TypeReportProperties)
 
-    
-    pvt.HasAutoFormat = ReportProperties.AutoFit
-    pvt.ColumnGrand = ReportProperties.ColumnTotals
-    pvt.RowGrand = ReportProperties.RowTotals
-    
+    With ReportProperties
+        pvt.HasAutoFormat = .AutoFit
+        pvt.ColumnGrand = .ColumnTotals
+        pvt.RowGrand = .RowTotals
+        pvt.ShowDrillIndicators = .DisplayExpandButtons
+        pvt.DisplayFieldCaptions = .DisplayFieldHeaders
+    End With
 
 End Sub
 
@@ -45,9 +47,6 @@ Sub SetPivotFields(ByRef pvt As PivotTable, ByRef ReportFieldSettings() As TypeR
 
     Dim i As Integer
     Dim j As Integer
-
-    
-    
     
     For i = 0 To UBound(ReportFieldSettings)
         With ReportFieldSettings(i)
@@ -98,6 +97,22 @@ Sub SetPivotFields(ByRef pvt As PivotTable, ByRef ReportFieldSettings() As TypeR
             If .FieldType = "Column" And .BlankLine Then
                 pvt.CubeFields(.CubeFieldName).PivotFields(1).LayoutBlankLine = True
             End If
+            
+            'Format measures
+            Select Case True
+                Case .FieldType <> "Measure"
+                    'Do Nothing
+                Case .CustomFormat <> ""
+                    pvt.PivotFields(.CubeFieldName).NumberFormat = .CustomFormat
+                Case .Format = "Zero Decimals"
+                    pvt.PivotFields(.CubeFieldName).NumberFormat = "#,##0_);(#,##0);-??"
+                Case .Format = "One Decimal"
+                    pvt.PivotFields(.CubeFieldName).NumberFormat = "#,##0.0_);(#,##0.0);-??"
+                Case .Format = "Two Decimals"
+                    pvt.PivotFields(.CubeFieldName).NumberFormat = "#,##0.00_);(#,##0.00);-??"
+            End Select
+
+            
         End With
     Next i
         
@@ -116,18 +131,8 @@ Sub SetPivotFields(ByRef pvt As PivotTable, ByRef ReportFieldSettings() As TypeR
     
                     
                 
-    'Set field on either data, row of colum
+
     
-    
-    'Format field
-'    Select Case .ListColumns("Format").DataBodyRange.Cells(i)
-'        Case "Zero Decimals"
-'            pvt.PivotFields(sCubeFieldName).NumberFormat = "#,##0_);(#,##0);-??"
-'        Case "One Decimal"
-'            pvt.PivotFields(sCubeFieldName).NumberFormat = "#,##0.0_);(#,##0.0);-??"
-'        Case "Two Decimals"
-'            pvt.PivotFields(sCubeFieldName).NumberFormat = "#,##0.00_);(#,##0.00);-??"
-'    End Select
                 
 
 End Sub

@@ -165,20 +165,44 @@ Sub CreateReportPropertiesSheet(ByRef wkb As Workbook)
     sht.Name = "ReportProperties"
     sht.Range("SheetHeading") = "Report properties"
     sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:E8"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:G8"), XlListObjectHasHeaders:=xlYes)
     With lo
+        'Set headers
         .Name = "tbl_ReportProperties"
         .HeaderRowRange.Cells(1) = "Report Name"
         .HeaderRowRange.Cells(2) = "AutoFit"
         .HeaderRowRange.Cells(3) = "Total Rows"
         .HeaderRowRange.Cells(4) = "Total Columns"
+        .HeaderRowRange.Cells(5) = "Display expand buttons"
+        .HeaderRowRange.Cells(6) = "Display field headers"
         .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
+        
+        'Set formats
+        '.ListColumns("AutoFit").DataBodyRange.NumberFormat = "@"
+        FormatTable lo
+        
+        'Set column widths
+        .ListColumns("Report Name").DataBodyRange.EntireColumn.ColumnWidth = 50
+        .ListColumns("AutoFit").DataBodyRange.EntireColumn.ColumnWidth = 20
+        .ListColumns("Total Rows").DataBodyRange.EntireColumn.ColumnWidth = 15
+        .ListColumns("Total Columns").DataBodyRange.EntireColumn.ColumnWidth = 15
+        .ListColumns("Display expand Buttons").DataBodyRange.EntireColumn.ColumnWidth = 15
+        .ListColumns("Display field headers").DataBodyRange.EntireColumn.ColumnWidth = 15
+        
+        'Set validations
+        .ListColumns("AutoFit").DataBodyRange.Validation.Add _
+            Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TRUE,FALSE"
+        .ListColumns("Total Rows").DataBodyRange.Validation.Add _
+            Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TRUE,FALSE"
+        .ListColumns("Total Columns").DataBodyRange.Validation.Add _
+            Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TRUE,FALSE"
+        .ListColumns("Display expand buttons").DataBodyRange.Validation.Add _
+            Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TRUE,FALSE"
+        .ListColumns("Display field headers").DataBodyRange.Validation.Add _
+            Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TRUE,FALSE"
+            
+        
     End With
-    FormatTable lo
-    sht.Range("B:B").ColumnWidth = 50
-    sht.Range("C:C").ColumnWidth = 20
-    sht.Range("D:D").ColumnWidth = 20
-    sht.Range("E:E").ColumnWidth = 20
 
     'Freeze Panes
     sht.Activate
@@ -195,6 +219,9 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     Dim lo As ListObject
     Dim sRelativeReferenceOfDataFieldType As String
     Dim sRelativeReferenceOfOrientation As String
+    Dim sRelativeReferenceFormat As String
+    Dim sRelativeReferenceCustomFormat As String
+    
     Dim sValidationStr As String
     Dim DataVal As FormatCondition
 
@@ -224,9 +251,7 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
         FormatTable lo
         
         .ListColumns("Filter Values").DataBodyRange.NumberFormat = "@"
-        .ListColumns("Subtotal").DataBodyRange.NumberFormat = "@"
-        .ListColumns("Subtotal at top").DataBodyRange.NumberFormat = "@"
-        .ListColumns("Blank line between items").DataBodyRange.NumberFormat = "@"
+        .ListColumns("Custom Format").DataBodyRange.NumberFormat = "@"
         
         .ListColumns("Report Name").Range.EntireColumn.ColumnWidth = 40
         .ListColumns("Data Model Field Type").Range.EntireColumn.ColumnWidth = 20
@@ -247,6 +272,8 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
     'Set range relative reference strings
     sRelativeReferenceOfDataFieldType = Replace(lo.ListColumns("Data Model Field Type").DataBodyRange.Cells(1).Address, "$", "")
     sRelativeReferenceOfOrientation = Replace(lo.ListColumns("Orientation").DataBodyRange.Cells(1).Address, "$", "")
+    sRelativeReferenceFormat = Replace(lo.ListColumns("Format").DataBodyRange.Cells(1).Address, "$", "")
+    sRelativeReferenceCustomFormat = Replace(lo.ListColumns("Custom Format").DataBodyRange.Cells(1).Address, "$", "")
     
     'Set cube field validations (cascading depending on field type)
     sValidationStr = "=INDIRECT(""val_"" & IF(" & sRelativeReferenceOfDataFieldType & " ="""", ""Measure"", " & sRelativeReferenceOfDataFieldType & ") & ""s"")"
@@ -261,16 +288,16 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Row, Column, Filter"
 
     lo.ListColumns("Format").DataBodyRange.Validation.Add _
-        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Zero Decimals,One Decimal,Two Decimals,Custom"
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Zero Decimals,One Decimal,Two Decimals"
     
     lo.ListColumns("Subtotal").DataBodyRange.Validation.Add _
-        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="True,False"
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TRUE,FALSE"
         
     lo.ListColumns("Subtotal at top").DataBodyRange.Validation.Add _
-        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="True,False"
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TRUE,FALSE"
         
     lo.ListColumns("Blank line between items").DataBodyRange.Validation.Add _
-        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="True,False"
+        Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TRUE,FALSE"
         
     lo.ListColumns("Filter type").DataBodyRange.Validation.Add _
         Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Include,Exclude"
@@ -282,14 +309,16 @@ Sub CreateReportFieldSettingsSheet(ByRef wkb As Workbook)
         Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Measure""")
     DataVal.Interior.Color = RGB(0, 0, 0)
     
-    Set DataVal = lo.ListColumns("Format").DataBodyRange.FormatConditions.Add _
-        (Type:=xlExpression, _
-        Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Column""")
+    Set DataVal = lo.ListColumns("Format").DataBodyRange.FormatConditions.Add( _
+        Type:=xlExpression, _
+        Formula1:="=OR(" & sRelativeReferenceOfDataFieldType & " = ""Column"", " & sRelativeReferenceCustomFormat & "<> """")" _
+        )
     DataVal.Interior.Color = RGB(0, 0, 0)
     
     Set DataVal = lo.ListColumns("Custom Format").DataBodyRange.FormatConditions.Add _
         (Type:=xlExpression, _
-        Formula1:="=" & sRelativeReferenceOfDataFieldType & " = ""Column""")
+        Formula1:="=OR(" & sRelativeReferenceOfDataFieldType & " = ""Column"", " & sRelativeReferenceFormat & "<> """")" _
+        )
     DataVal.Interior.Color = RGB(0, 0, 0)
         
     Set DataVal = lo.ListColumns("Subtotal").DataBodyRange.FormatConditions.Add _

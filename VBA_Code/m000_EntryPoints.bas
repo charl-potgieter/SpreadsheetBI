@@ -13,6 +13,8 @@ Public Type TypeReportProperties
     AutoFit As Boolean
     RowTotals As Boolean
     ColumnTotals As Boolean
+    DisplayExpandButtons As Boolean
+    DisplayFieldHeaders As Boolean
 End Type
 
 Public Type TypeReportFieldSettings
