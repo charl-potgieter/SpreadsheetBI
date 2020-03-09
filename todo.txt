@@ -1,5 +1,13 @@
 TODO
 --------
+- fnConsolFilesInFolder.  Retain folder and file name fields
+
+- add functions TabularDataFirstTab
+
+Think about feeding a filter function to fn_consol files in folder.  This may provide a more generic solution compared to current date filter method
+ Create fnstd_FileNameInYearMonthRange
+Fnstd_FileNameInYearRange
+
  - Continue to work on generating EntryPoints\GenerateReport
         
         - Set other properties of pivot table (see empty CustomisePivotTable Sub) for example
