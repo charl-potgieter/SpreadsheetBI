@@ -511,7 +511,7 @@ Sub CreateBiSpreadsheet()
     'Create workbook and ensure it consists of only one sheet
     Set wkb = Application.Workbooks.Add
     If wkb.Sheets.Count <> 1 Then
-        For i = 2 To wkb.Sheets.Count
+        For i = wkb.Sheets.Count To 2 Step -1
             wkb.Sheets(i).Delete
         Next i
     End If

@@ -1,5 +1,8 @@
 TODO
 --------
+ - Create a DataAccessQueries tab to designate queries for loading
+ 
+ - Create an associated function to pick up Load / No Load from above.
 
 - Create query templates for standard data queries? 
 
