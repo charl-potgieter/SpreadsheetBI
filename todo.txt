@@ -1,12 +1,7 @@
 TODO
 --------
-- fnConsolFilesInFolder.  Retain folder and file name fields
 
-- add functions TabularDataFirstTab
-
-Think about feeding a filter function to fn_consol files in folder.  This may provide a more generic solution compared to current date filter method
- Create fnstd_FileNameInYearMonthRange
-Fnstd_FileNameInYearRange
+- Create query templates for standard data queries? 
 
  - Continue to work on generating EntryPoints\GenerateReport
         
@@ -15,26 +10,11 @@ Fnstd_FileNameInYearRange
              - Column Widths?
 
  - See QueryFlow.pdf
-        
- - Create templates to assist in creation of query flow         
-        
-Potentially easier to set types after consolidation.  Keep data access raw and return all values  --> can then change fn_ConsoldidatedFiles so that it doesn't ahve to set types
-
-- Power Query Consolidated Files in Folder
- - use table.First 
-    - add functionality to select only first row of data if flag is set (don't want to return empty tables as will throw errors in power pivot lookup tables).   Pick up first row of first file only, don't expand all files
-
-    - maybe first create the functionality to do this on a single file?
-
-Data_Access power queries should provide access to all fields and rows without filters.  Filters, combining etc can be applied in other queries 
-
- - Create code to update / overwrite fn_std power queries in this workbook to the active workbook
-
 
  - Create generic code to check for items in data tables not in lookup tables using EXCEPT function
 
 
-  - Create code for DAX query link back table in seperate file to avoid bloating working model file --> don't think it will be that practical putting in a seperate file but potentially could be better codified --> maybe rather work in techniques for faster power queries rather than complications of link back tables.
+  - Create code for DAX query link back table and ability to import and  export the relevant dax code
 
 - create code to generate dax query table on worksheet   
   
