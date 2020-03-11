@@ -4,7 +4,8 @@
     LoadData as logical,
     optional fn_FilterBasedOnFileName as function,
     optional FilterFromValue,
-    optional FilterToValue
+    optional FilterToValue,
+    optional Additional_fn_SingleFileParameter as text      // utilsed for example to specify specific sheet name or table in fn_SingleFile
 )=>
 let
 
@@ -23,7 +24,10 @@ let
         ReturnOnlyIfLoadRequested,
 
     // Add single file tables, remove excess columns and expand
-    AddTableCol = Table.AddColumn(FilteredFile, "tbl", each fn_SingleFile([Folder Path], [Name])),
+    AddTableCol = if Additional_fn_SingleFileParameter = null then
+            Table.AddColumn(FilteredFile, "tbl", each fn_SingleFile([Folder Path], [Name]))
+        else
+            Table.AddColumn(FilteredFile, "tbl", each fn_SingleFile([Folder Path], [Name], Additional_fn_SingleFileParameter)),
     RemoveCols = Table.RemoveColumns(AddTableCol, {"Content", "Extension", "Date accessed", "Date modified", "Date created", "Attributes"}),
     Expanded = Table.ExpandTableColumn(RemoveCols, "tbl", Table.ColumnNames(AddTableCol[tbl]{0})),
 
