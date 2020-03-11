@@ -1,10 +1,20 @@
 TODO
---------
+-------
+Currently I am handling the LoadData option differently for consolidated and single files remedy as below:
+ - route all DataAccess_XXX queries through fn_ConsolidatedFilesInFolder
+ - Create 2 additional fn_Single files that take 2 parameters
+     * read tabular specific sheet
+     * read tabular specific table
+ - pass this additional table  / sheet name to consolidated file as an additional paramter
+ 
+
  - Create a DataAccessQueries tab to designate queries for loading
  
  - Create an associated function to pick up Load / No Load from above.
 
 - Create query templates for standard data queries? 
+
+- ensure vba and power query exports are to active file ditectory
 
  - Continue to work on generating EntryPoints\GenerateReport
         
