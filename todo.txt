@@ -1,9 +1,13 @@
 TODO
 -------
-
- - Create sub to export all non-standard queries (useful for updating sheet)
  
-- Create query templates for standard data queries? 
+ - What is the best way to update the standard queries (given that some query names may also change) - potentially the below, hopefully something not required very often?
+  (Ideally one or 2 queries can simply be updated with a copy and paste)
+   * Export all non-standard queries
+   * Delete all queries (how do I easily do this given potential query dependencies)
+   * Reload new standard queries
+   * Reload previous non-standard queries
+ 
 
  - Continue to work on generating EntryPoints\GenerateReport
         
