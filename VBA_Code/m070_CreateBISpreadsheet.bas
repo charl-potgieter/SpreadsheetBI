@@ -118,30 +118,30 @@ Sub CreateReportListSheet(ByRef wkb As Workbook)
 End Sub
 
 
-Sub CreateQueriesPerReportSheet(ByRef wkb As Workbook)
+Sub CreateDataAccessQueriesPerReport(ByRef wkb As Workbook)
     
     Dim sht As Worksheet
     Dim lo As ListObject
     
     Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
     FormatSheet sht
-    sht.Name = "QueriesPerReport"
-    sht.Range("SheetHeading") = "Queries per report"
+    sht.Name = "DataAccessQueriesPerReport"
+    sht.Range("SheetHeading") = "Data access queries per report"
     sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D8"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:C8"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_QueriesPerReport"
         .HeaderRowRange.Cells(1) = "Report Name"
-        .HeaderRowRange.Cells(2) = "Report selected for run and query refresh"
-        .HeaderRowRange.Cells(3) = "Query Name"
+        .HeaderRowRange.Cells(2) = "Data Access Query Name"
         .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
-        .ListColumns("Report selected for run and query refresh").DataBodyRange.Formula = _
-             "=(COUNTIFS(tbl_ReportList[Report Name], [@[Report Name]], tbl_ReportList[Run with table refresh], ""*"")) > 0"
+        
+        FormatTable lo
+        .ListColumns("Report Name").DataBodyRange.EntireColumn.ColumnWidth = 50
+        .ListColumns("Data Access Query Name").DataBodyRange.EntireColumn.ColumnWidth = 50
+        
     End With
-    FormatTable lo
-    sht.Range("B:B").ColumnWidth = 50
-    sht.Range("C:C").ColumnWidth = 30
-    sht.Range("D:D").ColumnWidth = 50
+    
+
 
     'Freeze Panes
     sht.Activate

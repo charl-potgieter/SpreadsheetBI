@@ -139,7 +139,7 @@ Function GetFolder() As String
     With fldr
         .Title = "Select a folder"
         .AllowMultiSelect = False
-        .InitialFileName = ThisWorkbook.Path
+        .InitialFileName = ActiveWorkbook.Path
         If .Show = -1 Then
             GetFolder = .SelectedItems(1)
         End If

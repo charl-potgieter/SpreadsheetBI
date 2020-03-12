@@ -198,10 +198,26 @@ Sub ExportPowerQueriesInActiveWorkbookToFiles()
     End If
     
     ExportPowerQueriesToFiles sFolderSelected, ActiveWorkbook
+    MsgBox ("Queries Exported")
 
 End Sub
 
 
+Sub ExportNonStandardPowerQueriesInActiveWorkbookToFiles()
+'Exports power queries without fn_std or template_std prefix
+
+    Dim sFolderSelected As String
+    
+    sFolderSelected = GetFolder
+    If NumberOfFilesInFolder(sFolderSelected) <> 0 Then
+        MsgBox ("Please select an empty folder...exiting")
+        Exit Sub
+    End If
+    
+    ExportNonStandardPowerQueriesToFiles sFolderSelected, ActiveWorkbook
+    MsgBox ("Queries Exported")
+
+End Sub
 
 
 Sub ImportPowerQueriesFromSelectedFolderNonRecursive()
@@ -210,7 +226,8 @@ Sub ImportPowerQueriesFromSelectedFolderNonRecursive()
     
     sFolderSelected = GetFolder
     ImportOrRefreshPowerQueriesInFolder sFolderSelected, False
-
+    MsgBox ("Queries imported")
+    
 End Sub
 
 
@@ -221,7 +238,8 @@ Sub ImportPowerQueriesFromSelectedFolderRecursive()
     
     sFolderSelected = GetFolder
     ImportOrRefreshPowerQueriesInFolder sFolderSelected, True
-
+    MsgBox ("Queries imported")
+    
 End Sub
 
 
@@ -255,6 +273,7 @@ Sub ImportSelectedPowerQueries()
         Next i
     End If
     
+    MsgBox ("Queries imported")
 
 End Sub
 
@@ -519,7 +538,7 @@ Sub CreateBiSpreadsheet()
     CreateParameterSheet wkb
     CreateValidationSheet wkb
     CreateReportListSheet wkb
-    CreateQueriesPerReportSheet wkb
+    CreateDataAccessQueriesPerReport wkb
     CreateReportPropertiesSheet wkb
     CreateReportFieldSettingsSheet wkb
     CreateModelMeasuresSheet wkb

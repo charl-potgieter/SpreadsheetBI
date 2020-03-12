@@ -110,6 +110,10 @@ Sub CreatePopUpMenu()
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportPowerQueriesInActiveWorkbookToFiles"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Export non-standard power queries"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportNonStandardPowerQueriesInActiveWorkbookToFiles"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Import power queries in folder non-recursive"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ImportPowerQueriesFromSelectedFolderNonRecursive"
     
