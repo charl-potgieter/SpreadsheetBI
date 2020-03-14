@@ -539,6 +539,7 @@ Sub CreateBiSpreadsheet()
     CreateValidationSheet wkb
     CreateReportListSheet wkb
     CreateDataAccessQueriesPerReport wkb
+    CreateDataLoadQueriesPerReport wkb
     CreateReportPropertiesSheet wkb
     CreateReportFieldSettingsSheet wkb
     CreateModelMeasuresSheet wkb

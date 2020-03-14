@@ -7,7 +7,7 @@
 
 (QueryName as text)=>
 let
-    DataQueriesPerReport = Excel.CurrentWorkbook(){[Name="tbl_QueriesPerReport"]}[Content],
+    DataQueriesPerReport = Excel.CurrentWorkbook(){[Name="tbl_DataAccessQueriesPerReport"]}[Content],
     AllReports = Excel.CurrentWorkbook(){[Name = "tbl_ReportList"]}[Content],
     ReportsForRefreshTable = Table.SelectRows(AllReports, each [Run with table refresh] <> null),
     ReportsForRefreshList = ReportsForRefreshTable[Report Name],

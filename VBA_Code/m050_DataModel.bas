@@ -17,6 +17,7 @@ Sub ExportNonStandardPowerQueriesToFiles(ByVal sFolderPath As String, wkb As Wor
 
     Dim qry As WorkbookQuery
     
+    
     For Each qry In wkb.Queries
         If (InStr(1, UCase(qry.Name), "FN_STD_") = 0) And (InStr(1, UCase(qry.Name), "TEMPLATE_STD_") = 0) Then
             WriteStringToTextFile qry.Formula, sFolderPath & Application.PathSeparator & qry.Name & ".m"

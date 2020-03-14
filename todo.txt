@@ -1,6 +1,17 @@
 TODO
 -------
  
+ - Create generic code to check for items in data tables not in lookup tables using EXCEPT function
+     - DAX code using VALUES and EXCEPT is fairly easy
+     - Can use relationship table to work out what lookups / data table need to be checked and programatically generate the joins.
+     - Any way that I cen get a list of data_access queries based on the loaded queries so I don't need to maintain 2 lists per report?  -> May not be worth the effort --> any responses to stack overflow question?
+      - Code to follow:
+         - loop reports being run (both with and without refresh)
+         - add the data load queries to a collection to ensure only unique items
+         - loop the collection
+             - Inside of above loop, loop the relationship table
+               If table is the foreign table then ceate a DAX query on a new sheet to identify items missing in lookup table
+ 
  - What is the best way to update the standard queries (given that some query names may also change) - potentially the below, hopefully something not required very often?
   (Ideally one or 2 queries can simply be updated with a copy and paste)
    * Export all non-standard queries
@@ -17,7 +28,6 @@ TODO
 
  - See QueryFlow.pdf
 
- - Create generic code to check for items in data tables not in lookup tables using EXCEPT function
 
 
   - Create code for DAX query link back table and ability to import and  export the relevant dax code

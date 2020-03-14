@@ -80,7 +80,7 @@ Sub CreateReportListSheet(ByRef wkb As Workbook)
     sht.Name = "ReportList"
     sht.Range("SheetHeading") = "Report List"
     sht.Range("SheetCategory") = "Setup"
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B7:F10"), XlListObjectHasHeaders:=xlYes)
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:F9"), XlListObjectHasHeaders:=xlYes)
     With lo
         .Name = "tbl_ReportList"
         .HeaderRowRange.Cells(1) = "Report Name"
@@ -96,18 +96,7 @@ Sub CreateReportListSheet(ByRef wkb As Workbook)
     sht.Range("B:B").ColumnWidth = 60
     sht.Range("C:C").ColumnWidth = 30
     sht.Range("D:D").ColumnWidth = 30
-    sht.Range("B5") = "Clear data from non-dependent tables (mark with X)"
     
-    
-    
-    sht.Names.Add Name:="ClearData", RefersTo:="=$F$5"
-
-    With sht.Range("ClearData")
-        .Font.Bold = True
-        .HorizontalAlignment = xlCenter
-        .Interior.Color = RGB(217, 225, 242)
-    End With
-    SetOuterBorders sht.Range("ClearData")
 
     'Freeze Panes
     sht.Activate
@@ -130,7 +119,7 @@ Sub CreateDataAccessQueriesPerReport(ByRef wkb As Workbook)
     sht.Range("SheetCategory") = "Setup"
     Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:C8"), XlListObjectHasHeaders:=xlYes)
     With lo
-        .Name = "tbl_QueriesPerReport"
+        .Name = "tbl_DataAccessQueriesPerReport"
         .HeaderRowRange.Cells(1) = "Report Name"
         .HeaderRowRange.Cells(2) = "Data Access Query Name"
         .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
@@ -150,6 +139,38 @@ Sub CreateDataAccessQueriesPerReport(ByRef wkb As Workbook)
 
 End Sub
 
+
+Sub CreateDataLoadQueriesPerReport(ByRef wkb As Workbook)
+    
+    Dim sht As Worksheet
+    Dim lo As ListObject
+    
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "DataLoadQueriesPerReport"
+    sht.Range("SheetHeading") = "Data load queries per report"
+    sht.Range("SheetCategory") = "Setup"
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:C8"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_DataLoadQueriesPerReport"
+        .HeaderRowRange.Cells(1) = "Report Name"
+        .HeaderRowRange.Cells(2) = "Data Load Query Name"
+        .HeaderRowRange.RowHeight = .HeaderRowRange.RowHeight * 2
+        
+        FormatTable lo
+        .ListColumns("Report Name").DataBodyRange.EntireColumn.ColumnWidth = 50
+        .ListColumns("Data Load Query Name").DataBodyRange.EntireColumn.ColumnWidth = 50
+        
+    End With
+    
+
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
+
+End Sub
 
 
 
