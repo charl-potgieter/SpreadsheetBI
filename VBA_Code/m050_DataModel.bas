@@ -148,6 +148,110 @@ Sub CopyPowerQueriesBetweenFiles(ByRef wkbSource As Workbook, ByRef wkbTarget As
 End Sub
 
 
+Sub WritesMeasuresColumnsRelationshipsToSheets()
+
+    Dim aMeasures() As TypeModelMeasures
+    Dim aColumns() As TypeModelColumns
+    Dim aCalcColumns() As TypeModelCalcColumns
+    Dim aModelRelationships() As TypeModelRelationship
+    Dim rngValidations As Range
+    Dim lo As ListObject
+    Dim i As Integer
+    Dim j As Integer
+
+      
+    '----------------- Populate Model Measures Sheet and write visible measures to validation sheet ---------------
+    
+    GetModelMeasures aMeasures
+    Set lo = ActiveWorkbook.Sheets("ModelMeasures").ListObjects("tbl_ModelMeasures")
+    lo.DataBodyRange.ClearContents
+    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
+    Set rngValidations = ActiveWorkbook.Sheets("Validations").Range("val_Measures")
+    rngValidations.ClearContents
+    
+    j = 0
+    With lo
+        For i = 0 To UBound(aMeasures)
+            .ListColumns("Name").DataBodyRange.Cells(i + 1) = aMeasures(i).Name
+            .ListColumns("Visible").DataBodyRange.Cells(i + 1) = aMeasures(i).Visible
+            .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aMeasures(i).UniqueName
+            .ListColumns("DAX Expression").DataBodyRange.Cells(i + 1) = "':=" & aMeasures(i).Expression
+            .ListColumns("Name and Expression").DataBodyRange.Cells(i + 1) = aMeasures(i).Name & ":=" & aMeasures(i).Expression
+            If aMeasures(i).Visible Then
+                rngValidations.Cells(1).Offset(j) = aMeasures(i).UniqueName
+                j = j + 1
+            End If
+        Next i
+    End With
+    
+    ActiveWorkbook.Names("val_Measures").RefersTo = "=Validations!" & rngValidations.Cells(1).Resize(j).Address
+    
+
+    '----------------- Populate Model Columns Sheet and write visible columns to validation sheet ---------------
+
+    GetModelColumns aColumns
+    Set lo = ActiveWorkbook.Sheets("ModelColumns").ListObjects("tbl_ModelColumns")
+    lo.DataBodyRange.ClearContents
+    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
+    Set rngValidations = ActiveWorkbook.Names("val_Columns").RefersToRange
+    rngValidations.ClearContents
+
+    
+    j = 0
+    With lo
+        For i = 0 To UBound(aColumns)
+            .ListColumns("Name").DataBodyRange.Cells(i + 1) = aColumns(i).Name
+            .ListColumns("Table Name").DataBodyRange.Cells(i + 1) = aColumns(i).TableName
+            .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aColumns(i).UniqueName
+            .ListColumns("Visible").DataBodyRange.Cells(i + 1) = aColumns(i).Visible
+            .ListColumns("Is calculated column").DataBodyRange.Cells(i + 1).Formula = "=COUNTIFS(tbl_ModelCalcColumns[Name], [@Name]) = 1"
+            If aColumns(i).Visible Then
+                rngValidations.Cells(1).Offset(j) = aColumns(i).UniqueName
+                j = j + 1
+            End If
+        Next i
+    End With
+    
+    ActiveWorkbook.Names("val_Columns").RefersTo = "=Validations!" & rngValidations.Cells(1).Resize(j).Address
+    
+    
+    '----------------- Populate Model Calculated Columns Sheet ---------------
+
+    GetModelCalculatedColumns aCalcColumns
+    Set lo = ActiveWorkbook.Sheets("ModelCalcColumns").ListObjects("tbl_ModelCalcColumns")
+    lo.DataBodyRange.ClearContents
+    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
+    
+    With lo
+        For i = 0 To UBound(aCalcColumns)
+            .ListColumns("Name").DataBodyRange.Cells(i + 1) = aCalcColumns(i).Name
+            .ListColumns("Table Name").DataBodyRange.Cells(i + 1) = aCalcColumns(i).TableName
+            .ListColumns("Expression").DataBodyRange.Cells(i + 1) = aCalcColumns(i).Expression
+        Next i
+    End With
+    
+    
+    '----------------- Populate Model Relationship Sheet ---------------
+
+    GetModelRelationships aModelRelationships
+    Set lo = ActiveWorkbook.Sheets("ModelRelationships").ListObjects("tbl_ModelRelationships")
+    lo.DataBodyRange.ClearContents
+    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
+    
+    With lo
+        For i = 0 To UBound(aModelRelationships)
+            .ListColumns("Primary Key Table").DataBodyRange.Cells(i + 1) = aModelRelationships(i).PrimaryKeyTable
+            .ListColumns("Primary Key Column").DataBodyRange.Cells(i + 1) = aModelRelationships(i).PrimaryKeyColumn
+            .ListColumns("Foreign Key Table").DataBodyRange.Cells(i + 1) = aModelRelationships(i).ForeignKeyTable
+            .ListColumns("Foreign Key Column").DataBodyRange.Cells(i + 1) = aModelRelationships(i).ForeignKeyColumn
+            .ListColumns("Active").DataBodyRange.Cells(i + 1) = aModelRelationships(i).Active
+        Next i
+    End With
+    
+
+End Sub
+
+
 
 
 Sub GetModelColumnNames(ByRef asColumnList() As String, Optional bReturnVisibleOnly As Boolean = True)

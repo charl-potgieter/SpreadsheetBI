@@ -99,7 +99,7 @@ Sub CreatePopUpMenu()
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Write measures, columns and relationships to sheets"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WritesMeasuresColumnsRelationshipsToSheets"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WritesMeasuresColumnsRelationshipsToSheetsEntryPoint"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Generate Reports"

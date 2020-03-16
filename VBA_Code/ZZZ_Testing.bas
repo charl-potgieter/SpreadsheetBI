@@ -17,7 +17,7 @@ Sub TestHideDetails()
     pi.DrilledDown = False
     
 
-'
+
 End Sub
 
 

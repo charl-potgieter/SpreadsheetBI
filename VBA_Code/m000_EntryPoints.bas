@@ -667,16 +667,8 @@ Sub GenerateReports()
 
 End Sub
 
-Sub WritesMeasuresColumnsRelationshipsToSheets()
+Sub WritesMeasuresColumnsRelationshipsToSheetsEntryPoint()
 
-    Dim aMeasures() As TypeModelMeasures
-    Dim aColumns() As TypeModelColumns
-    Dim aCalcColumns() As TypeModelCalcColumns
-    Dim aModelRelationships() As TypeModelRelationship
-    Dim rngValidations As Range
-    Dim lo As ListObject
-    Dim i As Integer
-    Dim j As Integer
     
     'Setup
     Application.ScreenUpdating = False
@@ -684,97 +676,7 @@ Sub WritesMeasuresColumnsRelationshipsToSheets()
     Application.Calculation = xlCalculationManual
     Application.DisplayAlerts = False
     
-    
-    
-    '----------------- Populate Model Measures Sheet and write visible measures to validation sheet ---------------
-    
-    GetModelMeasures aMeasures
-    Set lo = ActiveWorkbook.Sheets("ModelMeasures").ListObjects("tbl_ModelMeasures")
-    lo.DataBodyRange.ClearContents
-    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
-    Set rngValidations = ActiveWorkbook.Sheets("Validations").Range("val_Measures")
-    rngValidations.ClearContents
-    
-    j = 0
-    With lo
-        For i = 0 To UBound(aMeasures)
-            .ListColumns("Name").DataBodyRange.Cells(i + 1) = aMeasures(i).Name
-            .ListColumns("Visible").DataBodyRange.Cells(i + 1) = aMeasures(i).Visible
-            .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aMeasures(i).UniqueName
-            .ListColumns("DAX Expression").DataBodyRange.Cells(i + 1) = "':=" & aMeasures(i).Expression
-            .ListColumns("Name and Expression").DataBodyRange.Cells(i + 1) = aMeasures(i).Name & ":=" & aMeasures(i).Expression
-            If aMeasures(i).Visible Then
-                rngValidations.Cells(1).Offset(j) = aMeasures(i).UniqueName
-                j = j + 1
-            End If
-        Next i
-    End With
-    
-    ActiveWorkbook.Names("val_Measures").RefersTo = "=Validations!" & rngValidations.Cells(1).Resize(j).Address
-    
-
-    '----------------- Populate Model Columns Sheet and write visible columns to validation sheet ---------------
-
-    GetModelColumns aColumns
-    Set lo = ActiveWorkbook.Sheets("ModelColumns").ListObjects("tbl_ModelColumns")
-    lo.DataBodyRange.ClearContents
-    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
-    Set rngValidations = ActiveWorkbook.Names("val_Columns").RefersToRange
-    rngValidations.ClearContents
-
-    
-    j = 0
-    With lo
-        For i = 0 To UBound(aColumns)
-            .ListColumns("Name").DataBodyRange.Cells(i + 1) = aColumns(i).Name
-            .ListColumns("Table Name").DataBodyRange.Cells(i + 1) = aColumns(i).TableName
-            .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aColumns(i).UniqueName
-            .ListColumns("Visible").DataBodyRange.Cells(i + 1) = aColumns(i).Visible
-            .ListColumns("Is calculated column").DataBodyRange.Cells(i + 1).Formula = "=COUNTIFS(tbl_ModelCalcColumns[Name], [@Name]) = 1"
-            If aColumns(i).Visible Then
-                rngValidations.Cells(1).Offset(j) = aColumns(i).UniqueName
-                j = j + 1
-            End If
-        Next i
-    End With
-    
-    ActiveWorkbook.Names("val_Columns").RefersTo = "=Validations!" & rngValidations.Cells(1).Resize(j).Address
-    
-    
-    '----------------- Populate Model Calculated Columns Sheet ---------------
-
-    GetModelCalculatedColumns aCalcColumns
-    Set lo = ActiveWorkbook.Sheets("ModelCalcColumns").ListObjects("tbl_ModelCalcColumns")
-    lo.DataBodyRange.ClearContents
-    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
-    
-    With lo
-        For i = 0 To UBound(aCalcColumns)
-            .ListColumns("Name").DataBodyRange.Cells(i + 1) = aCalcColumns(i).Name
-            .ListColumns("Table Name").DataBodyRange.Cells(i + 1) = aCalcColumns(i).TableName
-            .ListColumns("Expression").DataBodyRange.Cells(i + 1) = aCalcColumns(i).Expression
-        Next i
-    End With
-    
-    
-    '----------------- Populate Model Relationship Sheet ---------------
-
-    GetModelRelationships aModelRelationships
-    Set lo = ActiveWorkbook.Sheets("ModelRelationships").ListObjects("tbl_ModelRelationships")
-    lo.DataBodyRange.ClearContents
-    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
-    
-    With lo
-        For i = 0 To UBound(aModelRelationships)
-            .ListColumns("Primary Key Table").DataBodyRange.Cells(i + 1) = aModelRelationships(i).PrimaryKeyTable
-            .ListColumns("Primary Key Column").DataBodyRange.Cells(i + 1) = aModelRelationships(i).PrimaryKeyColumn
-            .ListColumns("Foreign Key Table").DataBodyRange.Cells(i + 1) = aModelRelationships(i).ForeignKeyTable
-            .ListColumns("Foreign Key Column").DataBodyRange.Cells(i + 1) = aModelRelationships(i).ForeignKeyColumn
-            .ListColumns("Active").DataBodyRange.Cells(i + 1) = aModelRelationships(i).Active
-        Next i
-    End With
-    
-    
+    WritesMeasuresColumnsRelationshipsToSheets
     
     Application.ScreenUpdating = True
     Application.EnableEvents = True
@@ -783,4 +685,77 @@ Sub WritesMeasuresColumnsRelationshipsToSheets()
     
 
 End Sub
+
+
+
+Sub GenerateMissingLookupTableItems()
+
+    Dim i As Integer
+    Dim j As Integer
+    Dim loReports As ListObject
+    Dim loDataLoadQueries As ListObject
+    Dim loTableRelationships As ListObject
+    Dim sReportName As String
+    Dim sDataLoadQueryName As String
+    Dim colLoadedQueryNames As Collection
+    Dim item As Variant
+    Dim sDaxStr As String
+
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+
+    WritesMeasuresColumnsRelationshipsToSheets
+    Set loReports = ActiveWorkbook.Sheets("ReportList").ListObjects("tbl_ReportList")
+    Set loDataLoadQueries = ActiveWorkbook.Sheets("DataLoadQueriesPerReport").ListObjects("tbl_DataLoadQueriesPerReport")
+    Set loTableRelationships = ActiveWorkbook.Sheets("ModelRelationships").ListObjects("tbl_ModelRelationships")
+    Set colLoadedQueryNames = New Collection
+    
+    
+    'Saves the unique list of data queries (for the given reports that are selected for running)
+    With loReports
+        For i = 1 To .DataBodyRange.Rows.Count
+            If .ListColumns("Run with table refresh").DataBodyRange.Cells(i) <> "" Or .ListColumns("Run without table refresh").DataBodyRange.Cells(i) <> "" Then
+                sReportName = .ListColumns("Report Name").DataBodyRange.Cells(i)
+                For j = 1 To loDataLoadQueries.DataBodyRange.Rows.Count
+                    If loDataLoadQueries.ListColumns("Report Name").DataBodyRange.Cells(j) = sReportName Then
+                        sDataLoadQueryName = loDataLoadQueries.ListColumns("Data Load Query Name").DataBodyRange.Cells(j)
+                        On Error Resume Next
+                        colLoadedQueryNames.Add item:=sDataLoadQueryName, Key:=sDataLoadQueryName
+                        On Error GoTo 0
+                    End If
+                Next j
+            End If
+        Next i
+    End With
+
+    'Generate a DAX queey string to identify missing items in the lookupt table
+    With loTableRelationships
+        For Each item In colLoadedQueryNames
+            For i = 1 To .DataBodyRange.Rows.Count
+                If .ListColumns("Foreign Key Table").DataBodyRange.Cells(i) = item Then
+                    sDaxStr = "EVALUATE " & vbCr & "EXCEPT(" & vbCr & "    VALUES("
+                    sDaxStr = sDaxStr & item
+                    sDaxStr = sDaxStr & "[" & .ListColumns("Foreign Key Column").DataBodyRange.Cells(i) & "]), " & vbCr
+                    sDaxStr = sDaxStr & "    VALUES(" & .ListColumns("Primary Key Table").DataBodyRange.Cells(i)
+                    sDaxStr = sDaxStr & "[" & .ListColumns("Primary Key Column").DataBodyRange.Cells(i) & "]) " & vbCr
+                    sDaxStr = sDaxStr & "    )"
+                End If
+            Next i
+        Next item
+    End With
+
+
+    'Exit
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+
+End Sub
+
+
 
