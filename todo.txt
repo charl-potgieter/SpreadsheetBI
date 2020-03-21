@@ -1,43 +1,14 @@
 TODO
 -------
  
- - Create generic code to check for items in data tables not in lookup tables using EXCEPT function
-     - DAX code using VALUES and EXCEPT is fairly easy
-     - Can use relationship table to work out what lookups / data table need to be checked and programatically generate the joins.
-     - Any way that I cen get a list of data_access queries based on the loaded queries so I don't need to maintain 2 lists per report?  -> May not be worth the effort --> any responses to stack overflow question?
-      - Code to follow: <Continue to work on Sub GenerateMissingLookups>
-         -DONE loop reports being run (both with and without refresh) - 
-         - DONE add the data load queries to a collection to ensure only unique items
-         - DONE loop the collection
-             - Inside of above loop, loop the relationship table
-               If table is the foreign table then ceate a DAX query on a new sheet to identify items missing in lookup table
-        - Create a DAX query using dax query string (already created)
- 
- - What is the best way to update the standard queries (given that some query names may also change) - potentially the below, hopefully something not required very often?
-  (Ideally one or 2 queries can simply be updated with a copy and paste)
-   * Export all non-standard queries
-   * Delete all queries (how do I easily do this given potential query dependencies)
-   * Reload new standard queries
-   * Reload previous non-standard queries
- 
-
  - Continue to work on generating EntryPoints\GenerateReport
         
         - Set other properties of pivot table (see empty CustomisePivotTable Sub) for example
             - Freeze pane cell
              - Column Widths?
 
- - See QueryFlow.pdf
-
-
-
   - Create code for DAX query link back table and ability to import and  export the relevant dax code
-
-- create code to generate dax query table on worksheet   
   
   In the date table - is there an issue with using list.dates - see comment from Ken Puls here
   https://blog.crossjoin.co.uk/2016/06/03/creating-tables-in-power-bipower-query-m-code-using-table/
   
-  
-
- -   See if I can add table name to the measures output written to spreadsheet
