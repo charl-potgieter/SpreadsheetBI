@@ -112,7 +112,7 @@ End Sub
 
 
 
-Sub CreateDaxQueryTable()
+Sub CreateDaxQueryTable(ByVal sDaxQueryStr As String, ByRef rng As Range)
 
     Dim lo As ListObject
     
@@ -121,10 +121,10 @@ Sub CreateDaxQueryTable()
     Set lo = ActiveSheet.ListObjects.Add( _
         SourceType:=xlSrcModel, _
         Source:=ActiveWorkbook.Connections(ActiveWorkbook.Model.ModelTables(1).SourceWorkbookConnection.Name), _
-        Destination:=Range("$B$5"))
+        Destination:=rng)
     
     lo.TableObject.WorkbookConnection.OLEDBConnection.CommandType = xlCmdDAX
-    lo.TableObject.WorkbookConnection.OLEDBConnection.CommandText = "EVALUATE VALUES(CreatedTable[Text Column])"
+    lo.TableObject.WorkbookConnection.OLEDBConnection.CommandText = sDaxQueryStr
     
     lo.TableObject.Refresh
     
@@ -515,4 +515,6 @@ Sub GetModelRelationships(aRelationships() As TypeModelRelationship)
     Next mdlRelationship
 
 End Sub
+
+
 

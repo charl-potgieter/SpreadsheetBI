@@ -546,6 +546,7 @@ Sub CreateBiSpreadsheet()
     CreateModelColumnsSheet wkb
     CreateModelCalculatedColumnsSheet wkb
     CreateModelRelationshipsSheet wkb
+    CreateMissingLookupsSheet wkb
     CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
 
     'Create index page and cleanup
@@ -700,6 +701,8 @@ Sub GenerateMissingLookupTableItems()
     Dim colLoadedQueryNames As Collection
     Dim item As Variant
     Dim sDaxStr As String
+    Dim sSheetName As String
+    Dim iCol As Integer
 
     'Setup
     Application.ScreenUpdating = False
@@ -731,22 +734,40 @@ Sub GenerateMissingLookupTableItems()
         Next i
     End With
 
-    'Generate a DAX queey string to identify missing items in the lookupt table
+    'Create Dax query sheet with missing items in lookup
+    iCol = 2
+    On Error Resume Next
+    ActiveWorkbook.Sheets("MissingLookups").Delete
+    On Error GoTo 0
+    CreateMissingLookupsSheet ActiveWorkbook
     With loTableRelationships
         For Each item In colLoadedQueryNames
             For i = 1 To .DataBodyRange.Rows.Count
                 If .ListColumns("Foreign Key Table").DataBodyRange.Cells(i) = item Then
-                    sDaxStr = "EVALUATE " & vbCr & "EXCEPT(" & vbCr & "    VALUES("
+                    
+                    'Construct DAX query string
+                    sDaxStr = "EVALUATE " & vbCrLf & "EXCEPT(" & vbCrLf & "    VALUES("
                     sDaxStr = sDaxStr & item
-                    sDaxStr = sDaxStr & "[" & .ListColumns("Foreign Key Column").DataBodyRange.Cells(i) & "]), " & vbCr
+                    sDaxStr = sDaxStr & "[" & .ListColumns("Foreign Key Column").DataBodyRange.Cells(i) & "]), " & vbCrLf
                     sDaxStr = sDaxStr & "    VALUES(" & .ListColumns("Primary Key Table").DataBodyRange.Cells(i)
-                    sDaxStr = sDaxStr & "[" & .ListColumns("Primary Key Column").DataBodyRange.Cells(i) & "]) " & vbCr
+                    sDaxStr = sDaxStr & "[" & .ListColumns("Primary Key Column").DataBodyRange.Cells(i) & "]) " & vbCrLf
                     sDaxStr = sDaxStr & "    )"
+                    
+                    ActiveWorkbook.Sheets("MissingLookups").Cells(5, iCol) = sDaxStr
+                    CreateDaxQueryTable sDaxStr, ActiveWorkbook.Sheets("MissingLookups").Cells(7, iCol)
+                    iCol = iCol + 2
+                            
                 End If
             Next i
         Next item
     End With
-
+    
+    'Retrospectively set column widths - it seems akward to undo the width setting on the query table
+    For i = iCol - 2 To 2 Step -2
+        ActiveWorkbook.Sheets("MissingLookups").Columns(i).ColumnWidth = 60
+    Next i
+    ActiveWorkbook.Sheets("MissingLookups").Move After:=ActiveWorkbook.Sheets("ModelRelationships")
+    InsertIndexPage ActiveWorkbook
 
     'Exit
     Application.ScreenUpdating = True
