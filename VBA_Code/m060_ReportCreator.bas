@@ -20,6 +20,7 @@ Sub CreatePivotTable(ByVal sSheetName As String, ByRef pvt As PivotTable)
     
     'Create pivot in first row and then shift down.  This is easiest approach to get correct location.  Rows are inserted in calling sub
     'once pivot design is complete
+    
     Set pvt = ActiveWorkbook.PivotCaches.Create(SourceType:=xlExternal, SourceData:= _
         ActiveWorkbook.Connections("ThisWorkbookDataModel"), Version:=6). _
         CreatePivotTable(sht.Range("B1"))
