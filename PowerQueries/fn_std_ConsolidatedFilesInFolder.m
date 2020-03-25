@@ -18,7 +18,7 @@ let
     ReturnOnlyIfLoadRequested = if LoadData then FilteredOutTildas else Table.FirstN(FilteredOutTildas, 1),
 
     //Filter Files based on filter function
-    FilteredFile = if fn_FilterBasedOnFileName <> null then
+    FilteredFile = if (fn_FilterBasedOnFileName <> null and Table.RowCount(ReturnOnlyIfLoadRequested) > 1 ) then
         Table.SelectRows(ReturnOnlyIfLoadRequested, each fn_FilterBasedOnFileName([Name], FilterFromValue, FilterToValue))
     else
         ReturnOnlyIfLoadRequested,
