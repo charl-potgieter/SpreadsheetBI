@@ -1,12 +1,18 @@
+//Uncomment parameter once debugging complete
+//(LoadData as logical)=>
 let
+
+    //Delete this once parameter is uncommented.
+    LoadData  = true,
+
     DateStart = Date.From(fn_std_Parameters("Date_Start")),
     DateEnd = Date.From(fn_std_Parameters("Date_End")),
 
     YearStart = Date.Year(Date.From(fn_std_Parameters("Date_Start"))),
     YearEnd = Date.Year(Date.From(fn_std_Parameters("Date_End"))),
 
-    FolderPath = "XXXXXX",
-    LoadData  = fn_std_LoadData("XXXXX")
+    FolderPath = "XXXXXX"
+    
 
     // **** Uncomment one of the below options and change the last line of file  to read tblRaw***
 
@@ -20,4 +26,4 @@ let
     //tblRaw = fn_std_ConsolidatedFilesInFolder(FolderParth, fn_Single_XXXXX, LoadData, fn_std_FileNameIsInDateRangeYYYYMM, DateStart, DateEnd, XXX_optional_sheet_or_table_name)
 
 in
-    LoadData
+    FolderPath

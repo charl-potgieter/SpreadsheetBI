@@ -7,11 +7,11 @@
 
 (QueryName as text)=>
 let
-    DataQueriesPerReport = Excel.CurrentWorkbook(){[Name="tbl_DataAccessQueriesPerReport"]}[Content],
+    DataQueriesPerReport = Excel.CurrentWorkbook(){[Name="tbl_DataLoadQueriesPerReport"]}[Content],
     AllReports = Excel.CurrentWorkbook(){[Name = "tbl_ReportList"]}[Content],
     ReportsForRefreshTable = Table.SelectRows(AllReports, each [Run with table refresh] <> null),
     ReportsForRefreshList = ReportsForRefreshTable[Report Name],
     FilterQueriesBasedOnReport = Table.SelectRows(DataQueriesPerReport, each List.Contains(ReportsForRefreshList, [Report Name])),
-    ReturnValue = List.Contains(FilterQueriesBasedOnReport[Data Access Query Name], QueryName)
+    ReturnValue = List.Contains(FilterQueriesBasedOnReport[Data Load Query Name], QueryName)
 in
     ReturnValue

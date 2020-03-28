@@ -538,10 +538,7 @@ Sub CreateBiSpreadsheet()
     CreateParameterSheet wkb
     CreateValidationSheet wkb
     CreateReportListSheet wkb
-    CreateDataAccessQueriesPerReport wkb
     CreateDataLoadQueriesPerReport wkb
-    CreateReportPropertiesSheet wkb
-    CreateReportFieldSettingsSheet wkb
     CreateModelMeasuresSheet wkb
     CreateModelColumnsSheet wkb
     CreateModelCalculatedColumnsSheet wkb
@@ -617,56 +614,6 @@ End Sub
 'End Sub
 
 
-Sub GenerateReports()
-
-    Dim bValidSettings As Boolean
-    Dim i As Integer
-    Dim j As Integer
-    Dim ReportList() As TypeReportList
-    Dim ReportProperties As TypeReportProperties
-    Dim ReportFieldSettings() As TypeReportFieldSettings
-    Dim pvt As PivotTable
-    Dim sht As Worksheet
-
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-
-    GetReportList ReportList
-    
-    For i = 0 To UBound(ReportList)
-        With ReportList(i)
-            If .RunWithoutRefresh <> "" Or .RunWithRefresh <> "" Then
-                'Get report setup
-                GetReportProperties .ReportName, ReportProperties
-                GetReportFieldSettings .ReportName, ReportFieldSettings
-                
-                'Create Report
-                CreatePivotTable .SheetName, pvt
-                CustomisePivotTable pvt, ReportProperties
-                SetPivotFields pvt, ReportFieldSettings
-                
-                'Format and populate valuues on report sheet
-                Set sht = ActiveWorkbook.Sheets(.SheetName)
-                sht.Rows("1:5").Insert Shift:=xlDown
-                sht.Name = .SheetName
-                FormatSheet sht
-                sht.Range("SheetHeading") = .ReportName
-                sht.Range("SheetCategory") = .ReportCategory
-                
-            End If
-        End With
-    Next i
-
-    InsertIndexPage ActiveWorkbook
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-End Sub
 
 Sub WritesMeasuresColumnsRelationshipsToSheetsEntryPoint()
 
@@ -686,97 +633,5 @@ Sub WritesMeasuresColumnsRelationshipsToSheetsEntryPoint()
     
 
 End Sub
-
-
-
-Sub GenerateMissingLookupTableItems()
-
-    Dim i As Integer
-    Dim j As Integer
-    Dim loReports As ListObject
-    Dim loDataLoadQueries As ListObject
-    Dim loTableRelationships As ListObject
-    Dim sReportName As String
-    Dim sDataLoadQueryName As String
-    Dim colLoadedQueryNames As Collection
-    Dim item As Variant
-    Dim sDaxStr As String
-    Dim sSheetName As String
-    Dim iCol As Integer
-
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-
-    WritesMeasuresColumnsRelationshipsToSheets
-    Set loReports = ActiveWorkbook.Sheets("ReportList").ListObjects("tbl_ReportList")
-    Set loDataLoadQueries = ActiveWorkbook.Sheets("DataLoadQueriesPerReport").ListObjects("tbl_DataLoadQueriesPerReport")
-    Set loTableRelationships = ActiveWorkbook.Sheets("ModelRelationships").ListObjects("tbl_ModelRelationships")
-    Set colLoadedQueryNames = New Collection
-    
-    
-    'Saves the unique list of data queries (for the given reports that are selected for running)
-    With loReports
-        For i = 1 To .DataBodyRange.Rows.Count
-            If .ListColumns("Run with table refresh").DataBodyRange.Cells(i) <> "" Or .ListColumns("Run without table refresh").DataBodyRange.Cells(i) <> "" Then
-                sReportName = .ListColumns("Report Name").DataBodyRange.Cells(i)
-                For j = 1 To loDataLoadQueries.DataBodyRange.Rows.Count
-                    If loDataLoadQueries.ListColumns("Report Name").DataBodyRange.Cells(j) = sReportName Then
-                        sDataLoadQueryName = loDataLoadQueries.ListColumns("Data Load Query Name").DataBodyRange.Cells(j)
-                        On Error Resume Next
-                        colLoadedQueryNames.Add item:=sDataLoadQueryName, Key:=sDataLoadQueryName
-                        On Error GoTo 0
-                    End If
-                Next j
-            End If
-        Next i
-    End With
-
-    'Create Dax query sheet with missing items in lookup
-    iCol = 2
-    On Error Resume Next
-    ActiveWorkbook.Sheets("MissingLookups").Delete
-    On Error GoTo 0
-    CreateMissingLookupsSheet ActiveWorkbook
-    With loTableRelationships
-        For Each item In colLoadedQueryNames
-            For i = 1 To .DataBodyRange.Rows.Count
-                If .ListColumns("Foreign Key Table").DataBodyRange.Cells(i) = item Then
-                    
-                    'Construct DAX query string
-                    sDaxStr = "EVALUATE " & vbCrLf & "EXCEPT(" & vbCrLf & "    VALUES("
-                    sDaxStr = sDaxStr & item
-                    sDaxStr = sDaxStr & "[" & .ListColumns("Foreign Key Column").DataBodyRange.Cells(i) & "]), " & vbCrLf
-                    sDaxStr = sDaxStr & "    VALUES(" & .ListColumns("Primary Key Table").DataBodyRange.Cells(i)
-                    sDaxStr = sDaxStr & "[" & .ListColumns("Primary Key Column").DataBodyRange.Cells(i) & "]) " & vbCrLf
-                    sDaxStr = sDaxStr & "    )"
-                    
-                    ActiveWorkbook.Sheets("MissingLookups").Cells(5, iCol) = sDaxStr
-                    CreateDaxQueryTable sDaxStr, ActiveWorkbook.Sheets("MissingLookups").Cells(7, iCol)
-                    iCol = iCol + 2
-                            
-                End If
-            Next i
-        Next item
-    End With
-    
-    'Retrospectively set column widths - it seems akward to undo the width setting on the query table
-    For i = iCol - 2 To 2 Step -2
-        ActiveWorkbook.Sheets("MissingLookups").Columns(i).ColumnWidth = 60
-    Next i
-    ActiveWorkbook.Sheets("MissingLookups").Move After:=ActiveWorkbook.Sheets("ModelRelationships")
-    InsertIndexPage ActiveWorkbook
-
-    'Exit
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-
-End Sub
-
 
 

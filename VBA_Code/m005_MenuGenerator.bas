@@ -100,16 +100,6 @@ Sub CreatePopUpMenu()
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Write measures, columns and relationships to sheets"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WritesMeasuresColumnsRelationshipsToSheetsEntryPoint"
-
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Generate missing lookup table items"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "GenerateMissingLookupTableItems"
-
-    
-    
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Generate Reports"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "GenerateReports"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Export power queries"

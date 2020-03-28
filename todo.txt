@@ -1,16 +1,6 @@
 TODO
 -------
- - Maybe reconsider the need to generate reports with VBA
-    - detail can be hidden and filters can by applied through dax measures
-    
- - Maybe reconsider the need for VBA to test missing lookups.  Maybe better do do manually, and each report tab checks for cases of any missing lookups on a centralised lookup tab.
-
- 
- - Continue to work on generating EntryPoints\GenerateReport
-        
-        - Set other properties of pivot table (see empty CustomisePivotTable Sub) for example
-            - Freeze pane cell
-             - Column Widths?
+  - Work on the looper
 
   - Create code for DAX query link back table and ability to import and  export the relevant dax code
   
