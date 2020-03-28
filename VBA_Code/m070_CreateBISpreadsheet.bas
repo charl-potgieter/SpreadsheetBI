@@ -314,32 +314,3 @@ End Sub
 
 
 
-
-
-Sub CreateMissingLookupsSheet(ByRef wkb As Workbook)
-
-    Dim sht As Worksheet
-
-    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
-    FormatSheet sht
-    sht.Name = "MissingLookups"
-    sht.Range("SheetHeading") = "Missing Lookups"
-    sht.Range("SheetCategory") = "Setup"
-   
-    sht.Range(Cells(1, 1), Cells(1, sht.Columns.Count)).EntireColumn.ColumnWidth = 4
-    
-    With Range("5:5")
-        .RowHeight = 80
-        .HorizontalAlignment = xlLeft
-        .VerticalAlignment = xlTop
-        .WrapText = True
-    End With
-    
-    
-    'Freeze Panes
-    sht.Activate
-    ActiveWindow.SplitRow = 7
-    ActiveWindow.FreezePanes = True
-
-
-End Sub

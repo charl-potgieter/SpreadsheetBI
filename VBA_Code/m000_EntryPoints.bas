@@ -543,7 +543,6 @@ Sub CreateBiSpreadsheet()
     CreateModelColumnsSheet wkb
     CreateModelCalculatedColumnsSheet wkb
     CreateModelRelationshipsSheet wkb
-    CreateMissingLookupsSheet wkb
     CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
 
     'Create index page and cleanup
