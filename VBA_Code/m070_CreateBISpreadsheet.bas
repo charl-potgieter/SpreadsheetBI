@@ -126,7 +126,7 @@ Sub CreateDataLoadQueriesPerReport(ByRef wkb As Workbook)
         
         FormatTable lo
         .ListColumns("Report Name").DataBodyRange.EntireColumn.ColumnWidth = 50
-        .ListColumns("Data Access Query Name").DataBodyRange.EntireColumn.ColumnWidth = 50
+        .ListColumns("Data Load Query Name").DataBodyRange.EntireColumn.ColumnWidth = 50
         
     End With
     

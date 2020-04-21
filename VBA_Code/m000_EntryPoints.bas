@@ -106,6 +106,37 @@ Sub FormatDate()
 End Sub
 
 
+Sub FormatDashboardIconStyle()
+'Creates custom formatting to displat different dashboard style icons, for positive, negative, zero and text values
+'Can be used in conjuction with Power Pivot measures  designed to generate numbers to achieve desired icon style
+'Note that Hex character codes are obtained by using excel menu, insert -> symbol
+'(select font as arial top right, subset as geometric shape, select hex code bottom left.
+'Note also use of _) and * below to get good alignment of symbols (the bracket seems to give enough space to align triangles with diamond)
+'Useful links and inspiration
+'   https://www.youtube.com/watch?v=tGY70sdpaLc&t=14s
+'   https://www.xelplus.com/smart-uses-of-custom-formatting/
+'   https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2007/cc296089(v=office.12)?redirectedfrom=MSDN
+
+    SetNumberFormat "[Color 10] " & ChrW(&H25B2) & "_);" & _
+    "[Red] " & ChrW(&H25BC) & "_);" & _
+    "[Color 46] " & ChrW(&H2666) & " ;" & _
+    "[Blue] * " & ChrW(&H25BA) & "_ "
+    
+End Sub
+
+Sub FormatOkError()
+'1 Displays OK in green, zero ERROR in red.  Negatives adn text are hidden
+'Can be used in conjuction with Power Pivot measures  designed to generate numbers to achieve desired icon style
+'Useful links and inspiration
+'   https://www.youtube.com/watch?v=tGY70sdpaLc&t=14s
+'   https://www.xelplus.com/smart-uses-of-custom-formatting/
+'   https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2007/cc296089(v=office.12)?redirectedfrom=MSDN
+
+    SetNumberFormat "[Color10]OK ;;[Red]\E\R\RO\R;"
+
+End Sub
+
+
 
 Sub InsertFormattedSheetIntoActiveWorkbook()
     
@@ -361,6 +392,9 @@ Sub FormatActiveTable()
     FormatTable ActiveCell.ListObject
     
 End Sub
+
+
+
 
 
 
@@ -633,4 +667,9 @@ Sub WritesMeasuresColumnsRelationshipsToSheetsEntryPoint()
 
 End Sub
 
+
+Sub MimimiseRibbon()
+Attribute MimimiseRibbon.VB_ProcData.VB_Invoke_Func = "R\n14"
+    CommandBars.ExecuteMso "MinimizeRibbon"
+End Sub
 

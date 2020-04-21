@@ -1,5 +1,10 @@
 TODO
 -------
+ - Fix icon alignnment with _ and * like so:
+ [Color10] ▲_ ;[Red] ▼_ ;[Color46] * ♦ ;[Blue]*  ►_ 
+
+  - Add formatting to menu bar
+ 
   - Cell formatting (also in pivot field)
   https://www.youtube.com/watch?v=tGY70sdpaLc&t=14s
   Standardise this with a macro
