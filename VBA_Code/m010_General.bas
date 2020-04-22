@@ -9,6 +9,9 @@ Sub FormatSheet(ByRef sht As Worksheet)
 
     sht.Activate
     
+    sht.Cells.Font.Name = "Calibri"
+    sht.Cells.Font.Size = 11
+    
     sht.Range("A1").Font.Color = RGB(170, 170, 170)
     sht.Range("A1").Font.Size = 8
     

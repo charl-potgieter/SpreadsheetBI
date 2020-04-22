@@ -1,13 +1,37 @@
 Attribute VB_Name = "Module1"
 Option Explicit
 
-Sub Macro1()
-Attribute Macro1.VB_ProcData.VB_Invoke_Func = " \n14"
+Sub Macro4()
+Attribute Macro4.VB_ProcData.VB_Invoke_Func = " \n14"
 '
-' Macro1 Macro
+' Macro4 Macro
 '
 
 '
-    Sheets("MissingLookups").Select
-    
+    With Selection.Font
+        .Name = "Calibri"
+        .Size = 12
+        .Strikethrough = False
+        .Superscript = False
+        .Subscript = False
+        .OutlineFont = False
+        .Shadow = False
+        .Underline = xlUnderlineStyleNone
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0
+        .ThemeFont = xlThemeFontMinor
+    End With
+    With Selection.Font
+        .Name = "Calibri"
+        .Size = 11
+        .Strikethrough = False
+        .Superscript = False
+        .Subscript = False
+        .OutlineFont = False
+        .Shadow = False
+        .Underline = xlUnderlineStyleNone
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0
+        .ThemeFont = xlThemeFontMinor
+    End With
 End Sub

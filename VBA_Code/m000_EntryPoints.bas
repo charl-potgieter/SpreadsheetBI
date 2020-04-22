@@ -112,6 +112,7 @@ Sub FormatDashboardIconStyle()
 'Note that Hex character codes are obtained by using excel menu, insert -> symbol
 '(select font as arial top right, subset as geometric shape, select hex code bottom left.
 'Note also use of _) and * below to get good alignment of symbols (the bracket seems to give enough space to align triangles with diamond)
+'Sheet Font should be set to Calibri to ensure best display (which is as per the m010_General.FormatSheet sub in this workbook)
 'Useful links and inspiration
 '   https://www.youtube.com/watch?v=tGY70sdpaLc&t=14s
 '   https://www.xelplus.com/smart-uses-of-custom-formatting/
