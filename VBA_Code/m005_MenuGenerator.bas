@@ -18,57 +18,103 @@ Sub CreatePopUpMenu()
 
     Dim cb As CommandBar
     Dim MenuCategory As CommandBarPopup
+    Dim MenuSubcategory As CommandBarPopup
     Dim MenuItem As CommandBarControl
-    
     
     Set cb = Application.CommandBars.Add(Name:=gcsMenuName, Position:=msoBarPopup, _
                                      MenuBar:=False, Temporary:=True)
     
-    'Format Menu
+    'Format main Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
     MenuCategory.Caption = "Format"
     
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    
+    'Format number submenu
+    Set MenuSubcategory = MenuCategory.Controls.Add(Type:=msoControlPopup)
+    MenuSubcategory.Caption = "Number"
+    
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Zero decimals"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatZeroDecimalNumberFormat"
 
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "One decimal"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatOneDecimalNumberFormat"
 
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Two decimals"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatTwoDecimalsNumberFormat"
                                      
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Zero decimals with arrows"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatZeroDecimalAndArrows"
+                                     
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "One decimal with arrows"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatOneDecimalAndArrow"
+                                     
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Two decimals with arrows"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatTwoDecimalsAndArrow"
+                                     
+                                     
+    'Format percentage submenu
+    Set MenuSubcategory = MenuCategory.Controls.Add(Type:=msoControlPopup)
+    MenuSubcategory.Caption = "Percentage"
+                                     
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Two digit percentage"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatTwoDigitPercentge"
                  
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Four digit percentage"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatFourDigitPercentge"
     
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Zero digit percentage with arrows"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatZeroDigitPercentageAndArrow"
+    
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Two digit percentage with arrows"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatTwoDigitPercentageAndArrow"
+    
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Four digit percentage with arrows"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatFourDigitPercentageAndArrow"
+    
+    
+    
+    'Format dashboard submenu
+    Set MenuSubcategory = MenuCategory.Controls.Add(Type:=msoControlPopup)
+    MenuSubcategory.Caption = "Dashboard"
+    
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Dashboard icon style"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatDashboardIconStyle"
     
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "OK Error"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatOkError"
     
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    
+    'Format other submenu
+    Set MenuSubcategory = MenuCategory.Controls.Add(Type:=msoControlPopup)
+    MenuSubcategory.Caption = "Other"
+       
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Date"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatDate"
     
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "OK Error"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatOkError"
+    
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Active sheet"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatActiveSheet"
     
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Active table"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatActiveTable"
     
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Headings"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatHeadings"
     
