@@ -1,22 +1,10 @@
 TODO
 -------
- - Maybe split format menu into submenus
-   * Numbers
-   * Percentages
-   * Dashboard and Checks
-   * Other
-
- - Add number format for numbers and up down dashboard icons in single cell (zero, one and 2 decimals)
- [Color10]#,##0_) ▲_);[Red](#,##0) ▼_);-????
- 
- - Create format arrows and percentages
- 
-  - Review below and potentially add to my list of standard power query functions
-  https://www.excelguru.ca/blog/2015/10/08/clean-whitespace-in-powerquery/
  
  - Work on the looper
 
- - Create code for DAX query link back table and ability to import and  export the relevant dax code
+  - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
+      --> this will also mean that 
  
  - Create a flat pivot style (and apply when flatten pivot table macro is run)
  
