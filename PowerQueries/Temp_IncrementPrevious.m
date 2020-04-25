@@ -1,22 +1,25 @@
 let
-    tbl = #table(
-                type table
-                    [
-                        #"Date"=date, 
-                        #"Description"=text,
-                        #"SubCategory"=text,
-                        #"Amount"=number
-                    ], 
-                {
-                {#date(2016,1,31), "blah","A", 1234}
-                }
-                ),
+    tbl = Table.FromRecords({[
+                            Date = #date(2016,1,31),
+                            Description = "blah",
+                            SubCategory = "A",
+                            Amount = 1234
+                            ]}),
 
-    fn = 
-    (state, current) =>
+    fn = (state, current) =>
     let
-        LastTableRow = Table.FromRecords({Table.Last(state)}),
-        Output = Table.Combine({state, LastTableRow})
+        PreviousTableRowAsRecord = Table.Last(state),
+
+        NewRow = Table.FromRecords({[
+                                    Date = PreviousTableRowAsRecord[Date], 
+                                    Description = PreviousTableRowAsRecord[Description], 
+                                    SubCategory = PreviousTableRowAsRecord[SubCategory], 
+                                    Amount = PreviousTableRowAsRecord[Amount] + 1
+                                    ]}),
+
+
+        // AppendRow = Table.FromRecords({Table.Last(state)}),
+        Output = Table.Combine({state, NewRow})
 
     in
         Output,

@@ -1,10 +1,9 @@
 TODO
 -------
  
- - Work on the looper
-
   - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
-      --> this will also mean that 
+ 
+ - Work on the VBA or power query looper solution depending outcome of above
  
  - Create a flat pivot style (and apply when flatten pivot table macro is run)
  
