@@ -693,6 +693,7 @@ Sub CreateBiSpreadsheet()
     CreateModelColumnsSheet wkb
     CreateModelCalculatedColumnsSheet wkb
     CreateModelRelationshipsSheet wkb
+    CreateTableGeneratorSheet wkb
     CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
 
     'Create index page and cleanup
@@ -787,5 +788,21 @@ End Sub
 Sub MimimiseRibbon()
 Attribute MimimiseRibbon.VB_ProcData.VB_Invoke_Func = "R\n14"
     CommandBars.ExecuteMso "MinimizeRibbon"
+End Sub
+
+
+Sub GeneratePowerQueryTable()
+
+    Dim sQueryName As String
+    
+    sQueryName = ActiveWorkbook.Sheets("TableGenerator").Range("QueryName")
+
+    If QueryExists(sQueryName) Then
+        MsgBox ("Query with the same name already exists.  New query not generated")
+        Exit Sub
+    End If
+    
+    MsgBox ("Query Generated")
+
 End Sub
 

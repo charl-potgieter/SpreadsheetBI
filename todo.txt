@@ -1,6 +1,12 @@
 TODO
 -------
  
+  - Is it worthwhile creating VBA that generates power query code that creates a table (table created by code - not imported from spreadsheet)
+    * will first need to add the new sheet in createspreadsheet BI
+    * Change the way types are currently ascribed as this does not generate error if incorrect data types.
+    * Rather first create table with table from records adn then transform data types
+    * redo current tables like number scale, example_dataTable, example_LookupTable, TimePeriods
+ 
   - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
  
  - Work on the VBA or power query looper solution depending outcome of above

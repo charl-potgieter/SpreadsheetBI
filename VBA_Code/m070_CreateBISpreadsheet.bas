@@ -314,3 +314,63 @@ End Sub
 
 
 
+
+Sub CreateTableGeneratorSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "TableGenerator"
+    sht.Range("SheetHeading") = "Table Generator"
+    sht.Range("SheetCategory") = "Setup"
+   
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B11:F12"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_TableGenerator"
+        .HeaderRowRange.Cells(1) = "Column_1"
+        .HeaderRowRange.Cells(2) = "Column_2"
+        .HeaderRowRange.Cells(3) = "Column_3"
+        .HeaderRowRange.Cells(4) = "Column_4"
+        .HeaderRowRange.Cells(5) = "Column_5"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 20
+    sht.Range("C:C").ColumnWidth = 20
+    sht.Range("D:D").ColumnWidth = 20
+    sht.Range("E:E").ColumnWidth = 20
+    sht.Range("F:F").ColumnWidth = 20
+
+    With lo.DataBodyRange
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+        .WrapText = True
+    End With
+
+    'Add various formatted text to the sheet
+    sht.Range("B5") = "Generates a power query with hardcoded values and field types as below, using the GeneratePowerQuery code"
+    sht.Range("B7") = "Query Name"
+    sht.Range("C7") = "TestTable"
+    sht.Range("B7").Font.Bold = True
+    sht.Range("C7,B9:E9").Interior.Color = RGB(242, 242, 242)
+    sht.Range("C7,B9:E9").Font.Color = RGB(0, 112, 192)
+    sht.Range("C7,B9:E9").HorizontalAlignment = xlCenter
+    sht.Range("B9:E9") = "text"
+    
+    'Add data validation for field types
+    sht.Range("B9:F9").Validation.Add _
+        Type:=xlValidateList, _
+        AlertStyle:=xlValidAlertStop, _
+        Operator:=xlBetween, _
+        Formula1:="any,binary,date,datetime,datetimezone,duration,function,function,Int64.Type,list,list," & _
+            "logical,none,null,number,record,record,table,table,text,time,type"
+  
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 11
+    ActiveWindow.FreezePanes = True
+
+
+End Sub

@@ -182,6 +182,40 @@ Function GetCellColour(rng As Range, Optional formatType As Integer = 0) As Vari
     End Select
 End Function
 
+Function GetCellFontColour(rng As Range, Optional formatType As Integer = 0) As Variant
+
+'https://stackoverflow.com/questions/24132665/return-rgb-values-from-range-interior-color-or-any-other-color-property?rq=1
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'   Function            Color
+'   Purpose             Determine the Font Color Of a Cell
+'   @Param rng          Range to Determine Background Color of
+'   @Param formatType   Default Value = 0
+'                       0   Integer
+'                       1   Hex
+'                       2   RGB
+'                       3   Excel Color Index
+'   Usage               Color(A1)      -->   9507341
+'                       Color(A1, 0)   -->   9507341
+'                       Color(A1, 1)   -->   91120D
+'                       Color(A1, 2)   -->   13, 18, 145
+'                       Color(A1, 3)   -->   6
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+    Dim colorVal As Variant
+    colorVal = Cells(rng.Row, rng.Column).Font.Color
+    Select Case formatType
+        Case 1
+            GetCellFontColour = Hex(colorVal)
+        Case 2
+            GetCellFontColour = (colorVal Mod 256) & ", " & ((colorVal \ 256) Mod 256) & ", " & (colorVal \ 65536)
+        Case 3
+            GetCellFontColour = Cells(rng.Row, rng.Column).Interior.ColorIndex
+        Case Else
+            GetCellFontColour = colorVal
+    End Select
+End Function
+
 
 
 Sub InsertIndexPage(ByRef wkb As Workbook)
