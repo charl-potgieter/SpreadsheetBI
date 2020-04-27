@@ -175,6 +175,11 @@ Sub CreatePopUpMenu()
     MenuItem.Caption = "Import selected power queries"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ImportSelectedPowerQueries"
     
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Generate hard coded power query table"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "GeneratePowerQueryTable"
+    
+    
     'Other Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
     MenuCategory.Caption = "Other"

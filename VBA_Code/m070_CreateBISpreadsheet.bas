@@ -327,6 +327,8 @@ Sub CreateTableGeneratorSheet(ByRef wkb As Workbook)
     sht.Range("SheetCategory") = "Setup"
    
     Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B11:F12"), XlListObjectHasHeaders:=xlYes)
+    FormatTable lo
+    
     With lo
         .Name = "tbl_TableGenerator"
         .HeaderRowRange.Cells(1) = "Column_1"
@@ -342,29 +344,27 @@ Sub CreateTableGeneratorSheet(ByRef wkb As Workbook)
     sht.Range("E:E").ColumnWidth = 20
     sht.Range("F:F").ColumnWidth = 20
 
-    With lo.DataBodyRange
-        .HorizontalAlignment = xlLeft
-        .VerticalAlignment = xlTop
-        .WrapText = True
-    End With
 
     'Add various formatted text to the sheet
     sht.Range("B5") = "Generates a power query with hardcoded values and field types as below, using the GeneratePowerQuery code"
     sht.Range("B7") = "Query Name"
     sht.Range("C7") = "TestTable"
     sht.Range("B7").Font.Bold = True
-    sht.Range("C7,B9:E9").Interior.Color = RGB(242, 242, 242)
-    sht.Range("C7,B9:E9").Font.Color = RGB(0, 112, 192)
-    sht.Range("C7,B9:E9").HorizontalAlignment = xlCenter
-    sht.Range("B9:E9") = "text"
+    sht.Range("C7,B9:F9").Interior.Color = RGB(242, 242, 242)
+    sht.Range("C7,B9:F9").Font.Color = RGB(0, 112, 192)
+    sht.Range("C7,B9:F9").HorizontalAlignment = xlCenter
+    sht.Range("B9:F9") = "type text"
     
     'Add data validation for field types
     sht.Range("B9:F9").Validation.Add _
         Type:=xlValidateList, _
         AlertStyle:=xlValidAlertStop, _
         Operator:=xlBetween, _
-        Formula1:="any,binary,date,datetime,datetimezone,duration,function,function,Int64.Type,list,list," & _
-            "logical,none,null,number,record,record,table,table,text,time,type"
+        Formula1:="type any,type binary,type date,type datetime,type datetimezone,type duration,Int64.Type," & _
+            "type logical,type none,type null,type number,type text,type time"
+  
+    'Create Named Range
+    sht.Names.Add Name:="TableName", RefersToR1C1:="=R7C3"
   
 
     'Freeze Panes

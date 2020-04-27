@@ -776,6 +776,7 @@ Sub WritesMeasuresColumnsRelationshipsToSheetsEntryPoint()
     
     WritesMeasuresColumnsRelationshipsToSheets
     
+    'Cleanup
     Application.ScreenUpdating = True
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic
@@ -792,17 +793,83 @@ End Sub
 
 
 Sub GeneratePowerQueryTable()
+'Generates a hard coded power query table from ActiveWorkbook.Sheets("TableGenerator").ListObjects("tbl_TableGenerator")
+'Query name is as per defined name on sheet entitled "TableName"
+'Column types are stored in cells 2 rows above the tbl_Generator table
 
     Dim sQueryName As String
+    Dim sQueryText As String
+    Dim i As Integer
+    Dim j As Integer
+    Dim lo As ListObject
     
-    sQueryName = ActiveWorkbook.Sheets("TableGenerator").Range("QueryName")
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    
+    
+    sQueryName = ActiveWorkbook.Sheets("TableGenerator").Range("TableName")
 
-    If QueryExists(sQueryName) Then
+    If QueryExists(sQueryName, ActiveWorkbook) Then
         MsgBox ("Query with the same name already exists.  New query not generated")
         Exit Sub
     End If
     
+    Set lo = ActiveWorkbook.Sheets("TableGenerator").ListObjects("tbl_TableGenerator")
+    
+        
+    sQueryText = "let" & vbCr & vbCr & _
+        "    tbl = Table.FromRecords({" & vbCr
+        
+    'Table from records portion of power query
+    For i = 1 To lo.DataBodyRange.Rows.Count
+        For j = 1 To lo.HeaderRowRange.Cells.Count
+            If j = 1 Then
+                sQueryText = sQueryText & "        ["
+            End If
+            sQueryText = sQueryText & _
+                lo.HeaderRowRange.Cells(j) & " = """ & lo.ListColumns(j).DataBodyRange.Cells(i) & """"
+            If j <> lo.HeaderRowRange.Cells.Count Then
+                sQueryText = sQueryText & ", "
+            ElseIf i <> lo.DataBodyRange.Rows.Count Then
+                sQueryText = sQueryText & "], " & vbCr
+            Else
+                sQueryText = sQueryText & "]" & vbCrLf
+            End If
+        Next j
+        If i = lo.DataBodyRange.Rows.Count Then
+            sQueryText = sQueryText & "        }), " & vbCr & vbCr
+        End If
+    Next i
+        
+        
+    'Changed Type portion of power query
+    sQueryText = sQueryText & "    ChangedType = Table.TransformColumnTypes(" & vbCr & _
+        "       tbl, " & vbCr & "        {" & vbCr
+
+    For j = 1 To lo.HeaderRowRange.Cells.Count
+        sQueryText = sQueryText & "            {""" & lo.HeaderRowRange.Cells(j) & """, " & lo.HeaderRowRange.Cells(j).Offset(-2, 0) & "}"
+        If j <> lo.HeaderRowRange.Cells.Count Then
+            sQueryText = sQueryText & "," & vbCr
+        Else
+            sQueryText = sQueryText & vbCr
+        End If
+    Next j
+    sQueryText = sQueryText & vbCr & "        })" & vbCr & vbCr & _
+        "in" & vbCr & "    ChangedType"
+
+    ActiveWorkbook.Queries.Add sQueryName, sQueryText
+    
     MsgBox ("Query Generated")
+
+    'Cleanup
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
 
 End Sub
 
