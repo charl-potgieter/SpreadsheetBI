@@ -5,11 +5,11 @@ let
     //Delete this once parameter is uncommented.
     LoadData  = true,
 
-    DateStart = Date.From(fn_std_Parameters("Date_Start")),
-    DateEnd = Date.From(fn_std_Parameters("Date_End")),
+    DateStart = param_DateStart,
+    DateEnd = param_DateEnd,
 
-    YearStart = Date.Year(Date.From(fn_std_Parameters("Date_Start"))),
-    YearEnd = Date.Year(Date.From(fn_std_Parameters("Date_End"))),
+    YearStart = Date.Year(DateStart),
+    YearEnd = Date.Year(DateEnd),
 
     FolderPath = "XXXXXX"
     

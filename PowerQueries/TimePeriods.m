@@ -1,16 +1,8 @@
-/*-----------------------------------------------------------------------------------------------------------
-    Returns a table of number scales for report formatting
------------------------------------------------------------------------------------------------------------*/
-#table(
-    type table
-    [
-        #"Time Period" = text,
-        #"Time Period Sort By Col" = Int64.Type
-    ],
-    {
-        {"MTD", 1},
-        {"QTD", 2},
-        {"YTD", 3},
-        {"PY", 4}
-    }
-)
+let    tbl = Table.FromRecords({        [Time Period = "MTD", Time Period Sort By Col = "1"],         [Time Period = "QTD", Time Period Sort By Col = "2"],         [Time Period = "YTD", Time Period Sort By Col = "3"],         [Time Period = "PY", Time Period Sort By Col = "4"]
+        }),     ChangedType = Table.TransformColumnTypes(
+       tbl, 
+        {
+            {"Time Period", type text},
+            {"Time Period Sort By Col", type number}
+
+        })in    ChangedType

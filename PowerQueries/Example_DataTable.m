@@ -1,21 +1,10 @@
-#table(
- type table
-    [
-        #"Date"=date, 
-        #"Description"=text,
-        #"SubCategory"=text,
-        #"Amount"=number
-    ], 
- {
-  {#date(2016,1,31), "blah","A", 1234},
-  {#date(2017,2,28), "hello","A", 100},
-  {#date(2016,1,31), "blah","A", 13334},
-  {#date(2018,4,30), "hello","B", 1550},
-  {#date(2016,1,31), "zzzz","A", 1034},
-  {#date(2017,2,28), "hello","A", 1500},
-  {#date(2016,1,31), "zzzz","A", 1734},
-  {#date(2018,4,30), "hello","B", 10},
-  {#date(2019,8,28), "blah","B", 1454},
-  {#date(2020,5,31), "hello","B", 1560}
- }
-)
+let    tbl = Table.FromRecords({        [Date = "31/01/2016", Description = "blah", SubCategory = "A", Amount = "1234"],         [Date = "28/02/2017", Description = "hello", SubCategory = "A", Amount = "100"],         [Date = "31/01/2016", Description = "blah", SubCategory = "A", Amount = "13334"],         [Date = "30/04/2018", Description = "hello", SubCategory = "B", Amount = "1550"],         [Date = "31/01/2016", Description = "zzzz", SubCategory = "A", Amount = "1034"],         [Date = "28/02/2017", Description = "hello", SubCategory = "A", Amount = "1500"],         [Date = "31/01/2016", Description = "zzzz", SubCategory = "A", Amount = "1734"],         [Date = "30/04/2018", Description = "hello", SubCategory = "B", Amount = "10"],         [Date = "28/08/2019", Description = "blah", SubCategory = "B", Amount = "1454"],         [Date = "31/05/2020", Description = "hello", SubCategory = "B", Amount = "1560"]
+        }),     ChangedType = Table.TransformColumnTypes(
+       tbl, 
+        {
+            {"Date", type date},
+            {"Description", type text},
+            {"SubCategory", type text},
+            {"Amount", type number}
+
+        })in    ChangedType

@@ -1,18 +1,20 @@
 TODO
 -------
  
-  - Is it worthwhile creating VBA that generates power query code that creates a table (table created by code - not imported from spreadsheet)
-    * will first need to add the new sheet in createspreadsheet BI   --> DONE
-    * Change the way types are currently ascribed as this does not generate error if incorrect data types.
-    * Rather first create table with table from records adn then transform data types
-    * redo current tables like number scale, example_dataTable, example_LookupTable, TimePeriods
+ - Write code to add measures to data model (will only tend to use if a working file is being recreated)
  
- - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
+ - Write code to add relationships to data model (will only tend to use if a working file is being recreated)
+   
+ - Need to roll out changes
+
+  
+   - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
     * This will also allow easier to transition to power BI
-
-  - Consider using power query paramaters (rather than read parameter from Excel sheet) - that way I can copy and paste queries and paramaters to and from power BI see below:
-  https://eriksvensen.wordpress.com/2020/04/24/powerquery-easily-copy-all-queries-from-a-pbix-to-excel-and-vice-versa/amp/?__twitter_impression=true
-
+  
+ - Look at Tabular editor
+    https://exceleratorbi.com.au/introduction-to-tabular-editor-for-business-users/
+  
+  
   
  - Work on the VBA or power query looper solution depending outcome of above
  

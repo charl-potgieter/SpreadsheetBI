@@ -17,19 +17,7 @@ Public Type TypeReportProperties
     DisplayFieldHeaders As Boolean
 End Type
 
-Public Type TypeReportFieldSettings
-    CubeFieldName As String
-    FieldType As String
-    Orientation As String
-    Format As String
-    CustomFormat As String
-    Subtotal As Boolean
-    SubtotalAtTop As Boolean
-    BlankLine As Boolean
-    FilterType As String
-    FilterValues() As String
-    CollapseFieldValues() As String
-End Type
+
 
 Public Type TypeModelMeasures
     Name As String
@@ -670,6 +658,7 @@ Sub CreateBiSpreadsheet()
 
     Dim wkb As Workbook
     Dim i As Integer
+    Dim sht As Worksheet
     
     'Setup
     Application.ScreenUpdating = False
@@ -685,18 +674,21 @@ Sub CreateBiSpreadsheet()
         Next i
     End If
     
-    CreateParameterSheet wkb
-    CreateValidationSheet wkb
-    CreateReportListSheet wkb
-    CreateDataLoadQueriesPerReport wkb
     CreateModelMeasuresSheet wkb
+    
+    'Delete any other sheets other than the newly created model measure sheet
+    For Each sht In wkb.Worksheets
+        If sht.Name <> "ModelMeasures" Then sht.Delete
+    Next sht
+    
+    'Create other sheets
     CreateModelColumnsSheet wkb
     CreateModelCalculatedColumnsSheet wkb
     CreateModelRelationshipsSheet wkb
     CreateTableGeneratorSheet wkb
-    CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
+    
 
-    'Create index page and cleanup
+    'Create index page, cleanup and display message
     InsertIndexPage wkb
     wkb.Activate
     wkb.Sheets("Index").Activate
@@ -704,6 +696,12 @@ Sub CreateBiSpreadsheet()
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic
     Application.DisplayAlerts = True
+
+    MsgBox ("Copy and paste power queries from SpreadsheetBI.xlsm to new workbook by highlighting all by name and folder in Query toolbar " & _
+        "or PowerQuery editor and pasting to the same space in new spreadsheet" & vbCrLf & vbCrLf & _
+        "See below link for guide " & vbCrLf & _
+        "https://eriksvensen.wordpress.com/2020/04/24/powerquery-easily-copy-all-queries-from-a-pbix-to-excel-and-vice-versa/amp/?__twitter_impression=true")
+
 
 End Sub
 

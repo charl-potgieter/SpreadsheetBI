@@ -166,8 +166,6 @@ Sub WritesMeasuresColumnsRelationshipsToSheets()
     Set lo = ActiveWorkbook.Sheets("ModelMeasures").ListObjects("tbl_ModelMeasures")
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
-    Set rngValidations = ActiveWorkbook.Sheets("Validations").Range("val_Measures")
-    rngValidations.ClearContents
     
     j = 0
     With lo
@@ -177,14 +175,8 @@ Sub WritesMeasuresColumnsRelationshipsToSheets()
             .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aMeasures(i).UniqueName
             .ListColumns("DAX Expression").DataBodyRange.Cells(i + 1) = "':=" & aMeasures(i).Expression
             .ListColumns("Name and Expression").DataBodyRange.Cells(i + 1) = aMeasures(i).Name & ":=" & aMeasures(i).Expression
-            If aMeasures(i).Visible Then
-                rngValidations.Cells(1).Offset(j) = aMeasures(i).UniqueName
-                j = j + 1
-            End If
         Next i
     End With
-    
-    ActiveWorkbook.Names("val_Measures").RefersTo = "=Validations!" & rngValidations.Cells(1).Resize(j).Address
     
 
     '----------------- Populate Model Columns Sheet and write visible columns to validation sheet ---------------
@@ -193,8 +185,6 @@ Sub WritesMeasuresColumnsRelationshipsToSheets()
     Set lo = ActiveWorkbook.Sheets("ModelColumns").ListObjects("tbl_ModelColumns")
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
-    Set rngValidations = ActiveWorkbook.Names("val_Columns").RefersToRange
-    rngValidations.ClearContents
 
     
     j = 0
@@ -205,14 +195,8 @@ Sub WritesMeasuresColumnsRelationshipsToSheets()
             .ListColumns("Unique Name").DataBodyRange.Cells(i + 1) = aColumns(i).UniqueName
             .ListColumns("Visible").DataBodyRange.Cells(i + 1) = aColumns(i).Visible
             .ListColumns("Is calculated column").DataBodyRange.Cells(i + 1).Formula = "=COUNTIFS(tbl_ModelCalcColumns[Name], [@Name]) = 1"
-            If aColumns(i).Visible Then
-                rngValidations.Cells(1).Offset(j) = aColumns(i).UniqueName
-                j = j + 1
-            End If
         Next i
     End With
-    
-    ActiveWorkbook.Names("val_Columns").RefersTo = "=Validations!" & rngValidations.Cells(1).Resize(j).Address
     
     
     '----------------- Populate Model Calculated Columns Sheet ---------------
@@ -486,6 +470,12 @@ Sub GetModelCalculatedColumns(ByRef aCalcColumns() As TypeModelCalcColumns)
             rs.MoveNext
             i = i + 1
         Loop
+        
+    Else
+        ReDim aCalcColumns(0 To 0)
+        aCalcColumns(0).Name = "NULL"
+        aCalcColumns(0).TableName = "NULL"
+        aCalcColumns(0).Expression = "NULL"
     End If
     
     rs.Close
@@ -504,15 +494,24 @@ Sub GetModelRelationships(aRelationships() As TypeModelRelationship)
     
     
     i = 0
-    ReDim aRelationships(0 To ActiveWorkbook.Model.ModelRelationships.Count - 1)
-    For Each mdlRelationship In ActiveWorkbook.Model.ModelRelationships
-        aRelationships(i).PrimaryKeyTable = mdlRelationship.PrimaryKeyTable.Name
-        aRelationships(i).PrimaryKeyColumn = mdlRelationship.PrimaryKeyColumn.Name
-        aRelationships(i).ForeignKeyTable = mdlRelationship.ForeignKeyTable.Name
-        aRelationships(i).ForeignKeyColumn = mdlRelationship.ForeignKeyColumn.Name
-        aRelationships(i).Active = mdlRelationship.Active
-        i = i + 1
-    Next mdlRelationship
+    If ActiveWorkbook.Model.ModelRelationships.Count > 0 Then
+        ReDim aRelationships(0 To ActiveWorkbook.Model.ModelRelationships.Count - 1)
+        For Each mdlRelationship In ActiveWorkbook.Model.ModelRelationships
+            aRelationships(i).PrimaryKeyTable = mdlRelationship.PrimaryKeyTable.Name
+            aRelationships(i).PrimaryKeyColumn = mdlRelationship.PrimaryKeyColumn.Name
+            aRelationships(i).ForeignKeyTable = mdlRelationship.ForeignKeyTable.Name
+            aRelationships(i).ForeignKeyColumn = mdlRelationship.ForeignKeyColumn.Name
+            aRelationships(i).Active = mdlRelationship.Active
+            i = i + 1
+        Next mdlRelationship
+    Else
+        ReDim aRelationships(0 To 0)
+        aRelationships(0).PrimaryKeyTable = "NULL"
+        aRelationships(0).PrimaryKeyColumn = "NULL"
+        aRelationships(0).ForeignKeyTable = "NULL"
+        aRelationships(0).ForeignKeyColumn = "NULL"
+        aRelationships(0).Active = False
+    End If
 
 End Sub
 
