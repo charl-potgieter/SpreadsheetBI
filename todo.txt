@@ -1,22 +1,17 @@
 TODO
 -------
  
- - Write code to add measures to data model (will only tend to use if a working file is being recreated)
- 
- - Write code to add relationships to data model (will only tend to use if a working file is being recreated)
-   
  - Need to roll out changes
 
   
    - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
     * This will also allow easier to transition to power BI
-  
- - Look at Tabular editor
-    https://exceleratorbi.com.au/introduction-to-tabular-editor-for-business-users/
-  
-  
+    
   
  - Work on the VBA or power query looper solution depending outcome of above
+ 
+  - Look at Tabular editor
+    https://exceleratorbi.com.au/introduction-to-tabular-editor-for-business-users/
  
  - Create a flat pivot style (and apply when flatten pivot table macro is run)
  
