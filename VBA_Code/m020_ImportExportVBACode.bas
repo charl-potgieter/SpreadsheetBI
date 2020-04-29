@@ -31,6 +31,14 @@ Public Sub ExportVBAModules()
     
     'ActiveWorkbook.Save
     sExportPath = ActiveWorkbook.Path & Application.PathSeparator & "VBA_Code"
+    
+    If NumberOfFilesInFolder(sExportPath) <> 0 Then
+        MsgBox ("Please ensure VBA subfolder is empty ...exiting")
+        Exit Sub
+    End If
+
+    
+    
     On Error Resume Next
         MkDir sExportPath
         Kill sExportPath & "\*.*"
