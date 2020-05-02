@@ -913,3 +913,46 @@ Sub ExportTablesInActiveWorkbookToPipeDelimtedText()
 
 End Sub
 
+
+Sub ExportActiveTableToPipeDelimtedText()
+'Saves active table as pipe delimited text files in active workbook path subfolder PipeDelimitedTextFiles
+'File name equals to table name, excl "tbl_" prefix if applicable
+'If file already exists a warning is generated, existing file is not overwritten, new file is not generated
+        
+    Dim lo As ListObject
+    
+    Dim sFolderPath As String
+    Dim sFolderPathAndName As String
+    Dim sht As Worksheet
+
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    
+    sFolderPath = ActiveWorkbook.Path & Application.PathSeparator & "PipeDelimitedTextFiles"
+    
+    If Not FolderExists(sFolderPath) Then
+        CreateFolder sFolderPath
+    End If
+    
+    Set lo = ActiveCell.ListObject
+
+    If Left(lo.Name, 4) = "tbl_" Then
+        sFolderPathAndName = sFolderPath & Application.PathSeparator & Right(lo.Name, Len(lo.Name) - 4) & ".txt"
+    Else
+        sFolderPathAndName = sFolderPath & Application.PathSeparator & lo.Name & ".txt"
+    End If
+    ExportListObjectToPipeDelimtedText lo, sFolderPathAndName
+
+
+    'Cleanup
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+        
+    MsgBox ("File created")
+
+End Sub

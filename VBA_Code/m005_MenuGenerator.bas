@@ -189,8 +189,14 @@ Sub CreatePopUpMenu()
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "TableLooper"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Export tables as pipe delimited text"
+    MenuItem.Caption = "Export active table as pipe delimited text"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportActiveTableToPipeDelimtedText"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Export all tables in workbook as pipe delimited text"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportTablesInActiveWorkbookToPipeDelimtedText"
+    
+
     
     
 End Sub

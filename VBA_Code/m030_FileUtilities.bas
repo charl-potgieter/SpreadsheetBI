@@ -316,22 +316,6 @@ Sub ExportListObjectToPipeDelimtedText(ByRef lo As ListObject, ByVal sFilePathAn
         Print #1, sRowStringToWrite
     Next j
 
-    Close #1
+    Close #iFileNo
 
 End Sub
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
