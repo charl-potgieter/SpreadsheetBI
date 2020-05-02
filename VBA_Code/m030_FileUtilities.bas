@@ -5,6 +5,59 @@ Option Private Module
 '   Requires reference to Microsoft Scripting runtime
 '-----------------------------------------------------------------------------
 
+Function FolderExists(ByVal sFolderPath) As Boolean
+'Requires reference to Microsoft Scripting runtime
+'An alternative solution exists using the DIR function but this seems to result in memory leak and folder is
+'not released by VBA
+    
+    Dim FSO As Scripting.FileSystemObject
+    Dim FolderPath As String
+    
+    Set FSO = New Scripting.FileSystemObject
+    
+    If Right(sFolderPath, 1) <> Application.PathSeparator Then
+        FolderPath = FolderPath & Application.PathSeparator
+    End If
+    
+    FolderExists = FSO.FolderExists(sFolderPath)
+    Set FSO = Nothing
+
+End Function
+
+Function FileExists(ByVal sFilePath) As Boolean
+'Requires reference to Microsoft Scripting runtime
+'An alternative solution exists using the DIR function but this seems to result in memory leak and file is
+'not released by VBA
+
+    Dim FSO As Scripting.FileSystemObject
+    Dim FolderPath As String
+    
+    Set FSO = New Scripting.FileSystemObject
+    
+    FileExists = FSO.FileExists(sFilePath)
+    Set FSO = Nothing
+
+
+End Function
+
+
+Sub CreateFolder(ByVal sFolderPath As String)
+'   Requires reference to Microsoft Scripting runtime
+
+    Dim FSO As FileSystemObject
+
+    If FolderExists(sFolderPath) Then
+        MsgBox ("Folder already exists, new folder not created")
+    Else
+        Set FSO = New FileSystemObject
+        FSO.CreateFolder sFolderPath
+    End If
+    
+    Set FSO = Nothing
+
+End Sub
+
+
 
 Function ReadTextFileIntoString(sFilePath As String) As String
 'Inspired by:
@@ -26,29 +79,29 @@ Function WriteStringToTextFile(ByVal sStr As String, ByVal sFilePath As String)
 'Requires reference to Microsoft Scripting Runtime
 'Writes sStr to a text file
 
-    Dim fso As Object
+    Dim FSO As Object
     Dim oFile As Object
     
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    Set oFile = fso.CreateTextFile(sFilePath)
+    Set FSO = CreateObject("Scripting.FileSystemObject")
+    Set oFile = FSO.CreateTextFile(sFilePath)
     oFile.Write (sStr)
     oFile.Close
-    Set fso = Nothing
+    Set FSO = Nothing
     Set oFile = Nothing
 
 End Function
 
 Function FileNameFromPath(ByVal sFilePath As String) As String
     
-    Dim fso As New FileSystemObject
-    FileNameFromPath = fso.GetFileName(sFilePath)
+    Dim FSO As New FileSystemObject
+    FileNameFromPath = FSO.GetFileName(sFilePath)
 
 End Function
 
 Function FileNameFromPathExclExtension(ByVal sFilePath As String) As String
     
-    Dim fso As New FileSystemObject
-    FileNameFromPathExclExtension = fso.GetBaseName(sFilePath)
+    Dim FSO As New FileSystemObject
+    FileNameFromPathExclExtension = FSO.GetBaseName(sFilePath)
 
 End Function
 
@@ -56,18 +109,17 @@ End Function
 
 
 Sub FileItemsInFolder(ByVal sFolderPath As String, ByVal bRecursive As Boolean, ByRef FileItems() As Scripting.File)
-'Requires refence: Microsoft Scripting Runtime
 'Returns an array of files (which can be used to get filename, path etc)
 '(Cannot create function due to recursive nature of the code)
 
     
-    Dim fso As Scripting.FileSystemObject
+    Dim FSO As Scripting.FileSystemObject
     Dim SourceFolder As Scripting.Folder
     Dim SubFolder As Scripting.Folder
     Dim FileItem As Scripting.File
     
-    Set fso = New Scripting.FileSystemObject
-    Set SourceFolder = fso.GetFolder(sFolderPath)
+    Set FSO = New Scripting.FileSystemObject
+    Set SourceFolder = FSO.GetFolder(sFolderPath)
     
     For Each FileItem In SourceFolder.Files
     
@@ -89,7 +141,7 @@ Sub FileItemsInFolder(ByVal sFolderPath As String, ByVal bRecursive As Boolean, 
     
     Set FileItem = Nothing
     Set SourceFolder = Nothing
-    Set fso = Nothing
+    Set FSO = Nothing
     
 
 End Sub
@@ -99,11 +151,11 @@ End Sub
 Function FileIsOpen(ByVal sFilePath) As Boolean
 'Requires refence: Microsoft Scripting Runtime
 
-    Dim fso As New FileSystemObject
+    Dim FSO As New FileSystemObject
     Dim sFileName As String
     Dim wkb As Workbook
     
-    sFileName = fso.GetFileName(sFilePath)
+    sFileName = FSO.GetFileName(sFilePath)
     
     On Error Resume Next
     Set wkb = Workbooks(sFileName)
@@ -179,9 +231,94 @@ End Function
 
 
 
+Sub ExportWorksheetSheetToPipeDelimtedText(ByRef sht As Worksheet, ByVal sFilePathAndName As String)
+'Requires reference to Microsoft Scripting Runtime
+'Saves sht as a pipe delimted text file
+'Existing files will not be overwritten.  Warning is given.
+    
+    Dim dblNumberOfRows As Double
+    Dim dblNumberOfCols As Double
+    Dim iFileNo As Integer
+    Dim i As Double
+    Dim j As Double
+    Dim sRowStringToWrite As String
+
+    
+    If FileExists(sFilePathAndName) Then
+        MsgBox ("File " & sFilePathAndName & " already exists.  New file has not been generated")
+    End If
+
+    'Get first free file number
+    iFileNo = FreeFile
+
+    
+    Open sFilePathAndName For Output As #iFileNo
+    
+    dblNumberOfRows = ActiveSheet.UsedRange.Rows.Count
+    dblNumberOfCols = ActiveSheet.UsedRange.Columns.Count
+    
+    
+    For j = 1 To dblNumberOfRows
+        sRowStringToWrite = ""
+        For i = 1 To dblNumberOfCols
+            If i < dblNumberOfCols Then
+                sRowStringToWrite = sRowStringToWrite & sht.Cells(j, i) & "|"
+            Else
+                sRowStringToWrite = sRowStringToWrite & sht.Cells(j, i)
+            End If
+        Next i
+        Print #1, sRowStringToWrite
+    Next j
+
+    Close #1
+
+End Sub
 
 
 
+
+Sub ExportListObjectToPipeDelimtedText(ByRef lo As ListObject, ByVal sFilePathAndName As String)
+'Requires reference to Microsoft Scripting Runtime
+'Saves sht as a pipe delimted text file
+'Existing files will not be overwritten.  Warning is given.
+    
+    Dim dblNumberOfRows As Double
+    Dim dblNumberOfCols As Double
+    Dim iFileNo As Integer
+    Dim i As Double
+    Dim j As Double
+    Dim sRowStringToWrite As String
+
+    
+    If FileExists(sFilePathAndName) Then
+        MsgBox ("File " & sFilePathAndName & " already exists.  New file has not been generated")
+    End If
+
+    'Get first free file number
+    iFileNo = FreeFile
+
+    
+    Open sFilePathAndName For Output As #iFileNo
+    
+    dblNumberOfRows = lo.Range.Rows.Count
+    dblNumberOfCols = lo.Range.Columns.Count
+    
+    
+    For j = 1 To dblNumberOfRows
+        sRowStringToWrite = ""
+        For i = 1 To dblNumberOfCols
+            If i < dblNumberOfCols Then
+                sRowStringToWrite = sRowStringToWrite & lo.Range.Cells(j, i) & "|"
+            Else
+                sRowStringToWrite = sRowStringToWrite & lo.Range.Cells(j, i)
+            End If
+        Next i
+        Print #1, sRowStringToWrite
+    Next j
+
+    Close #1
+
+End Sub
 
 
 

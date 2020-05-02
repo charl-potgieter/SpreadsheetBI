@@ -385,7 +385,7 @@ Sub ImportSelectedPowerQueries()
     Dim sPowerQueryFilePath As String
     Dim sPowerQueryName As String
     Dim fDialog As FileDialog
-    Dim fso As FileSystemObject
+    Dim FSO As FileSystemObject
     Dim i As Integer
     
     Set fDialog = Application.FileDialog(msoFileDialogFilePicker)
@@ -402,8 +402,8 @@ Sub ImportSelectedPowerQueries()
     If fDialog.Show = -1 Then
         For i = 1 To fDialog.SelectedItems.Count
             sPowerQueryFilePath = fDialog.SelectedItems(i)
-            Set fso = New FileSystemObject
-            sPowerQueryName = Replace(fso.GetFileName(sPowerQueryFilePath), ".m", "")
+            Set FSO = New FileSystemObject
+            sPowerQueryName = Replace(FSO.GetFileName(sPowerQueryFilePath), ".m", "")
             ImportOrRefreshSinglePowerQuery sPowerQueryFilePath, sPowerQueryName, ActiveWorkbook
         Next i
     End If
@@ -681,12 +681,12 @@ Sub CreateBiSpreadsheet()
         If sht.Name <> "ModelMeasures" Then sht.Delete
     Next sht
     
-    'Create other sheets
+    'Create other sheets & copy tables
     CreateModelColumnsSheet wkb
     CreateModelCalculatedColumnsSheet wkb
     CreateModelRelationshipsSheet wkb
     CreateTableGeneratorSheet wkb
-    
+    CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
 
     'Create index page, cleanup and display message
     InsertIndexPage wkb
@@ -696,12 +696,6 @@ Sub CreateBiSpreadsheet()
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic
     Application.DisplayAlerts = True
-
-    MsgBox ("Copy and paste power queries from SpreadsheetBI.xlsm to new workbook by highlighting all by name and folder in Query toolbar " & _
-        "or PowerQuery editor and pasting to the same space in new spreadsheet" & vbCrLf & vbCrLf & _
-        "See below link for guide " & vbCrLf & _
-        "https://eriksvensen.wordpress.com/2020/04/24/powerquery-easily-copy-all-queries-from-a-pbix-to-excel-and-vice-versa/amp/?__twitter_impression=true")
-
 
 End Sub
 
@@ -868,6 +862,54 @@ Sub GeneratePowerQueryTable()
     Application.Calculation = xlCalculationAutomatic
     Application.DisplayAlerts = True
 
+
+End Sub
+
+
+
+Sub ExportTablesInActiveWorkbookToPipeDelimtedText()
+'Saves all tables in active sheet pipe delimited text files in active workbook path subfolder PipeDelimitedTextFiles
+'File name equals to table name, excl "tbl_" prefix if applicable
+'If file already exists a warning is generated, existing file is not overwritten, new file is not generated
+        
+    Dim lo As ListObject
+    
+    Dim sFolderPath As String
+    Dim sFolderPathAndName As String
+    Dim sht As Worksheet
+
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    
+    sFolderPath = ActiveWorkbook.Path & Application.PathSeparator & "PipeDelimitedTextFiles"
+    
+    If Not FolderExists(sFolderPath) Then
+        CreateFolder sFolderPath
+    End If
+    
+
+    For Each sht In ActiveWorkbook.Sheets
+        For Each lo In sht.ListObjects
+            If Left(lo.Name, 4) = "tbl_" Then
+                sFolderPathAndName = sFolderPath & Application.PathSeparator & Right(lo.Name, Len(lo.Name) - 4) & ".txt"
+            Else
+                sFolderPathAndName = sFolderPath & Application.PathSeparator & lo.Name & ".txt"
+            End If
+            ExportListObjectToPipeDelimtedText lo, sFolderPathAndName
+        Next lo
+    Next sht
+
+
+    'Cleanup
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+        
+    MsgBox ("Files created")
 
 End Sub
 
