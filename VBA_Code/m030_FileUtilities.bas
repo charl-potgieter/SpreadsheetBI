@@ -313,7 +313,12 @@ Sub ExportListObjectToPipeDelimtedText(ByRef lo As ListObject, ByVal sFilePathAn
                 sRowStringToWrite = sRowStringToWrite & lo.Range.Cells(j, i)
             End If
         Next i
-        Print #1, sRowStringToWrite
+        If j < dblNumberOfRows Then
+            Print #iFileNo, sRowStringToWrite
+        Else
+            'note the semi-colon at end to avoid the newline
+            Print #iFileNo, sRowStringToWrite;
+        End If
     Next j
 
     Close #iFileNo

@@ -884,7 +884,7 @@ Sub ExportTablesInActiveWorkbookToPipeDelimtedText()
     Application.Calculation = xlCalculationManual
     Application.DisplayAlerts = False
     
-    sFolderPath = ActiveWorkbook.Path & Application.PathSeparator & "PipeDelimitedTextFiles"
+    sFolderPath = GetFolder
     
     If Not FolderExists(sFolderPath) Then
         CreateFolder sFolderPath
@@ -931,10 +931,16 @@ Sub ExportActiveTableToPipeDelimtedText()
     Application.Calculation = xlCalculationManual
     Application.DisplayAlerts = False
     
-    sFolderPath = ActiveWorkbook.Path & Application.PathSeparator & "PipeDelimitedTextFiles"
+    sFolderPath = GetFolder
+    
     
     If Not FolderExists(sFolderPath) Then
         CreateFolder sFolderPath
+    End If
+    
+    If ActiveCell.ListObject Is Nothing Then
+        MsgBox ("Please ensure a table is selected.  Exiting...")
+        Exit Sub
     End If
     
     Set lo = ActiveCell.ListObject

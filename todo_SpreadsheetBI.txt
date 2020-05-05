@@ -1,0 +1,56 @@
+TODO
+------- 
+The writing of the pipe delimited file to text file seems to generate an unwanted line feed on the last line
+
+Create a release section in github
+
+- Create a seperate git repo to create dummy financial data that is then copied as example data input to spreadsheet bi
+
+ - for the pipe delimtited export (both all and individual) --> give user option to select target folder
+
+ - See the transactions table.  This is currently only one line per transaction per account.  Blow this up to say 3 journal lines.  May have to do this for P&L only and then create the opposite entry on the balance sheet?
+   * Will have to remove the Balance sheet pro-rata component on sheet TransactionsTotalCrossTab, but create a seperate table that has these percentage allocations
+   * also have an allocation that contains a percentage to split each account transaction into journals (which then each allocate to the balance sheet in the same ratio)
+   * Going to then need a rounding account in the query
+
+ - Create sample chart of accounts CSV using macro that genenerates CSV from table
+ 
+ - Create sample trial balances using macro that generates CSV from table
+ 
+- Create a trial balance measure 
+
+- Create a p&l measure based off trial balance dependent on time period selected 
+
+ - In respect of the missing lookups and missing lookup checks --> return OK if data load is set to fals, irrespective of whether there is a lookup missing
+ 
+  - The sub that writes relationships, measures calculated columns to spreadsheet throws errors if none exist in each of these categories
+ 
+ - For "Create BI Spreadsheet" --> switch back to using VBA to copy queries across.  The copy and paste option seems to add an extra layer of let...in source to some functions which is just confusing
+ 
+   - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
+    * This will also allow easier to transition to power BI
+  
+ - Wondering if I should go back and re-evaluate auto repoert creation.  Won't necessarily complete each time a report is run but useful for recreating the entire spreadsheet.
+    * Ideally I would also have code that read the pivot report settings into an Excel Lisbobject.   Which could then be used to recreate the pivot reports
+  
+  
+ - Work on the VBA or power query looper solution depending outcome of above
+ 
+  - Look at Tabular editor
+    https://exceleratorbi.com.au/introduction-to-tabular-editor-for-business-users/
+ 
+ - Create a flat pivot style (and apply when flatten pivot table macro is run)
+ 
+  In the date table - is there an issue with using list.dates - see comment from Ken Puls here
+  https://blog.crossjoin.co.uk/2016/06/03/creating-tables-in-power-bipower-query-m-code-using-table/
+  
+
+  
+Website  / Twitter
+------------------
+- Set up Wordpress Blog website
+  
+ - Consider below theme, used by https://xxlbi.com/ as per code inspector
+ https://wordpress.org/themes/twentysixteen/   maybe rather TwentyTwenty or something in between
+  
+- Tweet re Excel Book, Conditional Formatting, VBA approach
