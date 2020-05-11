@@ -324,3 +324,35 @@ Sub ExportListObjectToPipeDelimtedText(ByRef lo As ListObject, ByVal sFilePathAn
     Close #iFileNo
 
 End Sub
+
+
+
+
+Function GetNextAvailableFileName(ByVal sFilePath As String) As String
+'Requires refence: Microsoft Scripting Runtime
+'Returns next available file name.  Can be utilised to ensure files are not overwritten
+
+    Dim oFSO As FileSystemObject
+    Dim sFolder As String
+    Dim sFileName As String
+    Dim sFileExtension As String
+    Dim i As Long
+
+    Set oFSO = CreateObject("Scripting.FileSystemObject")
+
+    With oFSO
+        sFolder = .GetParentFolderName(sFilePath)
+        sFileName = .GetBaseName(sFilePath)
+        sFileExtension = .GetExtensionName(sFilePath)
+
+        Do While .FileExists(sFilePath)
+            i = i + 1
+            sFilePath = .BuildPath(sFolder, sFileName & "(" & i & ")." & sFileExtension)
+        Loop
+        
+    End With
+
+    GetNextAvailableFileName = sFilePath
+
+End Function
+

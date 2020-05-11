@@ -1,12 +1,10 @@
 TODO
 ------- 
-Change to Https URL
+Continue to work on EntryPoints.GenerateSpreadsheetMetaData
 
-Change License to MIT
+
 
 Create a release section in github
-
-- Create a seperate git repo to create dummy financial data that is then copied as example data input to spreadsheet bi
 
  - for the pipe delimtited export (both all and individual) --> give user option to select target folder
 

@@ -962,3 +962,75 @@ Sub ExportActiveTableToPipeDelimtedText()
     MsgBox ("File created")
 
 End Sub
+
+
+
+Sub GenerateSpreadsheetMetaData()
+
+'Generates selected spreadsheet data to allo the spreadsheet to be recreated
+'via VBA.
+'Aspects covered:
+'   - Sheet names
+'   - Sheet category
+'   - Sheet heading
+'   - Table name
+'   - Table formulas
+'   - Table content
+
+
+    Dim sht As Worksheet
+    Dim shtTemp As Worksheet
+    Dim wkb As Workbook
+    Dim lo As ListObject
+    Dim sSheetHeader As String
+    Dim sSheetCategory As String
+    Dim sRowToWrite As String
+    Dim sFolderPath As String
+    Dim sFilePathAndName As String
+    Dim iSpreadsheetMetaDataFileNo As Integer
+    Dim iListObjectMetaDataFileNo As Integer
+
+    Set wkb = ActiveWorkbook
+    sFolderPath = wkb.Path & Application.PathSeparator & "SpreadsheetMetaData"
+    sFilePathAndName = sFolderPath & Application.PathSeparator & "SpreadsheetMetaData.txt"
+
+    If Not (FolderExists(sFolderPath)) Then
+        CreateFolder (sFolderPath)
+    End If
+    sFilePathAndName = GetNextAvailableFileName(sFilePathAndName)
+
+    sRowToWrite = ""
+    iSpreadsheetMetaDataFileNo = FreeFile 'Get first free file number
+
+    
+    Open sFilePathAndName For Output As #iSpreadsheetMetaDataFileNo
+    
+    'Write headers
+    Print #iSpreadsheetMetaDataFileNo, "Sheet Name|Sheet Category|Sheet Header|Table Name";
+    
+    For Each sht In wkb.Worksheets
+        
+        If sht.Name <> "Index" Then
+        
+            On Error Resume Next
+            sSheetHeader = sht.Names("SheetHeading").RefersToRange.Value
+            sSheetCategory = sht.Names("SheetCategory").RefersToRange.Value
+            If Err.Number = 0 Then
+                sRowToWrite = vbCr & _
+                    sht.Name & "|" & _
+                    sSheetCategory & "|" & _
+                    sSheetHeader & "|"
+                If sht.ListObjects.Count = 1 Then
+                    sRowToWrite = sRowToWrite & sht.ListObjects(1).Name
+                End If
+            End If
+            On Error GoTo 0
+                
+            Print #iSpreadsheetMetaDataFileNo, sRowToWrite;
+        End If
+        
+    Next sht
+    
+    Close iSpreadsheetMetaDataFileNo
+
+End Sub
