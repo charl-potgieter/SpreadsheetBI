@@ -1,6 +1,8 @@
 TODO
 ------- 
-The writing of the pipe delimited file to text file seems to generate an unwanted line feed on the last line
+Change to Https URL
+
+Change License to MIT
 
 Create a release section in github
 
@@ -8,6 +10,12 @@ Create a release section in github
 
  - for the pipe delimtited export (both all and individual) --> give user option to select target folder
 
+ - Create measure check to ensure that TB = sum of journals
+ 
+  - Create P&L monthly, quarterly annually and PY measures
+  
+  - Create BS measure
+ 
  - See the transactions table.  This is currently only one line per transaction per account.  Blow this up to say 3 journal lines.  May have to do this for P&L only and then create the opposite entry on the balance sheet?
    * Will have to remove the Balance sheet pro-rata component on sheet TransactionsTotalCrossTab, but create a seperate table that has these percentage allocations
    * also have an allocation that contains a percentage to split each account transaction into journals (which then each allocate to the balance sheet in the same ratio)
