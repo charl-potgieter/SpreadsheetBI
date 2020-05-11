@@ -1,7 +1,10 @@
 TODO
 ------- 
-Continue to work on EntryPoints.GenerateSpreadsheetMetaData
+ - Continue to work on EntryPoints.GenerateSpreadsheetMetaData, as well as module m060_CreateSpreadsheetMetaData
 
+ - In module m060_CreateSpreadsheetMetaData create subs to save below info as pipe delimited text
+     - File containing table headers and formulas if relevant
+     - File containing any data in table
 
 
 Create a release section in github
