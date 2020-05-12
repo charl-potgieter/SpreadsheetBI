@@ -196,6 +196,10 @@ Sub CreatePopUpMenu()
     MenuItem.Caption = "Export all tables in workbook as pipe delimited text"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportTablesInActiveWorkbookToPipeDelimtedText"
     
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Generate spreadsheet metadata"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "GenerateSpreadsheetMetaData"
+    
 
     
     

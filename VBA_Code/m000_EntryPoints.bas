@@ -964,9 +964,34 @@ Sub ExportActiveTableToPipeDelimtedText()
 End Sub
 
 
-
 Sub GenerateSpreadsheetMetaData()
 
-    GenerateWorksheetMetaDataFile ActiveWorkbook
+'Generates selected spreadsheet data to allo the spreadsheet to be recreated
+'via VBA.
+'Aspects covered:
+'   - Sheet names
+'   - Sheet category
+'   - Sheet heading
+'   - Table name
+'   - Number of table columns
+
+
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+
+    GenerateMetadataFileWorksheets ActiveWorkbook
+    GenerateMetadataFileListObjectFields ActiveWorkbook
+    GenerateMetadataFileListObjectValues ActiveWorkbook
+
+    'Cleanup
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+        
+    MsgBox ("Metadata created")
 
 End Sub
