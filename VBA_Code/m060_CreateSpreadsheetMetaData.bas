@@ -28,7 +28,7 @@ Sub GenerateMetadataFileWorksheets(ByRef wkb As Workbook)
     Open sFilePathAndName For Output As #iFileNo
     
     'Write headers
-    Print #iFileNo, "Name|Sheet Category|Sheet Header|Table Name|Number Of Table Columns|Table top Left Cells";
+    Print #iFileNo, "Name|Sheet Category|Sheet Header|Table Name|Number Of Table Columns|Table top left cell";
     
     For Each sht In wkb.Worksheets
         
