@@ -28,7 +28,7 @@ Sub GenerateMetadataFileWorksheets(ByRef wkb As Workbook)
     Open sFilePathAndName For Output As #iFileNo
     
     'Write headers
-    Print #iFileNo, "Name|Sheet Category|Sheet Header|Table Name|Number Of Table Columns|Table top left cell";
+    Print #iFileNo, "Name|Sheet Category|Sheet Header|Table Name|Number Of Table Columns|Number of Table Rows|Table top left cell";
     
     For Each sht In wkb.Worksheets
         
@@ -46,6 +46,7 @@ Sub GenerateMetadataFileWorksheets(ByRef wkb As Workbook)
                     sRowToWrite = sRowToWrite & _
                         sht.ListObjects(1).Name & "|" & _
                         sht.ListObjects(1).HeaderRowRange.Columns.Count & "|" & _
+                        sht.ListObjects(1).DataBodyRange.Rows.Count & "|" & _
                         sht.ListObjects(1).HeaderRowRange.Cells(1).Address
                 Else
                     sRowToWrite = sRowToWrite & "||"
