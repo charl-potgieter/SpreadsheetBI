@@ -46,7 +46,7 @@ Sub GenerateMetadataFileWorksheets(ByRef wkb As Workbook)
                     sRowToWrite = sRowToWrite & _
                         sht.ListObjects(1).Name & "|" & _
                         sht.ListObjects(1).HeaderRowRange.Columns.Count & "|" & _
-                        sht.ListObjects(1).DataBodyRange.Rows.Count & "|" & _
+                        sht.ListObjects(1).Range.Rows.Count & "|" & _
                         sht.ListObjects(1).HeaderRowRange.Cells(1).Address
                 Else
                     sRowToWrite = sRowToWrite & "||"
