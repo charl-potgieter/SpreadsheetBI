@@ -91,7 +91,7 @@ Sub GenerateMetadataFileListObjectFields(ByRef wkb As Workbook)
     Open sFilePathAndName For Output As #iFileNo
     
     'Write headers
-    Print #iFileNo, "ListObjectName|ListObjectHeader|IsFormula|Formula";
+    Print #iFileNo, "SheetName|ListObjectName|ListObjectHeader|IsFormula|Formula";
     
     For Each sht In wkb.Worksheets
         
@@ -105,6 +105,7 @@ Sub GenerateMetadataFileListObjectFields(ByRef wkb As Workbook)
                 For i = 1 To lo.HeaderRowRange.Columns.Count
                 
                     sRowToWrite = vbCr & _
+                        sht.Name & "|" & _
                         lo.Name & "|" _
                         & lo.HeaderRowRange.Cells(i) & "|" & _
                         lo.ListColumns(i).DataBodyRange.Cells(1).HasFormula & "|"
@@ -159,7 +160,7 @@ Sub GenerateMetadataFileListObjectValues(ByRef wkb As Workbook)
     Open sFilePathAndName For Output As #iFileNo
     
     'Write headers
-    Print #iFileNo, "ListObjectName|ListObjectHeader|Value";
+    Print #iFileNo, "SheetName|ListObjectName|ListObjectHeader|Value";
     
     For Each sht In wkb.Worksheets
         
@@ -173,6 +174,7 @@ Sub GenerateMetadataFileListObjectValues(ByRef wkb As Workbook)
                     If Not (lo.ListColumns(i).DataBodyRange.Cells(1).HasFormula) Then
                         For j = 1 To lo.DataBodyRange.Rows.Count
                             sRowToWrite = vbCr & _
+                                sht.Name & "|" & _
                                 lo.Name & "|" & _
                                 lo.ListColumns(i).Name & "|" & _
                                 lo.ListColumns(i).DataBodyRange.Cells(j).Value
