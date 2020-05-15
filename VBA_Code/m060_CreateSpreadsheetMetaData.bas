@@ -196,3 +196,61 @@ End Sub
 
 
 
+Sub GenerateMetadataFileListObjectFormat(ByRef wkb As Workbook)
+
+    Dim i As Long
+    Dim sht As Worksheet
+    Dim lo As ListObject
+    Dim sSheetHeader As String
+    Dim sSheetCategory As String
+    Dim sRowToWrite As String
+    Dim sFolderPath As String
+    Dim iFileNo As Integer
+    Dim sFilePathAndName As String
+
+    Set wkb = ActiveWorkbook
+    sFolderPath = wkb.Path & Application.PathSeparator & "SpreadsheetMetadata"
+    sFilePathAndName = sFolderPath & Application.PathSeparator & "ListObjectFormat.txt"
+
+    If Not (FolderExists(sFolderPath)) Then
+        CreateFolder (sFolderPath)
+    End If
+    
+
+    sRowToWrite = ""
+    iFileNo = FreeFile 'Get first free file number
+    Open sFilePathAndName For Output As #iFileNo
+    
+    'Write headers
+    Print #iFileNo, "SheetName|ListObjectName|ListObjectHeader|NumberFormat|FontColour";
+    
+    For Each sht In wkb.Worksheets
+        
+        If sht.Name <> "Index" Then
+            On Error Resume Next 'Only write metadata if sheet meets below criteria
+            sSheetHeader = sht.Names("SheetHeading").RefersToRange.Value
+            sSheetCategory = sht.Names("SheetCategory").RefersToRange.Value
+            Set lo = sht.ListObjects(1)
+            
+            If Err.Number = 0 And sht.ListObjects.Count = 1 Then
+                For i = 1 To lo.HeaderRowRange.Columns.Count
+                
+                    sRowToWrite = vbCr & _
+                        sht.Name & "|" & _
+                        lo.Name & "|" _
+                        & lo.HeaderRowRange.Cells(i) & "|" & _
+                        lo.ListColumns(i).DataBodyRange.Cells(1).NumberFormat & "|" & _
+                        GetCellFontColour(lo.ListColumns(i).DataBodyRange.Cells(1))
+                        
+                        
+                    Print #iFileNo, sRowToWrite;
+                Next i
+            End If
+            On Error GoTo 0
+        End If
+                
+    Next sht
+    Close #iFileNo
+
+End Sub
+

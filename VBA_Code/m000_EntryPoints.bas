@@ -968,12 +968,14 @@ Sub GenerateSpreadsheetMetaData()
 
 'Generates selected spreadsheet data to allo the spreadsheet to be recreated
 'via VBA.
-'Aspects covered:
+'Aspects covered include:
 '   - Sheet names
 '   - Sheet category
 '   - Sheet heading
 '   - Table name
 '   - Number of table columns
+'   -  Listobject number format
+'   -  Listobject font colour
 
 
     'Setup
@@ -985,6 +987,7 @@ Sub GenerateSpreadsheetMetaData()
     GenerateMetadataFileWorksheets ActiveWorkbook
     GenerateMetadataFileListObjectFields ActiveWorkbook
     GenerateMetadataFileListObjectValues ActiveWorkbook
+    GenerateMetadataFileListObjectFormat ActiveWorkbook
 
     'Cleanup
     Application.ScreenUpdating = True
