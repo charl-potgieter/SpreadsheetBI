@@ -17,7 +17,7 @@ Option Explicit
 '
 '------------------------------------------------------------------------------------------------------------------------
 
-Public Sub ExportVBAModules(ByVal sFolderPath As String)
+Public Sub ExportVBAModules(ByRef wkb As Workbook, ByVal sFolderPath As String)
 'Saves active workbook and exports file to sFolderPath
 ' *****IMPORTANT NOTE****
 ' Any existing files will be overwritten
@@ -28,13 +28,13 @@ Public Sub ExportVBAModules(ByVal sFolderPath As String)
     Dim cmpComponent As VBIDE.VBComponent
 
 
-    If ActiveWorkbook.VBProject.Protection = 1 Then
+    If wkb.VBProject.Protection = 1 Then
         MsgBox "The VBA in this workbook is protected," & _
             "not possible to export the code"
         Exit Sub
     End If
     
-    For Each cmpComponent In ThisWorkbook.VBProject.VBComponents
+    For Each cmpComponent In wkb.VBProject.VBComponents
         
         bExport = True
         sFileName = cmpComponent.Name
@@ -63,7 +63,7 @@ Public Sub ExportVBAModules(ByVal sFolderPath As String)
 End Sub
 
 
-Public Sub ImportModules(ByVal sFolder As String)
+Public Sub ImportModules(ByRef wkb As Workbook, ByVal sFolder As String)
 'Imports VBA code sFolder
 
 
@@ -74,13 +74,13 @@ Public Sub ImportModules(ByVal sFolder As String)
     Dim zFileName As String
     Dim cmpComponents As VBIDE.VBComponents
 
-    If ActiveWorkbook.Name = ThisWorkbook.Name Then
+    If wkb.Name = ThisWorkbook.Name Then
         MsgBox "Select another destination workbook" & _
         "Not possible to import in this workbook "
         Exit Sub
     End If
     
-    If ActiveWorkbook.VBProject.Protection = 1 Then
+    If wkb.VBProject.Protection = 1 Then
     MsgBox "The VBA in this workbook is protected," & _
         "not possible to Import the code"
     Exit Sub
@@ -94,7 +94,7 @@ Public Sub ImportModules(ByVal sFolder As String)
     End If
 
 
-    Set cmpComponents = ActiveWorkbook.VBProject.VBComponents
+    Set cmpComponents = wkb.VBProject.VBComponents
     
     For Each objFile In objFSO.GetFolder(sFolder).Files
     

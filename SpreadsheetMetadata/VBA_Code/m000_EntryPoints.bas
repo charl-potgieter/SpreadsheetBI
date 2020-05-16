@@ -1012,7 +1012,7 @@ Sub GenerateSpreadsheetMetaData()
     GenerateMetadataFileListObjectFormat ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "ListObjectFormat.txt"
 
     'Export VBA code
-    ExportVBAModules sVbaCodePath
+    ExportVBAModules ActiveWorkbook, sVbaCodePath
 
     'Export Power Queries
     ExportPowerQueriesToFiles sPowerQueriesPath, ActiveWorkbook

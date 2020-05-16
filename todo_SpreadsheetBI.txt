@@ -1,13 +1,5 @@
 TODO
 ------- 
- - Export VBA spreadsheet metadata
-    - change folder structure.  First check if SpreadsheetMetadata exists and create if necessary, then move to subfolders WorksheetStructure, VBA_Code and PowerQueries
-     - Add export of VBA_Code and PowerQueries to above folders, maybe delete any existing items in these folders?
-
- - In module m060_CreateSpreadsheetMetaData create subs to save below info as pipe delimited text
-     - File containing table headers and formulas if relevant
-     - File containing any data in table
-
 
 Create a release section in github
 
