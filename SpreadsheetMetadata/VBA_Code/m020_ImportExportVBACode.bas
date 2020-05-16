@@ -17,32 +17,16 @@ Option Explicit
 '
 '------------------------------------------------------------------------------------------------------------------------
 
-Public Sub ExportVBAModules()
-'Saves active workbook and exports file to VBA_Code subfolder in path of active workbook
+Public Sub ExportVBAModules(ByVal sFolderPath As String)
+'Saves active workbook and exports file to sFolderPath
 ' *****IMPORTANT NOTE****
-' Any existing files in this subfolder will be deleted
+' Any existing files will be overwritten
 
-    Dim sExportPath As String
     Dim sExportFileName As String
     Dim bExport As Boolean
     Dim sFileName As String
     Dim cmpComponent As VBIDE.VBComponent
 
-    
-    'ActiveWorkbook.Save
-    sExportPath = ActiveWorkbook.Path & Application.PathSeparator & "VBA_Code"
-    
-    If NumberOfFilesInFolder(sExportPath) <> 0 Then
-        MsgBox ("Please ensure VBA subfolder is empty ...exiting")
-        Exit Sub
-    End If
-
-    
-    
-    On Error Resume Next
-        MkDir sExportPath
-        Kill sExportPath & "\*.*"
-    On Error GoTo 0
 
     If ActiveWorkbook.VBProject.Protection = 1 Then
         MsgBox "The VBA in this workbook is protected," & _
@@ -69,18 +53,18 @@ Public Sub ExportVBAModules()
         End Select
         
         If bExport Then
-            sExportFileName = sExportPath & Application.PathSeparator & sFileName
+            sExportFileName = sFolderPath & Application.PathSeparator & sFileName
             cmpComponent.Export sExportFileName
         End If
    
     Next cmpComponent
 
-    MsgBox "Code export complete"
+
 End Sub
 
 
-Public Sub ImportModules()
-'Imports VBA code from VBA_Code subfolder in path of active workbook
+Public Sub ImportModules(ByVal sFolder As String)
+'Imports VBA code sFolder
 
 
     Dim objFSO As Scripting.FileSystemObject
@@ -102,10 +86,9 @@ Public Sub ImportModules()
     Exit Sub
     End If
 
-    sImportPath = ThisWorkbook.Path & Application.PathSeparator & "VBA_Code"
         
     Set objFSO = New Scripting.FileSystemObject
-    If objFSO.GetFolder(sImportPath).Files.Count = 0 Then
+    If objFSO.GetFolder(sFolder).Files.Count = 0 Then
        MsgBox "There are no files to import"
        Exit Sub
     End If
@@ -113,7 +96,7 @@ Public Sub ImportModules()
 
     Set cmpComponents = ActiveWorkbook.VBProject.VBComponents
     
-    For Each objFile In objFSO.GetFolder(sImportPath).Files
+    For Each objFile In objFSO.GetFolder(sFolder).Files
     
         If (objFSO.GetExtensionName(objFile.Name) = "cls") Or _
             (objFSO.GetExtensionName(objFile.Name) = "frm") Or _
@@ -125,6 +108,5 @@ Public Sub ImportModules()
     
     MsgBox "Import Complete"
 End Sub
-
 
 

@@ -977,6 +977,10 @@ Sub GenerateSpreadsheetMetaData()
 '   -  Listobject number format
 '   -  Listobject font colour
 
+    Dim sMetaDataRootPath As String
+    Dim sWorksheetStructurePath As String
+    Dim sPowerQueriesPath As String
+    Dim sVbaCodePath As String
 
     'Setup
     Application.ScreenUpdating = False
@@ -984,10 +988,34 @@ Sub GenerateSpreadsheetMetaData()
     Application.Calculation = xlCalculationManual
     Application.DisplayAlerts = False
 
-    GenerateMetadataFileWorksheets ActiveWorkbook
-    GenerateMetadataFileListObjectFields ActiveWorkbook
-    GenerateMetadataFileListObjectValues ActiveWorkbook
-    GenerateMetadataFileListObjectFormat ActiveWorkbook
+    sMetaDataRootPath = ActiveWorkbook.Path & Application.PathSeparator & "SpreadsheetMetadata"
+    sWorksheetStructurePath = sMetaDataRootPath & Application.PathSeparator & "WorksheetStructure"
+    sPowerQueriesPath = sMetaDataRootPath & Application.PathSeparator & "PowerQueries"
+    sVbaCodePath = sMetaDataRootPath & Application.PathSeparator & "VBA_Code"
+    
+    'Rather ask user to manually delete rather than have risky folder deletions in VBA code
+    If FolderExists(sMetaDataRootPath) Then
+        MsgBox ("Manually delete " & sMetaDataRootPath & " before continuing.  Exiting")
+        Exit Sub
+    End If
+    
+    'Create folders for storing metadata
+    CreateFolder sMetaDataRootPath
+    CreateFolder sWorksheetStructurePath
+    CreateFolder sPowerQueriesPath
+    CreateFolder sVbaCodePath
+    
+    'Generate Worksheet structure metadata text files
+    GenerateMetadataFileWorksheets ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "MetadataWorksheets.txt"
+    GenerateMetadataFileListObjectFields ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "ListObjectFields.txt"
+    GenerateMetadataFileListObjectValues ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "ListObjectFieldValues.txt"
+    GenerateMetadataFileListObjectFormat ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "ListObjectFormat.txt"
+
+    'Export VBA code
+    ExportVBAModules sVbaCodePath
+
+    'Export Power Queries
+    ExportPowerQueriesToFiles sPowerQueriesPath, ActiveWorkbook
 
     'Cleanup
     Application.ScreenUpdating = True

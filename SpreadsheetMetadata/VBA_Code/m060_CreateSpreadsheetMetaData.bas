@@ -2,7 +2,7 @@ Attribute VB_Name = "m060_CreateSpreadsheetMetaData"
 Option Explicit
 Option Private Module
 
-Sub GenerateMetadataFileWorksheets(ByRef wkb As Workbook)
+Sub GenerateMetadataFileWorksheets(ByRef wkb As Workbook, ByVal sFilePathAndName As String)
 
 
 
@@ -12,15 +12,7 @@ Sub GenerateMetadataFileWorksheets(ByRef wkb As Workbook)
     Dim sRowToWrite As String
     Dim sFolderPath As String
     Dim iFileNo As Integer
-    Dim sFilePathAndName As String
 
-    Set wkb = ActiveWorkbook
-    sFolderPath = wkb.Path & Application.PathSeparator & "SpreadsheetMetadata"
-    sFilePathAndName = sFolderPath & Application.PathSeparator & "MetadataWorksheets.txt"
-
-    If Not (FolderExists(sFolderPath)) Then
-        CreateFolder (sFolderPath)
-    End If
     
 
     sRowToWrite = ""
@@ -65,7 +57,7 @@ End Sub
 
 
 
-Sub GenerateMetadataFileListObjectFields(ByRef wkb As Workbook)
+Sub GenerateMetadataFileListObjectFields(ByRef wkb As Workbook, ByVal sFilePathAndName As String)
 
 
     Dim i As Long
@@ -76,16 +68,7 @@ Sub GenerateMetadataFileListObjectFields(ByRef wkb As Workbook)
     Dim sRowToWrite As String
     Dim sFolderPath As String
     Dim iFileNo As Integer
-    Dim sFilePathAndName As String
 
-    Set wkb = ActiveWorkbook
-    sFolderPath = wkb.Path & Application.PathSeparator & "SpreadsheetMetadata"
-    sFilePathAndName = sFolderPath & Application.PathSeparator & "ListObjectFields.txt"
-
-    If Not (FolderExists(sFolderPath)) Then
-        CreateFolder (sFolderPath)
-    End If
-    
 
     sRowToWrite = ""
     iFileNo = FreeFile 'Get first free file number
@@ -133,7 +116,7 @@ End Sub
 
 
 
-Sub GenerateMetadataFileListObjectValues(ByRef wkb As Workbook)
+Sub GenerateMetadataFileListObjectValues(ByRef wkb As Workbook, ByVal sFilePathAndName As String)
 
 
     Dim i As Long
@@ -145,17 +128,8 @@ Sub GenerateMetadataFileListObjectValues(ByRef wkb As Workbook)
     Dim sRowToWrite As String
     Dim sFolderPath As String
     Dim iFileNo As Integer
-    Dim sFilePathAndName As String
-
-    Set wkb = ActiveWorkbook
-    sFolderPath = wkb.Path & Application.PathSeparator & "SpreadsheetMetadata"
-    sFilePathAndName = sFolderPath & Application.PathSeparator & "ListObjectFieldValues.txt"
-
-    If Not (FolderExists(sFolderPath)) Then
-        CreateFolder (sFolderPath)
-    End If
     
-
+    
     sRowToWrite = ""
     iFileNo = FreeFile 'Get first free file number
     Open sFilePathAndName For Output As #iFileNo
@@ -196,7 +170,7 @@ End Sub
 
 
 
-Sub GenerateMetadataFileListObjectFormat(ByRef wkb As Workbook)
+Sub GenerateMetadataFileListObjectFormat(ByRef wkb As Workbook, ByVal sFilePathAndName As String)
 
     Dim i As Long
     Dim sht As Worksheet
@@ -206,16 +180,6 @@ Sub GenerateMetadataFileListObjectFormat(ByRef wkb As Workbook)
     Dim sRowToWrite As String
     Dim sFolderPath As String
     Dim iFileNo As Integer
-    Dim sFilePathAndName As String
-
-    Set wkb = ActiveWorkbook
-    sFolderPath = wkb.Path & Application.PathSeparator & "SpreadsheetMetadata"
-    sFilePathAndName = sFolderPath & Application.PathSeparator & "ListObjectFormat.txt"
-
-    If Not (FolderExists(sFolderPath)) Then
-        CreateFolder (sFolderPath)
-    End If
-    
 
     sRowToWrite = ""
     iFileNo = FreeFile 'Get first free file number
