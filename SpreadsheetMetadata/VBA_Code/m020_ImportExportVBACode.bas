@@ -63,7 +63,7 @@ Public Sub ExportVBAModules(ByRef wkb As Workbook, ByVal sFolderPath As String)
 End Sub
 
 
-Public Sub ImportModules(ByRef wkb As Workbook, ByVal sFolder As String)
+Public Sub ImportVBAModules(ByRef wkb As Workbook, ByVal sFolder As String)
 'Imports VBA code sFolder
 
 

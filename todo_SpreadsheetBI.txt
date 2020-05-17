@@ -1,5 +1,8 @@
 TODO
 ------- 
+Create a sub to export all VBA code ex module name in first line - in same folder as the file (will only tend to use this in single module cases such as spreadsheetcreator)
+Create menu item so this can be used in spreadsheetcreator
+Refer File utilities - DeleteFirstLineOfTextFile --> need to paramaterise this.
 
 Create a release section in github
 

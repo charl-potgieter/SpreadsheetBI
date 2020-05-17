@@ -356,3 +356,45 @@ Function GetNextAvailableFileName(ByVal sFilePath As String) As String
 
 End Function
 
+
+
+
+Sub DeleteFirstLineOfFile()
+
+    Dim sFilePathAndName As String
+    Dim sInput As String
+    Dim sOutput() As String
+    Dim i As Long
+    Dim j As Long
+    Dim lSizeOfOutput As Long
+    Dim iFileNo As Integer
+    
+    sFilePathAndName = Application.GetOpenFilename
+    iFileNo = FreeFile
+    
+    'Import file lines to array excluding firt line
+    Open sFilePathAndName For Input As iFileNo
+    i = 0
+    j = 0
+    Do Until EOF(iFileNo)
+        j = j + 1
+        Line Input #iFileNo, sInput
+        If j > 1 Then
+            i = i + 1
+            ReDim Preserve sOutput(1 To i)
+            sOutput(i) = sInput
+        End If
+    Loop
+    Close #iFileNo
+    lSizeOfOutput = i
+    
+    'Write array to file
+    Open sFilePathAndName For Output As 1
+    For i = 1 To lSizeOfOutput
+        Print #iFileNo, sOutput(i)
+    Next i
+    Close #iFileNo
+    
+    
+End Sub
+
