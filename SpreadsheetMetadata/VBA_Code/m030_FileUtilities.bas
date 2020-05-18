@@ -359,9 +359,8 @@ End Function
 
 
 
-Sub DeleteFirstLineOfFile()
+Sub DeleteFirstLineOfTextFile(ByVal sFilePathAndName As String)
 
-    Dim sFilePathAndName As String
     Dim sInput As String
     Dim sOutput() As String
     Dim i As Long
@@ -369,7 +368,6 @@ Sub DeleteFirstLineOfFile()
     Dim lSizeOfOutput As Long
     Dim iFileNo As Integer
     
-    sFilePathAndName = Application.GetOpenFilename
     iFileNo = FreeFile
     
     'Import file lines to array excluding firt line

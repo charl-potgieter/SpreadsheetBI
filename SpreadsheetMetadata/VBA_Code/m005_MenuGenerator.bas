@@ -200,6 +200,11 @@ Sub CreatePopUpMenu()
     MenuItem.Caption = "Generate spreadsheet metadata"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "GenerateSpreadsheetMetaData"
     
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Export VBA Code excluding module name"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportVBAcodeExModuleName"
+    
+    
 
     
     

@@ -17,10 +17,12 @@ Option Explicit
 '
 '------------------------------------------------------------------------------------------------------------------------
 
-Public Sub ExportVBAModules(ByRef wkb As Workbook, ByVal sFolderPath As String)
+Public Sub ExportVBAModules(ByRef wkb As Workbook, ByVal sFolderPath As String, Optional ByVal bDeleteFirstRow = False)
 'Saves active workbook and exports file to sFolderPath
 ' *****IMPORTANT NOTE****
 ' Any existing files will be overwritten
+'if bDeleteFirstRow is set as true the first row of the file contining module name is deleted to enable file
+'to be simply copied andd pasted into VBA IDE
 
     Dim sExportFileName As String
     Dim bExport As Boolean
@@ -55,7 +57,11 @@ Public Sub ExportVBAModules(ByRef wkb As Workbook, ByVal sFolderPath As String)
         If bExport Then
             sExportFileName = sFolderPath & Application.PathSeparator & sFileName
             cmpComponent.Export sExportFileName
+            If bDeleteFirstRow Then
+                DeleteFirstLineOfTextFile sExportFileName
+            End If
         End If
+        
    
     Next cmpComponent
 

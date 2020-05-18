@@ -963,6 +963,17 @@ Sub ExportActiveTableToPipeDelimtedText()
 
 End Sub
 
+Sub ExportVBAcodeExModuleName()
+'Exports VBA code into path of current workbook.  The module name is excluded so that the code
+'can simply be copied and pasted into the VBA ide, rather than imported.
+'Likely that this functionality will only be used for spreadsheets with only a single module of code
+
+    ExportVBAModules ActiveWorkbook, ActiveWorkbook.Path, True
+    MsgBox ("VBA Code exported")
+
+End Sub
+
+
 
 Sub GenerateSpreadsheetMetaData()
 
