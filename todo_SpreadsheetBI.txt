@@ -1,38 +1,23 @@
 TODO
 ------- 
-Create a sub to export all VBA code ex module name in first line - in same folder as the file (will only tend to use this in single module cases such as spreadsheetcreator)
-Create menu item so this can be used in spreadsheetcreator
-Refer File utilities - DeleteFirstLineOfTextFile --> need to paramaterise this.
+ - Read in sample financial data
 
-Create a release section in github
-
- - for the pipe delimtited export (both all and individual) --> give user option to select target folder
+- Create a trial balance measure 
 
  - Create measure check to ensure that TB = sum of journals
  
-  - Create P&L monthly, quarterly annually and PY measures
+  Create a p&l measure based off trial balance dependent on time period selected 
+  ( Create P&L monthly, quarterly annually and PY measures)
   
   - Create BS measure
- 
- - See the transactions table.  This is currently only one line per transaction per account.  Blow this up to say 3 journal lines.  May have to do this for P&L only and then create the opposite entry on the balance sheet?
-   * Will have to remove the Balance sheet pro-rata component on sheet TransactionsTotalCrossTab, but create a seperate table that has these percentage allocations
-   * also have an allocation that contains a percentage to split each account transaction into journals (which then each allocate to the balance sheet in the same ratio)
-   * Going to then need a rounding account in the query
 
- - Create sample chart of accounts CSV using macro that genenerates CSV from table
- 
- - Create sample trial balances using macro that generates CSV from table
- 
-- Create a trial balance measure 
+ - In respect of the missing lookups measure and missing lookup checks --> return OK if data load is set to false, irrespective of whether there is a lookup missing
 
-- Create a p&l measure based off trial balance dependent on time period selected 
+ - Create a release section in github
 
- - In respect of the missing lookups and missing lookup checks --> return OK if data load is set to fals, irrespective of whether there is a lookup missing
- 
   - The sub that writes relationships, measures calculated columns to spreadsheet throws errors if none exist in each of these categories
  
- - For "Create BI Spreadsheet" --> switch back to using VBA to copy queries across.  The copy and paste option seems to add an extra layer of let...in source to some functions which is just confusing
- 
+  
    - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
     * This will also allow easier to transition to power BI
   
