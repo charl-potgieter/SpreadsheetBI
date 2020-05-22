@@ -1,5 +1,6 @@
 Attribute VB_Name = "m999_TestDmvQuery"
 Option Explicit
+Option Private Module
 
 
 Public Sub CreatePowerPivotDmvInventory()

@@ -2,6 +2,33 @@ Attribute VB_Name = "m050_DataModel"
 Option Explicit
 Option Private Module
 
+Sub CopyQueriesFromSpreadsheetBI(Optional ByRef wkb As Workbook)
+'Copies power queries from
+
+    Dim sQueryText As String
+    Dim qry As WorkbookQuery
+    
+    If wkb Is Nothing Then Set wkb = ActiveWorkbook
+    
+    If wkb Is ThisWorkbook Then
+        MsgBox ("Cannot copy into SpreadsheetBI itself, select another workbook.  Exiting...")
+        Exit Sub
+    End If
+    
+    For Each qry In ThisWorkbook.Queries
+        If QueryExists(qry.Name, wkb) Then
+            wkb.Queries(qry.Name).Formula = qry.Formula
+        Else
+            wkb.Queries.Add qry.Name, qry.Formula
+        End If
+    Next qry
+    
+    MsgBox ("Queries copied")
+
+End Sub
+
+
+
 Sub ExportPowerQueriesToFiles(ByVal sFolderPath As String, wkb As Workbook)
 
     Dim qry As WorkbookQuery
@@ -147,27 +174,23 @@ Sub CopyPowerQueriesBetweenFiles(ByRef wkbSource As Workbook, ByRef wkbTarget As
 
 End Sub
 
-
-Sub WritesMeasuresColumnsRelationshipsToSheets()
+Sub WriteModelMeasuresToSheet()
 
     Dim aMeasures() As TypeModelMeasures
-    Dim aColumns() As TypeModelColumns
-    Dim aCalcColumns() As TypeModelCalcColumns
-    Dim aModelRelationships() As TypeModelRelationship
-    Dim rngValidations As Range
     Dim lo As ListObject
     Dim i As Integer
-    Dim j As Integer
 
-      
-    '----------------- Populate Model Measures Sheet and write visible measures to validation sheet ---------------
+    ' Delete existing sheet if it exists and create new sheet
+    If SheetExists(ActiveWorkbook, "ModelMeasures") Then
+        ActiveWorkbook.Sheets("ModelMeasures").Delete
+    End If
+    CreateModelMeasuresSheet ActiveWorkbook
     
     GetModelMeasures aMeasures
     Set lo = ActiveWorkbook.Sheets("ModelMeasures").ListObjects("tbl_ModelMeasures")
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
-    
-    j = 0
+
     With lo
         For i = 0 To UBound(aMeasures)
             .ListColumns("Name").DataBodyRange.Cells(i + 1) = aMeasures(i).Name
@@ -177,17 +200,56 @@ Sub WritesMeasuresColumnsRelationshipsToSheets()
             .ListColumns("Name and Expression").DataBodyRange.Cells(i + 1) = aMeasures(i).Name & ":=" & aMeasures(i).Expression
         Next i
     End With
-    
 
-    '----------------- Populate Model Columns Sheet and write visible columns to validation sheet ---------------
+
+End Sub
+
+Sub WriteModelCalcColsToSheet()
+    
+    Dim aCalcColumns() As TypeModelCalcColumns
+    Dim lo As ListObject
+    Dim i As Integer
+
+    ' Delete existing sheet if it exists and create new sheet
+    If SheetExists(ActiveWorkbook, "ModelCalcColumns") Then
+        ActiveWorkbook.Sheets("ModelCalcColumns").Delete
+    End If
+    CreateModelCalculatedColumnsSheet ActiveWorkbook
+
+    GetModelCalculatedColumns aCalcColumns
+    Set lo = ActiveWorkbook.Sheets("ModelCalcColumns").ListObjects("tbl_ModelCalcColumns")
+    lo.DataBodyRange.ClearContents
+    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
+
+    With lo
+        For i = 0 To UBound(aCalcColumns)
+            .ListColumns("Name").DataBodyRange.Cells(i + 1) = aCalcColumns(i).Name
+            .ListColumns("Table Name").DataBodyRange.Cells(i + 1) = aCalcColumns(i).TableName
+            .ListColumns("Expression").DataBodyRange.Cells(i + 1) = aCalcColumns(i).Expression
+        Next i
+    End With
+
+End Sub
+
+
+
+Sub WriteModelColsToSheet()
+    
+    Dim aColumns() As TypeModelColumns
+    Dim lo As ListObject
+    Dim i As Integer
+
+    ' Delete existing sheet if it exists and create new sheet
+    If SheetExists(ActiveWorkbook, "ModelColumns") Then
+        ActiveWorkbook.Sheets("ModelColumns").Delete
+    End If
+    CreateModelColumnsSheet ActiveWorkbook
 
     GetModelColumns aColumns
     Set lo = ActiveWorkbook.Sheets("ModelColumns").ListObjects("tbl_ModelColumns")
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
 
-    
-    j = 0
     With lo
         For i = 0 To UBound(aColumns)
             .ListColumns("Name").DataBodyRange.Cells(i + 1) = aColumns(i).Name
@@ -197,31 +259,30 @@ Sub WritesMeasuresColumnsRelationshipsToSheets()
             .ListColumns("Is calculated column").DataBodyRange.Cells(i + 1).Formula = "=COUNTIFS(tbl_ModelCalcColumns[Name], [@Name]) = 1"
         Next i
     End With
-    
-    
-    '----------------- Populate Model Calculated Columns Sheet ---------------
 
-    GetModelCalculatedColumns aCalcColumns
-    Set lo = ActiveWorkbook.Sheets("ModelCalcColumns").ListObjects("tbl_ModelCalcColumns")
-    lo.DataBodyRange.ClearContents
-    lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
+End Sub
+
+
+
+
+
+Sub WriteRelationshipsToSheet()
     
-    With lo
-        For i = 0 To UBound(aCalcColumns)
-            .ListColumns("Name").DataBodyRange.Cells(i + 1) = aCalcColumns(i).Name
-            .ListColumns("Table Name").DataBodyRange.Cells(i + 1) = aCalcColumns(i).TableName
-            .ListColumns("Expression").DataBodyRange.Cells(i + 1) = aCalcColumns(i).Expression
-        Next i
-    End With
-    
-    
-    '----------------- Populate Model Relationship Sheet ---------------
+    Dim aModelRelationships() As TypeModelRelationship
+    Dim lo As ListObject
+    Dim i As Integer
+
+    ' Delete existing sheet if it exists and create new sheet
+    If SheetExists(ActiveWorkbook, "ModelRelationships") Then
+        ActiveWorkbook.Sheets("ModelRelationships").Delete
+    End If
+    CreateModelRelationshipsSheet ActiveWorkbook
 
     GetModelRelationships aModelRelationships
     Set lo = ActiveWorkbook.Sheets("ModelRelationships").ListObjects("tbl_ModelRelationships")
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
-    
+
     With lo
         For i = 0 To UBound(aModelRelationships)
             .ListColumns("Primary Key Table").DataBodyRange.Cells(i + 1) = aModelRelationships(i).PrimaryKeyTable
@@ -231,7 +292,7 @@ Sub WritesMeasuresColumnsRelationshipsToSheets()
             .ListColumns("Active").DataBodyRange.Cells(i + 1) = aModelRelationships(i).Active
         Next i
     End With
-    
+
 
 End Sub
 
@@ -516,4 +577,239 @@ Sub GetModelRelationships(aRelationships() As TypeModelRelationship)
 End Sub
 
 
+
+
+
+Sub CreateModelMeasuresSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+
+    
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "ModelMeasures"
+    sht.Range("SheetHeading") = "Data model measures"
+    sht.Range("SheetCategory") = "Setup"
+   
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:F7"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_ModelMeasures"
+        .HeaderRowRange.Cells(1) = "Name"
+        .HeaderRowRange.Cells(2) = "Visible"
+        .HeaderRowRange.Cells(3) = "Unique Name"
+        .HeaderRowRange.Cells(4) = "DAX Expression"
+        .HeaderRowRange.Cells(5) = "Name and Expression"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 40
+    sht.Range("C:C").ColumnWidth = 20
+    sht.Range("D:D").ColumnWidth = 40
+    sht.Range("E:E").ColumnWidth = 80
+    sht.Range("F:F").ColumnWidth = 80
+
+    With lo.DataBodyRange
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+        .WrapText = True
+    End With
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
+
+End Sub
+
+
+Sub CreateModelColumnsSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+
+   
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "ModelColumns"
+    sht.Range("SheetHeading") = "Data model columns"
+    sht.Range("SheetCategory") = "Setup"
+    sht.Range("B4") = "Includes calculated columns"
+   
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:F7"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_ModelColumns"
+        .HeaderRowRange.Cells(1) = "Name"
+        .HeaderRowRange.Cells(2) = "Table Name"
+        .HeaderRowRange.Cells(3) = "Unique Name"
+        .HeaderRowRange.Cells(4) = "Visible"
+        .HeaderRowRange.Cells(5) = "Is calculated column"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 30
+    sht.Range("C:C").ColumnWidth = 30
+    sht.Range("D:D").ColumnWidth = 50
+    sht.Range("E:E").ColumnWidth = 20
+    sht.Range("F:F").ColumnWidth = 20
+
+    With lo.DataBodyRange
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+        .WrapText = True
+    End With
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
+
+
+End Sub
+
+
+
+
+
+
+Sub CreateModelCalculatedColumnsSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "ModelCalcColumns"
+    sht.Range("SheetHeading") = "Data model calculated columns"
+    sht.Range("SheetCategory") = "Setup"
+   
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:D7"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_ModelCalcColumns"
+        .HeaderRowRange.Cells(1) = "Name"
+        .HeaderRowRange.Cells(2) = "Table Name"
+        .HeaderRowRange.Cells(3) = "Expression"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 30
+    sht.Range("C:C").ColumnWidth = 30
+    sht.Range("D:D").ColumnWidth = 50
+
+    With lo.DataBodyRange
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+        .WrapText = True
+    End With
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
+
+
+End Sub
+
+
+
+Sub CreateModelRelationshipsSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "ModelRelationships"
+    sht.Range("SheetHeading") = "Data model relationships"
+    sht.Range("SheetCategory") = "Setup"
+   
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B6:F7"), XlListObjectHasHeaders:=xlYes)
+    With lo
+        .Name = "tbl_ModelRelationships"
+        .HeaderRowRange.Cells(1) = "Primary Key Table"
+        .HeaderRowRange.Cells(2) = "Primary Key Column"
+        .HeaderRowRange.Cells(3) = "Foreign Key Table"
+        .HeaderRowRange.Cells(4) = "Foreign Key Column"
+        .HeaderRowRange.Cells(5) = "Active"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 40
+    sht.Range("C:C").ColumnWidth = 40
+    sht.Range("D:D").ColumnWidth = 40
+    sht.Range("E:E").ColumnWidth = 40
+    sht.Range("F:F").ColumnWidth = 20
+
+    With lo.DataBodyRange
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+        .WrapText = True
+    End With
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 6
+    ActiveWindow.FreezePanes = True
+
+
+End Sub
+
+
+
+
+Sub CreateTableGeneratorSheet(ByRef wkb As Workbook)
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FormatSheet sht
+    sht.Name = "PqTableGenerator"
+    sht.Range("SheetHeading") = "Power query table generator"
+    sht.Range("SheetCategory") = "Setup"
+   
+    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B11:F12"), XlListObjectHasHeaders:=xlYes)
+    FormatTable lo
+    
+    With lo
+        .Name = "tbl_PqTableGenerator"
+        .HeaderRowRange.Cells(1) = "Column_1"
+        .HeaderRowRange.Cells(2) = "Column_2"
+        .HeaderRowRange.Cells(3) = "Column_3"
+        .HeaderRowRange.Cells(4) = "Column_4"
+        .HeaderRowRange.Cells(5) = "Column_5"
+    End With
+    FormatTable lo
+    sht.Range("B:B").ColumnWidth = 20
+    sht.Range("C:C").ColumnWidth = 20
+    sht.Range("D:D").ColumnWidth = 20
+    sht.Range("E:E").ColumnWidth = 20
+    sht.Range("F:F").ColumnWidth = 20
+
+
+    'Add various formatted text to the sheet
+    sht.Range("B5") = "Generates a power query with hardcoded values and field types as below, using the GeneratePowerQuery code"
+    sht.Range("B7") = "Query Name"
+    sht.Range("C7") = "TestTable"
+    sht.Range("B7").Font.Bold = True
+    sht.Range("C7,B9:F9").Interior.Color = RGB(242, 242, 242)
+    sht.Range("C7,B9:F9").Font.Color = RGB(0, 112, 192)
+    sht.Range("B9:F9").HorizontalAlignment = xlCenter
+    sht.Range("B9:F9") = "type text"
+    
+    'Add data validation for field types
+    sht.Range("B9:F9").Validation.Add _
+        Type:=xlValidateList, _
+        AlertStyle:=xlValidAlertStop, _
+        Operator:=xlBetween, _
+        Formula1:="type any,type binary,type date,type datetime,type datetimezone,type duration,Int64.Type," & _
+            "type logical,type none,type number,type text,type time"
+  
+    'Create Named Range
+    sht.Names.Add Name:="TableName", RefersToR1C1:="=R7C3"
+  
+
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 11
+    ActiveWindow.FreezePanes = True
+
+
+End Sub
 

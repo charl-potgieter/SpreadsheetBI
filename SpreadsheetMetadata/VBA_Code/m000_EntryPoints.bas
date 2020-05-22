@@ -654,11 +654,13 @@ End Sub
 
 
 
-Sub CreateBiSpreadsheet()
 
-    Dim wkb As Workbook
-    Dim i As Integer
-    Dim sht As Worksheet
+
+Sub WriteModelInfoToSheets()
+'Writes below information from power pivot model in activeworkbook to worksheets:
+'   Model Measures
+'   Model columns
+'   Measure Relationships
     
     'Setup
     Application.ScreenUpdating = False
@@ -666,107 +668,10 @@ Sub CreateBiSpreadsheet()
     Application.Calculation = xlCalculationManual
     Application.DisplayAlerts = False
     
-    'Create workbook and ensure it consists of only one sheet
-    Set wkb = Application.Workbooks.Add
-    If wkb.Sheets.Count <> 1 Then
-        For i = wkb.Sheets.Count To 2 Step -1
-            wkb.Sheets(i).Delete
-        Next i
-    End If
-    
-    CreateModelMeasuresSheet wkb
-    
-    'Delete any other sheets other than the newly created model measure sheet
-    For Each sht In wkb.Worksheets
-        If sht.Name <> "ModelMeasures" Then sht.Delete
-    Next sht
-    
-    'Create other sheets & copy tables
-    CreateModelColumnsSheet wkb
-    CreateModelCalculatedColumnsSheet wkb
-    CreateModelRelationshipsSheet wkb
-    CreateTableGeneratorSheet wkb
-    CopyPowerQueriesBetweenFiles ThisWorkbook, wkb
-
-    'Create index page, cleanup and display message
-    InsertIndexPage wkb
-    wkb.Activate
-    wkb.Sheets("Index").Activate
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-End Sub
-
-
-
-
-'Sub AddValidationToReportFields()
-'
-'    Dim asMeasureList() As String
-'    Dim asColumnList() As String
-'    Dim sValidationString As String
-'    Dim i As Integer
-'    Dim lo As ListObject
-'
-'
-'
-'    sValidationString = ""
-'    GetModelMeasureNames asMeasureList
-'    GetModelColumnNames asColumnList
-'
-'    If ArrayIsDimensioned(asMeasureList) Then
-'        For i = LBound(asMeasureList) To UBound(asMeasureList)
-'            If sValidationString = "" Then
-'                sValidationString = asMeasureList(i)
-'            Else
-'                sValidationString = sValidationString & "," & asMeasureList(i)
-'            End If
-'        Next i
-'    End If
-'
-'    If ArrayIsDimensioned(asColumnList) Then
-'        For i = LBound(asColumnList) To UBound(asColumnList)
-'            If sValidationString = "" Then
-'                sValidationString = asColumnList(i)
-'            Else
-'                sValidationString = sValidationString & "," & asColumnList(i)
-'            End If
-'        Next i
-'    End If
-'
-'    If sValidationString <> "" Then
-'        Set lo = ActiveWorkbook.Sheets("ReportFieldSettings").ListObjects("tbl_ReportFields")
-'
-'        On Error Resume Next
-'        lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Delete
-'        On Error GoTo 0
-'
-'        lo.ListColumns("Cube Field Name").DataBodyRange.Validation.Add _
-'            Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:=sValidationString
-'    End If
-'
-'
-'    Application.ScreenUpdating = True
-'    Application.EnableEvents = True
-'    Application.Calculation = xlCalculationAutomatic
-'    Application.DisplayAlerts = True
-'
-'End Sub
-
-
-
-Sub WritesMeasuresColumnsRelationshipsToSheetsEntryPoint()
-
-    
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-    
-    WritesMeasuresColumnsRelationshipsToSheets
+    WriteModelMeasuresToSheet
+    WriteModelCalcColsToSheet
+    WriteModelColsToSheet
+    WriteRelationshipsToSheet
     
     'Cleanup
     Application.ScreenUpdating = True
@@ -781,6 +686,39 @@ End Sub
 Sub MimimiseRibbon()
 Attribute MimimiseRibbon.VB_ProcData.VB_Invoke_Func = "R\n14"
     CommandBars.ExecuteMso "MinimizeRibbon"
+End Sub
+
+Sub CreatePowerQueryGeneratorSheet()
+'Creates a sheet in active workbook to be utilsed for the generation of "hard coded" power query tables
+
+    Dim iMsgBoxResponse As Integer
+
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+
+
+    'Give user choice to delete sheet or cancel if sheet already exists?
+    If SheetExists(ActiveWorkbook, "PqTableGenerator") Then
+        iMsgBoxResponse = MsgBox("Sheet already exists, delete?", vbQuestion + vbYesNo + vbDefaultButton2)
+        If iMsgBoxResponse = vbNo Then
+            Exit Sub
+        Else
+            ActiveWorkbook.Sheets("PqTableGenerator").Delete
+        End If
+    End If
+        
+    CreateTableGeneratorSheet ActiveWorkbook
+
+    'Cleanup
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+
 End Sub
 
 
@@ -802,14 +740,14 @@ Sub GeneratePowerQueryTable()
     Application.DisplayAlerts = False
     
     
-    sQueryName = ActiveWorkbook.Sheets("TableGenerator").Range("TableName")
+    sQueryName = ActiveWorkbook.Sheets("PqTableGenerator").Range("TableName")
 
     If QueryExists(sQueryName, ActiveWorkbook) Then
         MsgBox ("Query with the same name already exists.  New query not generated")
         Exit Sub
     End If
     
-    Set lo = ActiveWorkbook.Sheets("TableGenerator").ListObjects("tbl_TableGenerator")
+    Set lo = ActiveWorkbook.Sheets("PqTableGenerator").ListObjects("tbl_PqTableGenerator")
     
         
     sQueryText = "let" & vbCr & vbCr & _
@@ -940,4 +878,11 @@ Sub GenerateSpreadsheetMetaData()
         
     MsgBox ("Metadata created")
 
+End Sub
+
+
+Sub CopyQueriesFromSpreadsheetBIIntoActiveWorkbook()
+
+    CopyQueriesFromSpreadsheetBI ActiveWorkbook
+    
 End Sub

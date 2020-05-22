@@ -1,5 +1,9 @@
 TODO
 ------- 
+    - Give user a chance to not run model info (measures, cols etc)  to avoid auto deleting sheets.
+
+ - Don't forget to use DAX studio for debugging, performance measurement and measure creation
+
  - Read in sample financial data
 
 - Create a trial balance measure 
@@ -10,6 +14,8 @@ TODO
   ( Create P&L monthly, quarterly annually and PY measures)
   
   - Create BS measure
+
+ - Create a readme
 
  - In respect of the missing lookups measure and missing lookup checks --> return OK if data load is set to false, irrespective of whether there is a lookup missing
 
@@ -26,9 +32,6 @@ TODO
   
   
  - Work on the VBA or power query looper solution depending outcome of above
- 
-  - Look at Tabular editor
-    https://exceleratorbi.com.au/introduction-to-tabular-editor-for-business-users/
  
  - Create a flat pivot style (and apply when flatten pivot table macro is run)
  

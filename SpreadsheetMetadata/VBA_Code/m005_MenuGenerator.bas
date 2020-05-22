@@ -148,12 +148,12 @@ Sub CreatePopUpMenu()
     MenuCategory.Caption = "Data model"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Create BI spreadsheet"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateBiSpreadsheet"
+    MenuItem.Caption = "Import power queries from spreadsheet BI"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CopyQueriesFromSpreadsheetBI"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Write measures, columns and relationships to sheets"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WritesMeasuresColumnsRelationshipsToSheetsEntryPoint"
+    MenuItem.Caption = "Write data model info sheets"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WriteModelInfoToSheets"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Export power queries"
@@ -175,6 +175,10 @@ Sub CreatePopUpMenu()
     MenuItem.Caption = "Import selected power queries"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ImportSelectedPowerQueries"
     
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Create sheet for power query table generation"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreatePowerQueryGeneratorSheet"
+        
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Generate hard coded power query table"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "GeneratePowerQueryTable"
