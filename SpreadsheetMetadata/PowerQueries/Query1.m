@@ -1,4 +1,4 @@
 let
-    Source = ""
+    Source = Excel.CurrentWorkbook()
 in
     Source

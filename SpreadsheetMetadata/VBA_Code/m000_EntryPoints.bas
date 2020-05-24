@@ -17,8 +17,6 @@ Public Type TypeReportProperties
     DisplayFieldHeaders As Boolean
 End Type
 
-
-
 Public Type TypeModelMeasures
     Name As String
     UniqueName As String
@@ -385,7 +383,7 @@ Sub ImportSelectedPowerQueries()
     Dim sPowerQueryFilePath As String
     Dim sPowerQueryName As String
     Dim fDialog As FileDialog
-    Dim FSO As FileSystemObject
+    Dim fso As FileSystemObject
     Dim i As Integer
     
     Set fDialog = Application.FileDialog(msoFileDialogFilePicker)
@@ -402,8 +400,8 @@ Sub ImportSelectedPowerQueries()
     If fDialog.Show = -1 Then
         For i = 1 To fDialog.SelectedItems.Count
             sPowerQueryFilePath = fDialog.SelectedItems(i)
-            Set FSO = New FileSystemObject
-            sPowerQueryName = Replace(FSO.GetFileName(sPowerQueryFilePath), ".m", "")
+            Set fso = New FileSystemObject
+            sPowerQueryName = Replace(fso.GetFileName(sPowerQueryFilePath), ".m", "")
             ImportOrRefreshSinglePowerQuery sPowerQueryFilePath, sPowerQueryName, ActiveWorkbook
         Next i
     End If
@@ -653,20 +651,28 @@ End Sub
 
 
 
-
-
-
 Sub WriteModelInfoToSheets()
 'Writes below information from power pivot model in activeworkbook to worksheets:
 '   Model Measures
 '   Model columns
 '   Measure Relationships
     
+    Dim iMsgBoxResponse As Integer
+    
     'Setup
     Application.ScreenUpdating = False
     Application.EnableEvents = False
     Application.Calculation = xlCalculationManual
     Application.DisplayAlerts = False
+        
+    If SheetExists(ActiveWorkbook, "ModelMeasures") Or SheetExists(ActiveWorkbook, "ModelCalcColumns") Or _
+    SheetExists(ActiveWorkbook, "ModelColumns") Or SheetExists(ActiveWorkbook, "ModelRelationships") Then
+            iMsgBoxResponse = MsgBox("Sheets already exists, delete?", vbQuestion + vbYesNo + vbDefaultButton2)
+            If iMsgBoxResponse = vbNo Then
+                Exit Sub
+            End If
+    End If
+    
     
     WriteModelMeasuresToSheet
     WriteModelCalcColsToSheet
@@ -690,6 +696,7 @@ End Sub
 
 Sub CreatePowerQueryGeneratorSheet()
 'Creates a sheet in active workbook to be utilsed for the generation of "hard coded" power query tables
+'utilising sub GeneratePowerQueryTable
 
     Dim iMsgBoxResponse As Integer
 
@@ -881,8 +888,83 @@ Sub GenerateSpreadsheetMetaData()
 End Sub
 
 
-Sub CopyQueriesFromSpreadsheetBIIntoActiveWorkbook()
+Sub CopyPowerQueriesFromWorkbook()
+'Copies power queries from selected workbook into active workbook
 
-    CopyQueriesFromSpreadsheetBI ActiveWorkbook
     
+    Dim fDialog As FileDialog, result As Integer
+    Dim sFilePathAndName As String
+    Dim bWorkbookIsOpen As Boolean
+    Dim fso As New FileSystemObject
+    Dim sWorkbookName As String
+    Dim wkbSource As Workbook
+    Dim wkbTarget As Workbook
+    Dim qry As WorkbookQuery
+
+    
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    
+    Set wkbTarget = ActiveWorkbook
+    Set fDialog = Application.FileDialog(msoFileDialogFilePicker)
+        
+    'Get file from file picker
+    fDialog.AllowMultiSelect = False
+    fDialog.InitialFileName = ThisWorkbook.Path
+    fDialog.Filters.Clear
+    fDialog.Filters.Add "Excel files", "*.xlsx, *.xlsm"
+    fDialog.Filters.Add "All files", "*.*"
+     
+    'Exit sub  if no file is selected
+    If fDialog.Show <> -1 Then
+       GoTo ExitPoint
+    End If
+     
+    sFilePathAndName = fDialog.SelectedItems(1)
+    sWorkbookName = fso.GetFileName(sFilePathAndName)
+    
+    
+    If sWorkbookName = ActiveWorkbook.Name Then
+        MsgBox ("Cannot copy between 2 workbooks with the same name, exiting...")
+        GoTo ExitPoint
+    End If
+    
+    
+    'Open source workbook if not open
+    If WorkbookIsOpen(sWorkbookName) Then
+        bWorkbookIsOpen = True
+        Set wkbSource = Workbooks(sWorkbookName)
+    Else
+        bWorkbookIsOpen = False
+        Set wkbSource = Application.Workbooks.Open(sFilePathAndName)
+    End If
+    
+    'Copy queries from source to active workbook
+    For Each qry In wkbSource.Queries
+        If QueryExists(qry.Name, wkbTarget) Then
+            wkbTarget.Queries(qry.Name).Formula = qry.Formula
+        Else
+            wkbTarget.Queries.Add qry.Name, qry.Formula
+        End If
+    Next qry
+    
+    'Close source workbook if it was not open before this sub was run
+    If Not bWorkbookIsOpen Then
+        wkbSource.Close
+    End If
+    
+    wkbTarget.Activate
+    MsgBox ("Power Queries copied")
+
+ExitPoint:
+    'Cleanup
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
 End Sub
+

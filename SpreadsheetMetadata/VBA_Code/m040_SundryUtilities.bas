@@ -32,7 +32,9 @@ End Function
 
 
 Function WorkbookIsOpen(ByVal sWbkName As String) As Boolean
+'Checks if workbook is open based on filename including extension
 
+    WorkbookIsOpen = False
     On Error Resume Next
     WorkbookIsOpen = Len(Workbooks(sWbkName).Name) <> 0
     On Error GoTo 0
@@ -147,9 +149,6 @@ Function ValueIsInStringArray(ByVal aValueToTest As Variant, ByRef aArray() As S
     Next item
 
 End Function
-
-
-
 
 
 

@@ -148,12 +148,12 @@ Sub CreatePopUpMenu()
     MenuCategory.Caption = "Data model"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Import power queries from spreadsheet BI"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CopyQueriesFromSpreadsheetBI"
-    
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Write data model info sheets"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WriteModelInfoToSheets"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Copy power queries from another workbook"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CopyPowerQueriesFromWorkbook"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Export power queries"

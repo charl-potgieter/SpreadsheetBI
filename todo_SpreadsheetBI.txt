@@ -1,10 +1,15 @@
 TODO
 ------- 
-    - Give user a chance to not run model info (measures, cols etc)  to avoid auto deleting sheets.
+ - Move the power queries and DAX measures into a seperate workbook
+
+  - Delete power queries from Spreadsheet BI
 
  - Don't forget to use DAX studio for debugging, performance measurement and measure creation
 
  - Read in sample financial data
+    * Do I want to do this in spreadsheetBI?
+    * Maybe move all power query and 
+    * Need to make path relative.
 
 - Create a trial balance measure 
 

@@ -2,30 +2,30 @@ Attribute VB_Name = "m050_DataModel"
 Option Explicit
 Option Private Module
 
-Sub CopyQueriesFromSpreadsheetBI(Optional ByRef wkb As Workbook)
-'Copies power queries from
-
-    Dim sQueryText As String
-    Dim qry As WorkbookQuery
-    
-    If wkb Is Nothing Then Set wkb = ActiveWorkbook
-    
-    If wkb Is ThisWorkbook Then
-        MsgBox ("Cannot copy into SpreadsheetBI itself, select another workbook.  Exiting...")
-        Exit Sub
-    End If
-    
-    For Each qry In ThisWorkbook.Queries
-        If QueryExists(qry.Name, wkb) Then
-            wkb.Queries(qry.Name).Formula = qry.Formula
-        Else
-            wkb.Queries.Add qry.Name, qry.Formula
-        End If
-    Next qry
-    
-    MsgBox ("Queries copied")
-
-End Sub
+'Sub CopyQueriesFromSpreadsheetBI(Optional ByRef wkb As Workbook)
+''Copies power queries from
+'
+'    Dim sQueryText As String
+'    Dim qry As WorkbookQuery
+'
+'    If wkb Is Nothing Then Set wkb = ActiveWorkbook
+'
+'    If wkb Is ThisWorkbook Then
+'        MsgBox ("Cannot copy into SpreadsheetBI itself, select another workbook.  Exiting...")
+'        Exit Sub
+'    End If
+'
+'    For Each qry In ThisWorkbook.Queries
+'        If QueryExists(qry.Name, wkb) Then
+'            wkb.Queries(qry.Name).Formula = qry.Formula
+'        Else
+'            wkb.Queries.Add qry.Name, qry.Formula
+'        End If
+'    Next qry
+'
+'    MsgBox ("Queries copied")
+'
+'End Sub
 
 
 
@@ -175,6 +175,7 @@ Sub CopyPowerQueriesBetweenFiles(ByRef wkbSource As Workbook, ByRef wkbTarget As
 End Sub
 
 Sub WriteModelMeasuresToSheet()
+'Writes model measures to sheet in activeworkbook
 
     Dim aMeasures() As TypeModelMeasures
     Dim lo As ListObject
@@ -205,6 +206,7 @@ Sub WriteModelMeasuresToSheet()
 End Sub
 
 Sub WriteModelCalcColsToSheet()
+'Writes model calculated columns to sheet in activeworkbook
     
     Dim aCalcColumns() As TypeModelCalcColumns
     Dim lo As ListObject
@@ -234,6 +236,7 @@ End Sub
 
 
 Sub WriteModelColsToSheet()
+'Write model columns to sheet in activeworkbook
     
     Dim aColumns() As TypeModelColumns
     Dim lo As ListObject
@@ -267,6 +270,7 @@ End Sub
 
 
 Sub WriteRelationshipsToSheet()
+'Write model relationships to sheet in activeworkbook
     
     Dim aModelRelationships() As TypeModelRelationship
     Dim lo As ListObject

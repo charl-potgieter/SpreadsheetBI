@@ -10,17 +10,17 @@ Function FolderExists(ByVal sFolderPath) As Boolean
 'An alternative solution exists using the DIR function but this seems to result in memory leak and folder is
 'not released by VBA
     
-    Dim FSO As Scripting.FileSystemObject
+    Dim fso As Scripting.FileSystemObject
     Dim FolderPath As String
     
-    Set FSO = New Scripting.FileSystemObject
+    Set fso = New Scripting.FileSystemObject
     
     If Right(sFolderPath, 1) <> Application.PathSeparator Then
         FolderPath = FolderPath & Application.PathSeparator
     End If
     
-    FolderExists = FSO.FolderExists(sFolderPath)
-    Set FSO = Nothing
+    FolderExists = fso.FolderExists(sFolderPath)
+    Set fso = Nothing
 
 End Function
 
@@ -29,13 +29,13 @@ Function FileExists(ByVal sFilePath) As Boolean
 'An alternative solution exists using the DIR function but this seems to result in memory leak and file is
 'not released by VBA
 
-    Dim FSO As Scripting.FileSystemObject
+    Dim fso As Scripting.FileSystemObject
     Dim FolderPath As String
     
-    Set FSO = New Scripting.FileSystemObject
+    Set fso = New Scripting.FileSystemObject
     
-    FileExists = FSO.FileExists(sFilePath)
-    Set FSO = Nothing
+    FileExists = fso.FileExists(sFilePath)
+    Set fso = Nothing
 
 
 End Function
@@ -44,16 +44,16 @@ End Function
 Sub CreateFolder(ByVal sFolderPath As String)
 '   Requires reference to Microsoft Scripting runtime
 
-    Dim FSO As FileSystemObject
+    Dim fso As FileSystemObject
 
     If FolderExists(sFolderPath) Then
         MsgBox ("Folder already exists, new folder not created")
     Else
-        Set FSO = New FileSystemObject
-        FSO.CreateFolder sFolderPath
+        Set fso = New FileSystemObject
+        fso.CreateFolder sFolderPath
     End If
     
-    Set FSO = Nothing
+    Set fso = Nothing
 
 End Sub
 
@@ -79,29 +79,29 @@ Function WriteStringToTextFile(ByVal sStr As String, ByVal sFilePath As String)
 'Requires reference to Microsoft Scripting Runtime
 'Writes sStr to a text file
 
-    Dim FSO As Object
+    Dim fso As Object
     Dim oFile As Object
     
-    Set FSO = CreateObject("Scripting.FileSystemObject")
-    Set oFile = FSO.CreateTextFile(sFilePath)
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set oFile = fso.CreateTextFile(sFilePath)
     oFile.Write (sStr)
     oFile.Close
-    Set FSO = Nothing
+    Set fso = Nothing
     Set oFile = Nothing
 
 End Function
 
 Function FileNameFromPath(ByVal sFilePath As String) As String
     
-    Dim FSO As New FileSystemObject
-    FileNameFromPath = FSO.GetFileName(sFilePath)
+    Dim fso As New FileSystemObject
+    FileNameFromPath = fso.GetFileName(sFilePath)
 
 End Function
 
 Function FileNameFromPathExclExtension(ByVal sFilePath As String) As String
     
-    Dim FSO As New FileSystemObject
-    FileNameFromPathExclExtension = FSO.GetBaseName(sFilePath)
+    Dim fso As New FileSystemObject
+    FileNameFromPathExclExtension = fso.GetBaseName(sFilePath)
 
 End Function
 
@@ -113,13 +113,13 @@ Sub FileItemsInFolder(ByVal sFolderPath As String, ByVal bRecursive As Boolean, 
 '(Cannot create function due to recursive nature of the code)
 
     
-    Dim FSO As Scripting.FileSystemObject
+    Dim fso As Scripting.FileSystemObject
     Dim SourceFolder As Scripting.Folder
     Dim SubFolder As Scripting.Folder
     Dim FileItem As Scripting.File
     
-    Set FSO = New Scripting.FileSystemObject
-    Set SourceFolder = FSO.GetFolder(sFolderPath)
+    Set fso = New Scripting.FileSystemObject
+    Set SourceFolder = fso.GetFolder(sFolderPath)
     
     For Each FileItem In SourceFolder.Files
     
@@ -141,7 +141,7 @@ Sub FileItemsInFolder(ByVal sFolderPath As String, ByVal bRecursive As Boolean, 
     
     Set FileItem = Nothing
     Set SourceFolder = Nothing
-    Set FSO = Nothing
+    Set fso = Nothing
     
 
 End Sub
@@ -151,11 +151,11 @@ End Sub
 Function FileIsOpen(ByVal sFilePath) As Boolean
 'Requires refence: Microsoft Scripting Runtime
 
-    Dim FSO As New FileSystemObject
+    Dim fso As New FileSystemObject
     Dim sFileName As String
     Dim wkb As Workbook
     
-    sFileName = FSO.GetFileName(sFilePath)
+    sFileName = fso.GetFileName(sFilePath)
     
     On Error Resume Next
     Set wkb = Workbooks(sFileName)
