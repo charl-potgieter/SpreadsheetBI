@@ -913,7 +913,7 @@ Sub CopyPowerQueriesFromWorkbook()
         
     'Get file from file picker
     fDialog.AllowMultiSelect = False
-    fDialog.InitialFileName = ThisWorkbook.Path
+    fDialog.InitialFileName = ActiveWorkbook.Path
     fDialog.Filters.Clear
     fDialog.Filters.Add "Excel files", "*.xlsx, *.xlsm"
     fDialog.Filters.Add "All files", "*.*"
@@ -967,4 +967,42 @@ ExitPoint:
     Application.DisplayAlerts = True
 
 End Sub
+
+
+
+
+
+
+Sub TempDeleteAllPQ()
+'Copies power queries from selected workbook into active workbook
+
+       
+    Dim qry As WorkbookQuery
+
+    
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    
+   
+    For Each qry In ThisWorkbook.Queries
+        qry.Delete
+    Next qry
+    
+
+ExitPoint:
+    'Cleanup
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+End Sub
+
+
+
+
+
 
