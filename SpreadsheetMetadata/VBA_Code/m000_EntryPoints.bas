@@ -757,8 +757,8 @@ Sub GeneratePowerQueryTable()
     Set lo = ActiveWorkbook.Sheets("PqTableGenerator").ListObjects("tbl_PqTableGenerator")
     
         
-    sQueryText = "let" & vbCr & vbCr & _
-        "    tbl = Table.FromRecords({" & vbCr
+    sQueryText = "let" & vbCrLf & vbCrLf & _
+        "    tbl = Table.FromRecords({" & vbCrLf
         
     'Table from records portion of power query
     For i = 1 To lo.DataBodyRange.Rows.Count
@@ -771,31 +771,31 @@ Sub GeneratePowerQueryTable()
             If j <> lo.HeaderRowRange.Cells.Count Then
                 sQueryText = sQueryText & ", "
             ElseIf i <> lo.DataBodyRange.Rows.Count Then
-                sQueryText = sQueryText & "], " & vbCr
+                sQueryText = sQueryText & "], " & vbCrLf
             Else
                 sQueryText = sQueryText & "]" & vbCrLf
             End If
         Next j
         If i = lo.DataBodyRange.Rows.Count Then
-            sQueryText = sQueryText & "        }), " & vbCr & vbCr
+            sQueryText = sQueryText & "        }), " & vbCrLf & vbCrLf
         End If
     Next i
         
         
     'Changed Type portion of power query
-    sQueryText = sQueryText & "    ChangedType = Table.TransformColumnTypes(" & vbCr & _
-        "       tbl, " & vbCr & "        {" & vbCr
+    sQueryText = sQueryText & "    ChangedType = Table.TransformColumnTypes(" & vbCrLf & _
+        "       tbl, " & vbCrLf & "        {" & vbCrLf
 
     For j = 1 To lo.HeaderRowRange.Cells.Count
         sQueryText = sQueryText & "            {""" & lo.HeaderRowRange.Cells(j) & """, " & lo.HeaderRowRange.Cells(j).Offset(-2, 0) & "}"
         If j <> lo.HeaderRowRange.Cells.Count Then
-            sQueryText = sQueryText & "," & vbCr
+            sQueryText = sQueryText & "," & vbCrLf
         Else
-            sQueryText = sQueryText & vbCr
+            sQueryText = sQueryText & vbCrLf
         End If
     Next j
-    sQueryText = sQueryText & vbCr & "        })" & vbCr & vbCr & _
-        "in" & vbCr & "    ChangedType"
+    sQueryText = sQueryText & vbCrLf & "        })" & vbCrLf & vbCrLf & _
+        "in" & vbCrLf & "    ChangedType"
 
     ActiveWorkbook.Queries.Add sQueryName, sQueryText
     

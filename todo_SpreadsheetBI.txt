@@ -1,7 +1,7 @@
 TODO
 ------- 
   - Create a readme
-
+  
  - Create a release section in github
 
   - The sub that writes relationships, measures calculated columns to spreadsheet throws errors if none exist in each of these categories
