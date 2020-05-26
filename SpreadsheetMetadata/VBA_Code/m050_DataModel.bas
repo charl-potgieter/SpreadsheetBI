@@ -2,33 +2,6 @@ Attribute VB_Name = "m050_DataModel"
 Option Explicit
 Option Private Module
 
-'Sub CopyQueriesFromSpreadsheetBI(Optional ByRef wkb As Workbook)
-''Copies power queries from
-'
-'    Dim sQueryText As String
-'    Dim qry As WorkbookQuery
-'
-'    If wkb Is Nothing Then Set wkb = ActiveWorkbook
-'
-'    If wkb Is ThisWorkbook Then
-'        MsgBox ("Cannot copy into SpreadsheetBI itself, select another workbook.  Exiting...")
-'        Exit Sub
-'    End If
-'
-'    For Each qry In ThisWorkbook.Queries
-'        If QueryExists(qry.Name, wkb) Then
-'            wkb.Queries(qry.Name).Formula = qry.Formula
-'        Else
-'            wkb.Queries.Add qry.Name, qry.Formula
-'        End If
-'    Next qry
-'
-'    MsgBox ("Queries copied")
-'
-'End Sub
-
-
-
 Sub ExportPowerQueriesToFiles(ByVal sFolderPath As String, wkb As Workbook)
 
     Dim qry As WorkbookQuery
@@ -192,6 +165,10 @@ Sub WriteModelMeasuresToSheet()
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
 
+    If UBound(aMeasures) = 0 And aMeasures(0).Name = "NULL" Then
+        GoTo ExitPoint
+    End If
+
     With lo
         For i = 0 To UBound(aMeasures)
             .ListColumns("Name").DataBodyRange.Cells(i + 1) = aMeasures(i).Name
@@ -202,8 +179,52 @@ Sub WriteModelMeasuresToSheet()
         Next i
     End With
 
+ExitPoint:
 
 End Sub
+
+
+Sub WriteModelMeasuresToPipeDelimtedText(ByRef wkb As Workbook, ByVal sFilePathAndName As String)
+'Writes model measures to pipe delimited text file
+
+    Dim aMeasures() As TypeModelMeasures
+    Dim i As Integer
+    Dim sRowToWrite As String
+    Dim iFileNo As Integer
+    
+    GetModelMeasures aMeasures
+
+
+    sRowToWrite = ""
+    iFileNo = FreeFile 'Get first free file number
+    Open sFilePathAndName For Output As #iFileNo
+    
+    'Write headers
+    Print #iFileNo, "Name|Visible|Unique Name|Dax Expression|Name and Expression";
+
+    If UBound(aMeasures) = 0 And aMeasures(0).Name = "NULL" Then
+        GoTo ExitPoint
+    End If
+    
+    For i = 0 To UBound(aMeasures)
+        sRowToWrite = vbCrLf & _
+            aMeasures(i).Name & "|" & _
+            aMeasures(i).Visible & "|" & _
+            aMeasures(i).UniqueName & "|" & _
+            ":=" & aMeasures(i).Expression & "|" & _
+            aMeasures(i).Name & ":=" & aMeasures(i).Expression
+            Print #iFileNo, sRowToWrite;
+    Next i
+
+ExitPoint:
+    Close #iFileNo
+
+
+End Sub
+
+
+
+
 
 Sub WriteModelCalcColsToSheet()
 'Writes model calculated columns to sheet in activeworkbook
@@ -234,6 +255,43 @@ Sub WriteModelCalcColsToSheet()
 End Sub
 
 
+Sub WriteModelCalcColsToPipeDelimitedFile(ByRef wkb As Workbook, ByVal sFilePathAndName As String)
+'Writes model calculated columns to sheet in activeworkbook
+    
+    Dim aCalcColumns() As TypeModelCalcColumns
+    Dim iFileNo As Integer
+    Dim i As Integer
+    Dim sRowToWrite As String
+    
+    GetModelCalculatedColumns aCalcColumns
+    
+    sRowToWrite = ""
+    iFileNo = FreeFile 'Get first free file number
+    Open sFilePathAndName For Output As #iFileNo
+    
+    'Write headers
+    Print #iFileNo, "Name|Table Name|Expression";
+
+    If UBound(aCalcColumns) = 0 And aCalcColumns(0).Name = "NULL" Then
+        GoTo ExitPoint
+    End If
+    
+    For i = 0 To UBound(aCalcColumns)
+        sRowToWrite = vbCrLf & _
+            aCalcColumns(i).Name & "|" & _
+            aCalcColumns(i).TableName & "|" & _
+            aCalcColumns(i).Expression
+            Print #iFileNo, sRowToWrite;
+    Next i
+
+ExitPoint:
+    Close #iFileNo
+
+
+
+End Sub
+
+
 
 Sub WriteModelColsToSheet()
 'Write model columns to sheet in activeworkbook
@@ -253,6 +311,11 @@ Sub WriteModelColsToSheet()
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
 
+
+    If UBound(aColumns) = 0 And aColumns(0).Name = "NULL" Then
+        GoTo ExitPoint
+    End If
+
     With lo
         For i = 0 To UBound(aColumns)
             .ListColumns("Name").DataBodyRange.Cells(i + 1) = aColumns(i).Name
@@ -262,6 +325,8 @@ Sub WriteModelColsToSheet()
             .ListColumns("Is calculated column").DataBodyRange.Cells(i + 1).Formula = "=COUNTIFS(tbl_ModelCalcColumns[Name], [@Name]) = 1"
         Next i
     End With
+
+ExitPoint:
 
 End Sub
 
@@ -287,6 +352,10 @@ Sub WriteRelationshipsToSheet()
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
 
+    If UBound(aModelRelationships) = 0 And aModelRelationships(0).ForeignKeyColumn = "NULL" Then
+        GoTo ExitPoint
+    End If
+
     With lo
         For i = 0 To UBound(aModelRelationships)
             .ListColumns("Primary Key Table").DataBodyRange.Cells(i + 1) = aModelRelationships(i).PrimaryKeyTable
@@ -297,124 +366,18 @@ Sub WriteRelationshipsToSheet()
         Next i
     End With
 
-
-End Sub
-
-
-
-
-Sub GetModelColumnNames(ByRef asColumnList() As String, Optional bReturnVisibleOnly As Boolean = True)
-'Requires reference to Microsoft ActiveX Data Objects
-'Returns columns in the data model
-
-    Dim conn As ADODB.Connection
-    Dim rs As ADODB.Recordset
-    Dim sht As Excel.Worksheet
-    Dim iRowNum As Integer
-    Dim i As Integer
-    Dim sSQL As String
-
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-    i = 0
-
-    ' SQL like query to get result of DMV from schema $SYSTEM
-    If bReturnVisibleOnly Then
-        sSQL = "select [HIERARCHY_UNIQUE_NAME] from $SYSTEM.MDSCHEMA_HIERARCHIES " & _
-            "WHERE [HIERARCHY_UNIQUE_NAME] <> '[MEASURES]' AND " & _
-            "[CUBE_NAME] = 'MODEL' AND " & _
-            "[HIERARCHY_IS_VISIBLE] " & _
-            "ORDER BY [HIERARCHY_UNIQUE_NAME]"
-    Else
-        sSQL = "select [HIERARCHY_UNIQUE_NAME] from $SYSTEM.MDSCHEMA_HIERARCHIES " & _
-            "WHERE [HIERARCHY_UNIQUE_NAME] <> '[MEASURES]' AND " & _
-            "[CUBE_NAME] = 'MODEL' " & _
-            "ORDER BY [HIERARCHY_UNIQUE_NAME]"
-    End If
-
-    ' Open connection to PowerPivot engine
-    Set conn = ActiveWorkbook.Model.DataModelConnection.ModelConnection.ADOConnection
-    Set rs = New ADODB.Recordset
-    rs.ActiveConnection = conn
-    rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
-        
-    If rs.RecordCount > 0 Then
-        ReDim asColumnList(0 To rs.RecordCount - 1)
-        ' Output of the query results
-        Do Until rs.EOF
-            asColumnList(i) = rs.Fields(0).Value
-            rs.MoveNext
-            i = i + 1
-        Loop
-    End If
-
+ExitPoint:
     
-    rs.Close
-    Set rs = Nothing
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
 
 End Sub
 
 
-Sub GetModelMeasureNames(ByRef asMeasureList() As String, Optional bReturnVisibleOnly As Boolean = True)
-'Requires reference to Microsoft ActiveX Data Objects
-'Returns measures names in the data model
-
-    Dim conn As ADODB.Connection
-    Dim rs As ADODB.Recordset
-    Dim sht As Excel.Worksheet
-    Dim iRowNum As Integer
-    Dim i As Integer
-    Dim sSQL As String
-
-    i = 0
-
-    ' SQL like query to get result of DMV from schema $SYSTEM
-    If bReturnVisibleOnly Then
-        sSQL = "select [MEASURE_UNIQUE_NAME] from $SYSTEM.MDSCHEMA_MEASURES  " & _
-            "WHERE LEN([EXPRESSION]) > 0 AND " & _
-            "[EXPRESSION] <> '1' AND " & _
-            "[MEASURE_IS_VISIBLE] " & _
-            "ORDER BY [MEASURE_UNIQUE_NAME]"
-    Else
-        sSQL = "select [MEASURE_UNIQUE_NAME] from $SYSTEM.MDSCHEMA_MEASURES  " & _
-            "WHERE LEN([EXPRESSION]) > 0 AND " & _
-            "[EXPRESSION] <> '1' " & _
-            "ORDER BY [MEASURE_UNIQUE_NAME]"
-    End If
-
-    ' Open connection to PowerPivot engine
-    Set conn = ActiveWorkbook.Model.DataModelConnection.ModelConnection.ADOConnection
-    Set rs = New ADODB.Recordset
-    rs.ActiveConnection = conn
-    rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
-        
-    If rs.RecordCount > 0 Then
-        ReDim asMeasureList(0 To rs.RecordCount - 1)
-        ' Output of the query results
-        Do Until rs.EOF
-            asMeasureList(i) = rs.Fields(0).Value
-            rs.MoveNext
-            i = i + 1
-        Loop
-    End If
-    
-    rs.Close
-    Set rs = Nothing
-
-
-End Sub
 
 
 Sub GetModelMeasures(ByRef aModelMeasures() As TypeModelMeasures)
 'Requires reference to Microsoft ActiveX Data Objects
 'Returns measures in the data model
+'If no measures exist a single record is returned with a single record of "NULL" string values
 
     Dim conn As ADODB.Connection
     Dim rs As ADODB.Recordset
@@ -449,6 +412,12 @@ Sub GetModelMeasures(ByRef aModelMeasures() As TypeModelMeasures)
             rs.MoveNext
             i = i + 1
         Loop
+    Else
+        ReDim aModelMeasures(0 To 0)
+        aModelMeasures(0).Name = "NULL"
+        aModelMeasures(0).Expression = "NULL"
+        aModelMeasures(0).UniqueName = "NULL"
+        aModelMeasures(0).Visible = False
     End If
     
     rs.Close
@@ -461,6 +430,7 @@ End Sub
 Sub GetModelColumns(ByRef aModelColumns() As TypeModelColumns)
 'Requires reference to Microsoft ActiveX Data Objects
 'Returns columns the data model
+'If no columns exist a single record is returned with a single record of "NULL" string values
 
     Dim conn As ADODB.Connection
     Dim rs As ADODB.Recordset
@@ -494,6 +464,12 @@ Sub GetModelColumns(ByRef aModelColumns() As TypeModelColumns)
             rs.MoveNext
             i = i + 1
         Loop
+    Else
+        ReDim aModelColumns(0 To 0)
+        aModelColumns(0).Name = "NULL"
+        aModelColumns(0).TableName = "NULL"
+        aModelColumns(0).UniqueName = "NULL"
+        aModelColumns(0).Visible = False
     End If
     
     rs.Close
@@ -505,6 +481,7 @@ End Sub
 Sub GetModelCalculatedColumns(ByRef aCalcColumns() As TypeModelCalcColumns)
 'Requires reference to Microsoft ActiveX Data Objects
 'Returns calcualted columns the data model
+'If no calculated columns exist a single record is returned with a single record of "NULL" string values
 
     Dim conn As ADODB.Connection
     Dim rs As ADODB.Recordset
@@ -535,7 +512,6 @@ Sub GetModelCalculatedColumns(ByRef aCalcColumns() As TypeModelCalcColumns)
             rs.MoveNext
             i = i + 1
         Loop
-        
     Else
         ReDim aCalcColumns(0 To 0)
         aCalcColumns(0).Name = "NULL"
@@ -553,6 +529,9 @@ End Sub
 
 
 Sub GetModelRelationships(aRelationships() As TypeModelRelationship)
+'Requires reference to Microsoft ActiveX Data Objects
+'Returns data model relationships
+'If no relationships exist a single record is returned with a single record of "NULL" string values
 
     Dim mdlRelationship As ModelRelationship
     Dim i As Integer

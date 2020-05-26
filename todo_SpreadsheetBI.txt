@@ -1,5 +1,17 @@
 TODO
 ------- 
+- potentially include model info like dax measures etc as pipe delimited spreadsheet meta data rather than writing to spreadsheet itself. 
+  - Under data model create
+         (i) WriteModelMeasuresToPipeDelimtedText DONE
+         (ii) WriteModelCalcColsToPipeDelimitedFile DONE
+         (iii) WriteModelColsToPipeDelimitedSheet
+         (iv) WriteRelationshipsToPipeDelimitedSheet
+    Once above is complete add this to meta data generating sub
+
+ - Also create a more human readable dax measure output
+     (single file of measures with spaces between)
+     (also run via metadata generating sub)
+
   - Create a readme
   
  - Create a release section in github
