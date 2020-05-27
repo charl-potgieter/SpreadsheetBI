@@ -1,0 +1,5 @@
+Name|Table Name|Unique Name|Visible
+ColA|Table5|[Table5].[ColA]|True
+ColB|Table5|[Table5].[ColB]|True
+col A|Table6|[Table6].[col A]|True
+Col C|Table6|[Table6].[Col C]|True

@@ -879,7 +879,7 @@ Sub GenerateSpreadsheetMetaData()
     WriteModelCalcColsToPipeDelimitedFile ActiveWorkbook, sDataModelPath & Application.PathSeparator & "CalculatedColumns.txt"
     WriteModelColsToPipeDelimitedFile ActiveWorkbook, sDataModelPath & Application.PathSeparator & "Columns.txt"
     WriteModelRelationshipsToPipeDelimitedFile ActiveWorkbook, sDataModelPath & Application.PathSeparator & "Relationships.txt"
-    WriteModelMeasuresToHumanReadableText ActiveWorkbook, sDataModelPath & Application.PathSeparator & "MeasuresHumanReadable.txt"
+    WriteModelMeasuresToHumanReadableText ActiveWorkbook, sDataModelPath & Application.PathSeparator & "MeasuresHumanReadable.dax"
 
     'Export VBA code
     ExportVBAModules ActiveWorkbook, sVbaCodePath

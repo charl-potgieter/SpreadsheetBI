@@ -1,0 +1,11 @@
+Name|Visible|Unique Name|Dax Expression|Name and Expression
+TestMeasure|True|[Measures].[TestMeasure]|:=SUM(Table5[ColB])|TestMeasure:=SUM(Table5[ColB])
+TestMw|True|[Measures].[TestMw]|:=CALCULATE(
+    SUM(Table5[ColB])
+    )
+    +100
+    /1|TestMw:=CALCULATE(
+    SUM(Table5[ColB])
+    )
+    +100
+    /1

@@ -1,0 +1,2 @@
+Primary Key Table|Primary Key Column|Foreign Key Table|Foreign Key Column|Active
+Table6|col A|Table5|ColA|True

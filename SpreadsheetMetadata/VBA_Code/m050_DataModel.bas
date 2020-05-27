@@ -242,14 +242,24 @@ Sub WriteModelMeasuresToHumanReadableText(ByRef wkb As Workbook, ByVal sFilePath
         GoTo ExitPoint
     End If
     
+    'Write Header
+    sRowToWrite = "/********************************************************************** " & vbCrLf & _
+        "       Dax measures" & vbCrLf & _
+        "***********************************************************************/" & vbCrLf & vbCrLf & vbCrLf & vbCrLf
+    Print #iFileNo, sRowToWrite;
+    
+    
     For i = 0 To UBound(aMeasures)
         If i = 0 Then
             sRowToWrite = ""
         Else
             sRowToWrite = vbCrLf & vbCrLf & vbCrLf
         End If
-        sRowToWrite = sRowToWrite & aMeasures(i).Name & ":=" & aMeasures(i).Expression
-            Print #iFileNo, sRowToWrite;
+        sRowToWrite = sRowToWrite & "//--------------------------------------------------------------------" & vbCrLf & _
+            "//     " & aMeasures(i).Name & vbCrLf & _
+            "//-------------------------------------------------------------------- " & vbCrLf & vbCrLf & _
+            aMeasures(i).Name & ":=" & aMeasures(i).Expression
+        Print #iFileNo, sRowToWrite;
     Next i
 
 ExitPoint:

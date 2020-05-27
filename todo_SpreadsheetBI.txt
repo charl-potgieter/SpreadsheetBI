@@ -1,8 +1,9 @@
 TODO
 ------- 
+    - change the human readable dax to .dax extension
+     * Add comment between measures in above file 
+   
    - Create a readme
-  
- - Create a release section in github
  
    - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
     * This will also allow easier to transition to power BI
