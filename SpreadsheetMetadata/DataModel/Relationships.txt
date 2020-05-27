@@ -1,0 +1,1 @@
+Primary Key Table|Primary Key Column|Foreign Key Table|Foreign Key Column|Active

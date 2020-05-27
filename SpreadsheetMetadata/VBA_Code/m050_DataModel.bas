@@ -160,7 +160,7 @@ Sub WriteModelMeasuresToSheet()
     End If
     CreateModelMeasuresSheet ActiveWorkbook
     
-    GetModelMeasures aMeasures
+    GetModelMeasures ActiveWorkbook, aMeasures
     Set lo = ActiveWorkbook.Sheets("ModelMeasures").ListObjects("tbl_ModelMeasures")
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
@@ -192,7 +192,7 @@ Sub WriteModelMeasuresToPipeDelimtedText(ByRef wkb As Workbook, ByVal sFilePathA
     Dim sRowToWrite As String
     Dim iFileNo As Integer
     
-    GetModelMeasures aMeasures
+    GetModelMeasures ActiveWorkbook, aMeasures
 
 
     sRowToWrite = ""
@@ -224,6 +224,39 @@ End Sub
 
 
 
+Sub WriteModelMeasuresToHumanReadableText(ByRef wkb As Workbook, ByVal sFilePathAndName As String)
+'Writes model measures to pipe delimited text file
+
+    Dim aMeasures() As TypeModelMeasures
+    Dim i As Integer
+    Dim sRowToWrite As String
+    Dim iFileNo As Integer
+    
+    GetModelMeasures ActiveWorkbook, aMeasures
+
+
+    iFileNo = FreeFile 'Get first free file number
+    Open sFilePathAndName For Output As #iFileNo
+
+    If UBound(aMeasures) = 0 And aMeasures(0).Name = "NULL" Then
+        GoTo ExitPoint
+    End If
+    
+    For i = 0 To UBound(aMeasures)
+        If i = 0 Then
+            sRowToWrite = ""
+        Else
+            sRowToWrite = vbCrLf & vbCrLf & vbCrLf
+        End If
+        sRowToWrite = sRowToWrite & aMeasures(i).Name & ":=" & aMeasures(i).Expression
+            Print #iFileNo, sRowToWrite;
+    Next i
+
+ExitPoint:
+    Close #iFileNo
+
+
+End Sub
 
 
 Sub WriteModelCalcColsToSheet()
@@ -239,7 +272,7 @@ Sub WriteModelCalcColsToSheet()
     End If
     CreateModelCalculatedColumnsSheet ActiveWorkbook
 
-    GetModelCalculatedColumns aCalcColumns
+    GetModelCalculatedColumns ActiveWorkbook, aCalcColumns
     Set lo = ActiveWorkbook.Sheets("ModelCalcColumns").ListObjects("tbl_ModelCalcColumns")
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
@@ -263,7 +296,7 @@ Sub WriteModelCalcColsToPipeDelimitedFile(ByRef wkb As Workbook, ByVal sFilePath
     Dim i As Integer
     Dim sRowToWrite As String
     
-    GetModelCalculatedColumns aCalcColumns
+    GetModelCalculatedColumns ActiveWorkbook, aCalcColumns
     
     sRowToWrite = ""
     iFileNo = FreeFile 'Get first free file number
@@ -306,7 +339,7 @@ Sub WriteModelColsToSheet()
     End If
     CreateModelColumnsSheet ActiveWorkbook
 
-    GetModelColumns aColumns
+    GetModelColumns ActiveWorkbook, aColumns
     Set lo = ActiveWorkbook.Sheets("ModelColumns").ListObjects("tbl_ModelColumns")
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
@@ -331,10 +364,47 @@ ExitPoint:
 End Sub
 
 
+Sub WriteModelColsToPipeDelimitedFile(ByRef wkb As Workbook, ByVal sFilePathAndName As String)
+'Writes model calculated columns to sheet in activeworkbook
+    
+    Dim aColumns() As TypeModelColumns
+    Dim iFileNo As Integer
+    Dim i As Integer
+    Dim sRowToWrite As String
+    
+    GetModelColumns ActiveWorkbook, aColumns
+    
+    sRowToWrite = ""
+    iFileNo = FreeFile 'Get first free file number
+    Open sFilePathAndName For Output As #iFileNo
+    
+    'Write headers
+    Print #iFileNo, "Name|Table Name|Unique Name|Visible";
+
+    If UBound(aColumns) = 0 And aColumns(0).Name = "NULL" Then
+        GoTo ExitPoint
+    End If
+    
+    For i = 0 To UBound(aColumns)
+        sRowToWrite = vbCrLf & _
+            aColumns(i).Name & "|" & _
+            aColumns(i).TableName & "|" & _
+            aColumns(i).UniqueName & "|" & _
+            aColumns(i).Visible
+            Print #iFileNo, sRowToWrite;
+    Next i
+
+ExitPoint:
+    Close #iFileNo
+
+
+End Sub
 
 
 
-Sub WriteRelationshipsToSheet()
+
+
+Sub WriteModelRelationshipsToSheet()
 'Write model relationships to sheet in activeworkbook
     
     Dim aModelRelationships() As TypeModelRelationship
@@ -347,7 +417,7 @@ Sub WriteRelationshipsToSheet()
     End If
     CreateModelRelationshipsSheet ActiveWorkbook
 
-    GetModelRelationships aModelRelationships
+    GetModelRelationships ActiveWorkbook, aModelRelationships
     Set lo = ActiveWorkbook.Sheets("ModelRelationships").ListObjects("tbl_ModelRelationships")
     lo.DataBodyRange.ClearContents
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
@@ -372,9 +442,52 @@ ExitPoint:
 End Sub
 
 
+Sub WriteModelRelationshipsToPipeDelimitedFile(ByRef wkb As Workbook, ByVal sFilePathAndName As String)
+'Writes model calculated columns to sheet in activeworkbook
+    
+    Dim aRelationships() As TypeModelRelationship
+    Dim iFileNo As Integer
+    Dim i As Integer
+    Dim sRowToWrite As String
+    
+    GetModelRelationships ActiveWorkbook, aRelationships
+    
+    sRowToWrite = ""
+    iFileNo = FreeFile 'Get first free file number
+    Open sFilePathAndName For Output As #iFileNo
+    
+    'Write headers
+    Print #iFileNo, "Primary Key Table|Primary Key Column|Foreign Key Table|Foreign Key Column|Active";
+
+    If UBound(aRelationships) = 0 And aRelationships(0).PrimaryKeyColumn = "NULL" Then
+        GoTo ExitPoint
+    End If
+    
+    For i = 0 To UBound(aRelationships)
+        sRowToWrite = vbCrLf & _
+            aRelationships(i).PrimaryKeyTable & "|" & _
+            aRelationships(i).PrimaryKeyColumn & "|" & _
+            aRelationships(i).ForeignKeyTable & "|" & _
+            aRelationships(i).ForeignKeyColumn & "|" & _
+            aRelationships(i).Active
+            Print #iFileNo, sRowToWrite;
+    Next i
+
+ExitPoint:
+    Close #iFileNo
 
 
-Sub GetModelMeasures(ByRef aModelMeasures() As TypeModelMeasures)
+End Sub
+
+
+Sub Test()
+
+    WriteModelRelationshipsToPipeDelimitedFile Workbooks("Temp.xlsx"), "C:\Users\charl\Dropbox\Dropbox_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\TestRelationships.txt"
+
+End Sub
+
+
+Sub GetModelMeasures(ByRef wkb As Workbook, ByRef aModelMeasures() As TypeModelMeasures)
 'Requires reference to Microsoft ActiveX Data Objects
 'Returns measures in the data model
 'If no measures exist a single record is returned with a single record of "NULL" string values
@@ -396,7 +509,7 @@ Sub GetModelMeasures(ByRef aModelMeasures() As TypeModelMeasures)
     
 
     ' Open connection to PowerPivot engine
-    Set conn = ActiveWorkbook.Model.DataModelConnection.ModelConnection.ADOConnection
+    Set conn = wkb.Model.DataModelConnection.ModelConnection.ADOConnection
     Set rs = New ADODB.Recordset
     rs.ActiveConnection = conn
     rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
@@ -427,7 +540,7 @@ Sub GetModelMeasures(ByRef aModelMeasures() As TypeModelMeasures)
 End Sub
 
 
-Sub GetModelColumns(ByRef aModelColumns() As TypeModelColumns)
+Sub GetModelColumns(ByRef wkb As Workbook, ByRef aModelColumns() As TypeModelColumns)
 'Requires reference to Microsoft ActiveX Data Objects
 'Returns columns the data model
 'If no columns exist a single record is returned with a single record of "NULL" string values
@@ -448,7 +561,7 @@ Sub GetModelColumns(ByRef aModelColumns() As TypeModelColumns)
         "ORDER BY [HIERARCHY_UNIQUE_NAME]"
 
     ' Open connection to PowerPivot engine
-    Set conn = ActiveWorkbook.Model.DataModelConnection.ModelConnection.ADOConnection
+    Set conn = wkb.Model.DataModelConnection.ModelConnection.ADOConnection
     Set rs = New ADODB.Recordset
     rs.ActiveConnection = conn
     rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
@@ -478,7 +591,7 @@ Sub GetModelColumns(ByRef aModelColumns() As TypeModelColumns)
 
 End Sub
 
-Sub GetModelCalculatedColumns(ByRef aCalcColumns() As TypeModelCalcColumns)
+Sub GetModelCalculatedColumns(ByRef wkb As Workbook, ByRef aCalcColumns() As TypeModelCalcColumns)
 'Requires reference to Microsoft ActiveX Data Objects
 'Returns calcualted columns the data model
 'If no calculated columns exist a single record is returned with a single record of "NULL" string values
@@ -497,7 +610,7 @@ Sub GetModelCalculatedColumns(ByRef aCalcColumns() As TypeModelCalcColumns)
              "from $SYSTEM.DISCOVER_CALC_DEPENDENCY  WHERE OBJECT_TYPE = 'CALC_COLUMN'  ORDER BY [TABLE] +[OBJECT]"
 
     ' Open connection to PowerPivot engine
-    Set conn = ActiveWorkbook.Model.DataModelConnection.ModelConnection.ADOConnection
+    Set conn = wkb.Model.DataModelConnection.ModelConnection.ADOConnection
     Set rs = New ADODB.Recordset
     rs.ActiveConnection = conn
     rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
@@ -528,7 +641,7 @@ Sub GetModelCalculatedColumns(ByRef aCalcColumns() As TypeModelCalcColumns)
 End Sub
 
 
-Sub GetModelRelationships(aRelationships() As TypeModelRelationship)
+Sub GetModelRelationships(ByRef wkb As Workbook, aRelationships() As TypeModelRelationship)
 'Requires reference to Microsoft ActiveX Data Objects
 'Returns data model relationships
 'If no relationships exist a single record is returned with a single record of "NULL" string values
@@ -538,9 +651,9 @@ Sub GetModelRelationships(aRelationships() As TypeModelRelationship)
     
     
     i = 0
-    If ActiveWorkbook.Model.ModelRelationships.Count > 0 Then
-        ReDim aRelationships(0 To ActiveWorkbook.Model.ModelRelationships.Count - 1)
-        For Each mdlRelationship In ActiveWorkbook.Model.ModelRelationships
+    If wkb.Model.ModelRelationships.Count > 0 Then
+        ReDim aRelationships(0 To wkb.Model.ModelRelationships.Count - 1)
+        For Each mdlRelationship In wkb.Model.ModelRelationships
             aRelationships(i).PrimaryKeyTable = mdlRelationship.PrimaryKeyTable.Name
             aRelationships(i).PrimaryKeyColumn = mdlRelationship.PrimaryKeyColumn.Name
             aRelationships(i).ForeignKeyTable = mdlRelationship.ForeignKeyTable.Name
@@ -795,4 +908,6 @@ Sub CreateTableGeneratorSheet(ByRef wkb As Workbook)
 
 
 End Sub
+
+
 

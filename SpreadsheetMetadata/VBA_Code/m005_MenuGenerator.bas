@@ -124,12 +124,13 @@ Sub CreatePopUpMenu()
     MenuCategory.Caption = "Insert"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Index page"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertIndexPageActiveWorkbook"
-    
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Formatted sheet"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertFormattedSheetIntoActiveWorkbook"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Index page"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertIndexPageActiveWorkbook"
+
     
     
     

@@ -677,7 +677,7 @@ Sub WriteModelInfoToSheets()
     WriteModelMeasuresToSheet
     WriteModelCalcColsToSheet
     WriteModelColsToSheet
-    WriteRelationshipsToSheet
+    WriteModelRelationshipsToSheet
     
     'Cleanup
     Application.ScreenUpdating = True
@@ -841,6 +841,7 @@ Sub GenerateSpreadsheetMetaData()
     Dim sWorksheetStructurePath As String
     Dim sPowerQueriesPath As String
     Dim sVbaCodePath As String
+    Dim sDataModelPath As String
 
     'Setup
     Application.ScreenUpdating = False
@@ -852,6 +853,7 @@ Sub GenerateSpreadsheetMetaData()
     sWorksheetStructurePath = sMetaDataRootPath & Application.PathSeparator & "WorksheetStructure"
     sPowerQueriesPath = sMetaDataRootPath & Application.PathSeparator & "PowerQueries"
     sVbaCodePath = sMetaDataRootPath & Application.PathSeparator & "VBA_Code"
+    sDataModelPath = sMetaDataRootPath & Application.PathSeparator & "DataModel"
     
     'Rather ask user to manually delete rather than have risky folder deletions in VBA code
     If FolderExists(sMetaDataRootPath) Then
@@ -864,12 +866,20 @@ Sub GenerateSpreadsheetMetaData()
     CreateFolder sWorksheetStructurePath
     CreateFolder sPowerQueriesPath
     CreateFolder sVbaCodePath
+    CreateFolder sDataModelPath
     
     'Generate Worksheet structure metadata text files
     GenerateMetadataFileWorksheets ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "MetadataWorksheets.txt"
     GenerateMetadataFileListObjectFields ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "ListObjectFields.txt"
     GenerateMetadataFileListObjectValues ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "ListObjectFieldValues.txt"
     GenerateMetadataFileListObjectFormat ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "ListObjectFormat.txt"
+
+    'Generate power pivot data model text files
+    WriteModelMeasuresToPipeDelimtedText ActiveWorkbook, sDataModelPath & Application.PathSeparator & "Measures.txt"
+    WriteModelCalcColsToPipeDelimitedFile ActiveWorkbook, sDataModelPath & Application.PathSeparator & "CalculatedColumns.txt"
+    WriteModelColsToPipeDelimitedFile ActiveWorkbook, sDataModelPath & Application.PathSeparator & "Columns.txt"
+    WriteModelRelationshipsToPipeDelimitedFile ActiveWorkbook, sDataModelPath & Application.PathSeparator & "Relationships.txt"
+    WriteModelMeasuresToHumanReadableText ActiveWorkbook, sDataModelPath & Application.PathSeparator & "MeasuresHumanReadable.txt"
 
     'Export VBA code
     ExportVBAModules ActiveWorkbook, sVbaCodePath

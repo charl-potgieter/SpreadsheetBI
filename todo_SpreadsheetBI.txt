@@ -1,32 +1,17 @@
 TODO
 ------- 
-- potentially include model info like dax measures etc as pipe delimited spreadsheet meta data rather than writing to spreadsheet itself. 
-  - Under data model create
-         (i) WriteModelMeasuresToPipeDelimtedText DONE
-         (ii) WriteModelCalcColsToPipeDelimitedFile DONE
-         (iii) WriteModelColsToPipeDelimitedSheet
-         (iv) WriteRelationshipsToPipeDelimitedSheet
-    Once above is complete add this to meta data generating sub
-
- - Also create a more human readable dax measure output
-     (single file of measures with spaces between)
-     (also run via metadata generating sub)
-
-  - Create a readme
+   - Create a readme
   
  - Create a release section in github
-
-  - The sub that writes relationships, measures calculated columns to spreadsheet throws errors if none exist in each of these categories
  
-  
    - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
     * This will also allow easier to transition to power BI
   
- - Wondering if I should go back and re-evaluate auto repoert creation.  Won't necessarily complete each time a report is run but useful for recreating the entire spreadsheet.
-    * Ideally I would also have code that read the pivot report settings into an Excel Lisbobject.   Which could then be used to recreate the pivot reports
+- Work on the VBA or power query looper solution depending outcome of above
+
+ - Wondering if I should go back and re-evaluate auto report creation.  Won't necessarily complete each time a report is run but useful for recreating the entire spreadsheet.
+    * Ideally I would also have code that read the pivot report settings into an pipe delimited spreadsheet metadata.   Which could then be used to recreate the pivot reports
   
-  
- - Work on the VBA or power query looper solution depending outcome of above
  
  - Create a flat pivot style (and apply when flatten pivot table macro is run)
  
