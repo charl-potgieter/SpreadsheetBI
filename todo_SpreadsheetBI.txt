@@ -6,6 +6,9 @@ TODO
      Maybe best option is to remove newlines before writing to the text file
      The Human readable DAX measure file is fine
      The same issue occures in teh listobject metadata exports (both formulas and values) when there is an Alt-enter newline in the cell
+
+How about writing to a workbook and saving as XML?
+
 https://blog.crossjoin.co.uk/2016/02/16/working-with-csv-files-that-contain-rogue-line-breaks-in-power-query-and-power-bi/
 
 

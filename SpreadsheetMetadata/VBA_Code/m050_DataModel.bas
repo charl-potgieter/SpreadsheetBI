@@ -518,7 +518,7 @@ Sub GetModelMeasures(ByRef wkb As Workbook, ByRef aModelMeasures() As TypeModelM
      sSQL = "select [MEASURE_NAME], [MEASURE_UNIQUE_NAME], [MEASURE_IS_VISIBLE], [EXPRESSION], [MEASUREGROUP_NAME] from $SYSTEM.MDSCHEMA_MEASURES  " & _
             "WHERE LEN([EXPRESSION]) > 0 AND " & _
             "[MEASURE_NAME] <> '__No measures defined' " & _
-            "ORDER BY [MEASURE_UNIQUE_NAME]"
+            "ORDER BY [MEASUREGROUP_NAME]"
     
 
     ' Open connection to PowerPivot engine
