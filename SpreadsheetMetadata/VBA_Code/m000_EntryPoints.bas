@@ -22,6 +22,7 @@ Public Type TypeModelMeasures
     UniqueName As String
     Visible As Boolean
     Expression As String
+    Table As String
 End Type
 
 Public Type TypeModelColumns

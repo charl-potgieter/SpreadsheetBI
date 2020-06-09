@@ -1,9 +1,17 @@
 TODO
-------- 
-    - change the human readable dax to .dax extension
-     * Add comment between measures in above file 
+-------   
+ - Power Query changing to quotestyleCSV seems to preserve line breaks if there are in quotes.  All fields need to be in quotes
+
+   - The pipe delimited spreadsheet metadata DAX measures are not generating correctly when there are newlines in the measures
+     Maybe best option is to remove newlines before writing to the text file
+     The Human readable DAX measure file is fine
+     The same issue occures in teh listobject metadata exports (both formulas and values) when there is an Alt-enter newline in the cell
+https://blog.crossjoin.co.uk/2016/02/16/working-with-csv-files-that-contain-rogue-line-breaks-in-power-query-and-power-bi/
+
+
+  - Create a readme
    
-   - Create a readme
+    - For each power query is it possible to save down whether it is loaded to the data model
  
    - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
     * This will also allow easier to transition to power BI

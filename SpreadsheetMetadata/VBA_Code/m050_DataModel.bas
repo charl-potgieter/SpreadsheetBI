@@ -200,7 +200,7 @@ Sub WriteModelMeasuresToPipeDelimtedText(ByRef wkb As Workbook, ByVal sFilePathA
     Open sFilePathAndName For Output As #iFileNo
     
     'Write headers
-    Print #iFileNo, "Name|Visible|Unique Name|Dax Expression|Name and Expression";
+    Print #iFileNo, """Name""|""Visible""|""Unique Name""|""Dax Expression""|""Name and Expression""";
 
     If UBound(aMeasures) = 0 And aMeasures(0).Name = "NULL" Then
         GoTo ExitPoint
@@ -208,12 +208,15 @@ Sub WriteModelMeasuresToPipeDelimtedText(ByRef wkb As Workbook, ByVal sFilePathA
     
     For i = 0 To UBound(aMeasures)
         sRowToWrite = vbCrLf & _
-            aMeasures(i).Name & "|" & _
-            aMeasures(i).Visible & "|" & _
-            aMeasures(i).UniqueName & "|" & _
-            ":=" & aMeasures(i).Expression & "|" & _
-            aMeasures(i).Name & ":=" & aMeasures(i).Expression
-            Print #iFileNo, sRowToWrite;
+            """" & aMeasures(i).Name & """|""" & _
+            aMeasures(i).Visible & """|""" & _
+            aMeasures(i).UniqueName & """|""" & _
+            ":=" & aMeasures(i).Expression & """|""" & _
+            aMeasures(i).Name & ":=" & aMeasures(i).Expression & _
+            """"
+    
+        
+        Print #iFileNo, sRowToWrite;
     Next i
 
 ExitPoint:
@@ -244,7 +247,7 @@ Sub WriteModelMeasuresToHumanReadableText(ByRef wkb As Workbook, ByVal sFilePath
     
     'Write Header
     sRowToWrite = "/********************************************************************** " & vbCrLf & _
-        "       Dax measures" & vbCrLf & _
+        "       DAX measures" & vbCrLf & _
         "***********************************************************************/" & vbCrLf & vbCrLf & vbCrLf & vbCrLf
     Print #iFileNo, sRowToWrite;
     
@@ -256,7 +259,7 @@ Sub WriteModelMeasuresToHumanReadableText(ByRef wkb As Workbook, ByVal sFilePath
             sRowToWrite = vbCrLf & vbCrLf & vbCrLf
         End If
         sRowToWrite = sRowToWrite & "//--------------------------------------------------------------------" & vbCrLf & _
-            "//     " & aMeasures(i).Name & vbCrLf & _
+            "//     " & aMeasures(i).Name & "   (" & aMeasures(i).Table & ")" & vbCrLf & _
             "//-------------------------------------------------------------------- " & vbCrLf & vbCrLf & _
             aMeasures(i).Name & ":=" & aMeasures(i).Expression
         Print #iFileNo, sRowToWrite;
@@ -512,7 +515,7 @@ Sub GetModelMeasures(ByRef wkb As Workbook, ByRef aModelMeasures() As TypeModelM
     i = 0
 
     ' SQL like query to get result of DMV from schema $SYSTEM
-     sSQL = "select [MEASURE_NAME], [MEASURE_UNIQUE_NAME], [MEASURE_IS_VISIBLE], [EXPRESSION] from $SYSTEM.MDSCHEMA_MEASURES  " & _
+     sSQL = "select [MEASURE_NAME], [MEASURE_UNIQUE_NAME], [MEASURE_IS_VISIBLE], [EXPRESSION], [MEASUREGROUP_NAME] from $SYSTEM.MDSCHEMA_MEASURES  " & _
             "WHERE LEN([EXPRESSION]) > 0 AND " & _
             "[MEASURE_NAME] <> '__No measures defined' " & _
             "ORDER BY [MEASURE_UNIQUE_NAME]"
@@ -532,6 +535,7 @@ Sub GetModelMeasures(ByRef wkb As Workbook, ByRef aModelMeasures() As TypeModelM
             aModelMeasures(i).Visible = rs.Fields("MEASURE_IS_VISIBLE")
             aModelMeasures(i).UniqueName = rs.Fields("MEASURE_UNIQUE_NAME")
             aModelMeasures(i).Expression = rs.Fields("EXPRESSION")
+            aModelMeasures(i).Table = rs.Fields("MEASUREGROUP_NAME")
             rs.MoveNext
             i = i + 1
         Loop

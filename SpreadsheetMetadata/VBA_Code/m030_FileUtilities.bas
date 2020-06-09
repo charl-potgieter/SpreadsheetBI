@@ -91,6 +91,33 @@ Function WriteStringToTextFile(ByVal sStr As String, ByVal sFilePath As String)
 
 End Function
 
+
+Function WriteStringToPipeDelimitedTextFileAddQuotes(ByVal sStr As String, ByVal sFilePath As String)
+'Requires reference to Microsoft Scripting Runtime
+'Writes sStr to a text file where sStr is a pipe delimited string
+'This sub adds double quotes to each delimited item.  This is useful when there are newlines in the string.
+'The resulting file can then be picked up by power query by setting QuoteStyle.Csv
+
+    Dim fso As Object
+    Dim oFile As Object
+    
+    'Add double quotes to start and end of string
+    sStr = """" & sStr & """"
+    
+    'Add double quotes to each pipe delimitter
+    sStr = Replace(sStr, "|", """|""")
+    
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set oFile = fso.CreateTextFile(sFilePath)
+    oFile.Write (sStr)
+    oFile.Close
+    Set fso = Nothing
+    Set oFile = Nothing
+
+End Function
+
+
+
 Function FileNameFromPath(ByVal sFilePath As String) As String
     
     Dim fso As New FileSystemObject
