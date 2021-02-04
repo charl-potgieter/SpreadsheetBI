@@ -133,6 +133,15 @@ Sub CreatePopUpMenu()
 
     
     
+    'Report Menu
+    Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
+    MenuCategory.Caption = "Reports"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Read report metadata"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ReadReportMetadata"
+    
+    
     
         
     'Pivot Table Menu
@@ -142,6 +151,10 @@ Sub CreatePopUpMenu()
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Flatten"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatPivotTableFlatten"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Read pivot tables metadata"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ReadPivotTablesMetadata"
     
     
     'Data Model Menu

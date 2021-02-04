@@ -241,14 +241,16 @@ End Sub
 
 
 
-Sub InsertFormattedSheetIntoActiveWorkbook()
+Function InsertFormattedSheetIntoActiveWorkbook()
     
     Dim sht As Worksheet
     
     Set sht = ActiveWorkbook.Sheets.Add(After:=ActiveSheet)
     FormatSheet sht
+    
+    Set InsertFormattedSheetIntoActiveWorkbook = sht
 
-End Sub
+End Function
 
 
 Sub FormatActiveSheet()
@@ -1013,6 +1015,30 @@ ExitPoint:
 End Sub
 
 
+
+Sub ReadReportMetadata()
+'Reads all pivot table metadata in active workbook and saves on worksheets in active workbook
+
+
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    
+   
+    CreateReportMetaDataSheets
+    
+
+ExitPoint:
+    'Cleanup
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+
+End Sub
 
 
 
