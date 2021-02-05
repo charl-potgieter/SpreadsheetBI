@@ -1,5 +1,11 @@
 TODO
 -------   
+
+ - loop sheets with 1 pivot and write properties, increasing listobject by 1 row each time before write (use sub AddOneRowToListObject in SundryUtilities module)
+
+ - After doing above ensure that older data is first deleted
+
+
  - Wondering if I should go back and re-evaluate auto report creation.  Won't necessarily complete each time a report is run but useful for recreating the entire spreadsheet.
     * Ideally I would also have code that read the pivot report settings into a worksheet.   Which could then be used to recreate the pivot reports
     * A lot of pivot reports can really slow down a workbook every time there is a refresh or change.  Generating on fly as needed may help this.

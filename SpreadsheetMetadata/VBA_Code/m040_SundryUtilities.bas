@@ -152,6 +152,25 @@ End Function
 
 
 
+Sub AddOneRowToListObject(lo As ListObject)
+
+    Dim str As String
+
+    Set lo = ActiveSheet.ListObjects(1)
+    
+    On Error Resume Next
+    str = lo.DataBodyRange.Address
+    If Err.Number <> 0 Then
+        'Force empty row in databody range if it does not yet exist
+        lo.HeaderRowRange.Cells(1).Offset(1, 0) = " "
+        lo.HeaderRowRange.Cells(1).Offset(1, 0).ClearContents
+    Else
+        lo.Resize lo.Range.Resize(lo.Range.Rows.Count + 1)
+    End If
+    On Error GoTo 0
+    
+
+End Sub
 
 
 

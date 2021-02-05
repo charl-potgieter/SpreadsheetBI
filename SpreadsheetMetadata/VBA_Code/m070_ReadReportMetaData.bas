@@ -4,75 +4,24 @@ Option Private Module
 
 Sub CreateReportMetaDataSheets()
 
-    Dim shtReportSheetProperties As Worksheet
-    Dim shtPivotTableProperties As Worksheet
-    Dim shtPivotFieldProperties As Worksheet
-    Dim lo As ListObject
-
 
     'Create sheet for report property capture
     If Not SheetExists(ActiveWorkbook, "ReportSheetProperties") Then
-        Set shtReportSheetProperties = InsertFormattedSheetIntoActiveWorkbook
-        With shtReportSheetProperties
-            .Name = "ReportSheetProperties"
-            .Range("SheetCategory").Value = "Report metadata"
-            .Range("SheetHeading").Value = "Report sheet properties"
-            
-            'Create table headings
-            .Range("B6") = "Sheet Name|Sheet Category"
-            .Range("B6").TextToColumns DataType:=xlDelimited, Other:=True, OtherChar:="|"
-            
-            'Ensure at least one row in table
-            .Range("B7") = "Empty Table"
-            
-            Set lo = .ListObjects.Add(xlSrcRange, Range("$B$6").CurrentRegion, , xlYes)
-        End With
-        lo.Name = "tbl_ReportSheetProperties"
-        FormatTable lo
+        ThisWorkbook.Sheets("ReportSheetProperties").Copy After:=ActiveWorkbook.Sheets(ActiveWorkbook.Sheets.Count)
+        ActiveWorkbook.Sheets(ActiveWorkbook.Sheets.Count).Range("SheetHeading").Font.Color = RGB(0, 0, 0)
     End If
 
     
     'Create sheet for pivot table property capture
     If Not SheetExists(ActiveWorkbook, "PvtTableProperties") Then
-        Set shtPivotTableProperties = InsertFormattedSheetIntoActiveWorkbook
-        With shtPivotTableProperties
-            .Name = "PvtTableProperties"
-            .Range("SheetCategory").Value = "Report metadata"
-            .Range("SheetHeading").Value = "Pivot table properties"
-            
-            'Create table headings
-            .Range("B6") = "Sheet Name|Pivot Table Name|Auto Fit|Total Rows|Total Columns|Display Expand Buttons|Display Field Headers"
-            .Range("B6").TextToColumns DataType:=xlDelimited, Other:=True, OtherChar:="|"
-            
-            'Ensure at least one row in table
-            .Range("B7") = "Empty Table"
-            
-            Set lo = .ListObjects.Add(xlSrcRange, Range("$B$6").CurrentRegion, , xlYes)
-        End With
-        lo.Name = "tbl_PvtTableProperties"
-        FormatTable lo
+        ThisWorkbook.Sheets("PvtTableProperties").Copy After:=ActiveWorkbook.Sheets(ActiveWorkbook.Sheets.Count)
+        ActiveWorkbook.Sheets(ActiveWorkbook.Sheets.Count).Range("SheetHeading").Font.Color = RGB(0, 0, 0)
     End If
     
     'Create sheet for pivot field property capture
     If Not SheetExists(ActiveWorkbook, "PvtFieldProperties") Then
-        Set shtPivotFieldProperties = InsertFormattedSheetIntoActiveWorkbook
-        With shtPivotFieldProperties
-            .Name = "PvtFieldProperties"
-            .Range("SheetCategory").Value = "Report metadata"
-            .Range("SheetHeading").Value = "Pivot field properties"
-            
-            'Create table headings
-            .Range("B6") = "Sheet Name|Pivot Table Name|Data Model Field Type|Cube Field Name|Orientation|Format|Custom Format|Subtotal" & _
-                "|Subtotal at top|Blank line between items|Filter Type|Filter Values|Collapse field values"
-            .Range("B6").TextToColumns DataType:=xlDelimited, Other:=True, OtherChar:="|"
-            
-            'Ensure at least one row in table
-            .Range("B7") = "Empty Table"
-            
-            Set lo = .ListObjects.Add(xlSrcRange, Range("$B$6").CurrentRegion, , xlYes)
-        End With
-        lo.Name = "tbl_PvtTableProperties"
-        FormatTable lo
+        ThisWorkbook.Sheets("PvtFieldProperties").Copy After:=ActiveWorkbook.Sheets(ActiveWorkbook.Sheets.Count)
+        ActiveWorkbook.Sheets(ActiveWorkbook.Sheets.Count).Range("SheetHeading").Font.Color = RGB(0, 0, 0)
     End If
             
     
@@ -86,5 +35,54 @@ Sub CreateReportMetaDataSheets()
 End Sub
 
 
+Sub WritePivotTableProperties()
+
+    Dim sht As Worksheet
+    Dim lo As ListObject
+    Dim rng As Range
+    Dim i As Integer
+    Dim pvt As PivotTable
+    Dim sPivotTableProperty As String
+
+    Set lo = ActiveWorkbook.Sheets("PvtTableProperties").ListObjects("tbl_PvtTableProperties")
+
+    For Each sht In ActiveWorkbook.Worksheets
+        If sht.PivotTables.Count = 1 Then
+            Set pvt = sht.PivotTables(1)
+            AddOneRowToListObject lo
+            i = lo.DataBodyRange.Rows.Count
+            For Each rng In lo.HeaderRowRange
+                If rng = "SheetName" Then
+                    lo.ListColumns(rng.Value).DataBodyRange.Cells(i) = sht.Name
+                Else
+                    On Error Resume Next
+                    sPivotTableProperty = CallByName(pvt, rng, VbGet)
+                    If Err.Number = 0 Then
+                        lo.ListColumns(rng.Value).DataBodyRange.Cells(i) = sPivotTableProperty
+                    Else
+                        lo.ListColumns(rng.Value).DataBodyRange.Cells(i) = "VBA Error"
+                    End If
+                    On Error GoTo 0
+                End If
+            Next rng
+        End If
+    Next sht
+
+End Sub
+
+
+
+
+
+
+
+Sub temp()
+
+    Dim s As String
+
+    s = CallByName(ActiveSheet, "name", VbGet)
+    Debug.Print (s)
+
+End Sub
 
 

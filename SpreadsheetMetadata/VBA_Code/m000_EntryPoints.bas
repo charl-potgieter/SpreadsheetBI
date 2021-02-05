@@ -1028,6 +1028,7 @@ Sub ReadReportMetadata()
     
    
     CreateReportMetaDataSheets
+    WritePivotTableProperties
     
 
 ExitPoint:
