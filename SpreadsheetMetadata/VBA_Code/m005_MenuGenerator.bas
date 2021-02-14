@@ -133,15 +133,19 @@ Sub CreatePopUpMenu()
 
     
     
-    'Report Menu
+    'Pivot reports Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
-    MenuCategory.Caption = "Reports"
+    MenuCategory.Caption = "Pivot reports"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Read report metadata"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ReadReportMetadata"
+    MenuItem.Caption = "Save report metadata"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "SavePivotReportMetadataInActiveWorkbook"
     
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Create report from metadata"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreatePivotReportFromMetaData"
     
+       
     
         
     'Pivot Table Menu

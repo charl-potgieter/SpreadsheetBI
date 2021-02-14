@@ -1,5 +1,5 @@
 Attribute VB_Name = "m010_General"
-Option Explicit
+    Option Explicit
 Option Private Module
 Global Const gcsMenuName As String = "SpreadsheetBI"
 
@@ -84,7 +84,10 @@ Sub FormatTable(lo As ListObject)
         .Orientation = 0
     End With
     
-    lo.DataBodyRange.EntireColumn.AutoFit
+    If Not lo.DataBodyRange Is Nothing Then
+        lo.DataBodyRange.EntireColumn.AutoFit
+    End If
+    
 
 
 End Sub

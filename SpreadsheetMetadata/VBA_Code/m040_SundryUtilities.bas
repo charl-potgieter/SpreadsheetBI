@@ -109,12 +109,12 @@ End Function
 
 
 
-Function ArrayIsDimensioned(Arr As Variant) As Boolean
+Function ArrayIsDimensioned(arr As Variant) As Boolean
 
     Dim b As Boolean
     
     On Error Resume Next
-    ArrayIsDimensioned = (UBound(Arr, 1)) >= 0 And UBound(Arr) >= LBound(Arr)
+    ArrayIsDimensioned = (UBound(arr, 1)) >= 0 And UBound(arr) >= LBound(arr)
     If Err.Number <> 0 Then ArrayIsDimensioned = False
 
 End Function
@@ -155,8 +155,6 @@ End Function
 Sub AddOneRowToListObject(lo As ListObject)
 
     Dim str As String
-
-    Set lo = ActiveSheet.ListObjects(1)
     
     On Error Resume Next
     str = lo.DataBodyRange.Address

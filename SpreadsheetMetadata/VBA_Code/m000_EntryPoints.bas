@@ -1,21 +1,29 @@
 Attribute VB_Name = "m000_EntryPoints"
 Option Explicit
 
-Public Type TypeReportList
-    ReportName As String
-    SheetName As String
-    ReportCategory As String
-    RunWithRefresh As String
-    RunWithoutRefresh As String
-End Type
+Public Const PivotTableProperties As String = "LayoutRowDefault|PageFieldWrapCount|CompactRowIndent|" & _
+    "PageFieldOrder|CompactLayoutColumnHeader|GrandTotalName|TableStyle2|Value|" & _
+    "CompactLayoutRowHeader|AllowMultipleFilters|DisplayEmptyColumn|DisplayEmptyRow|" & _
+    "DisplayErrorString|EnableDataValueEditing|FieldListSortAscending|" & _
+    "InGridDropZones|ManualUpdate|MergeLabels|PrintDrillIndicators|PrintTitles|" & _
+    "ShowTableStyleColumnStripes|ShowTableStyleRowStripes|ShowValuesRow|SmallGrid|" & _
+    "VisualTotalsForSets|CalculatedMembersInFilters|ColumnGrand|DisplayContextTooltips|" & _
+    "DisplayFieldCaptions|DisplayImmediateItems|DisplayMemberPropertyTooltips|DisplayNullString|" & _
+    "EnableDrilldown|EnableFieldDialog|EnableFieldList|EnableWizard|HasAutoFormat|PreserveFormatting|" & _
+    "RepeatItemsOnEachPrintedPage|RowGrand|ShowDrillIndicators|ShowPageMultipleItemLabel|" & _
+    "ShowTableStyleColumnHeaders|ShowTableStyleLastColumn|ShowTableStyleRowHeaders|SortUsingCustomLists|" & _
+    "SubtotalHiddenPageItems|TotalsAnnotation|ViewCalculatedMembers|VisualTotals|AlternativeText|" & _
+    "ErrorString|NullString|PageFieldStyle|Summary|VacatedStyle"
 
-Public Type TypeReportProperties
-    AutoFit As Boolean
-    RowTotals As Boolean
-    ColumnTotals As Boolean
-    DisplayExpandButtons As Boolean
-    DisplayFieldHeaders As Boolean
-End Type
+Public Const CubeFieldProperties As String = "Caption|Orientation|Position"
+
+Public Const PivotFieldProperties As String = "LayoutBlankLine|" & _
+    "LayoutCompactRow|LayoutForm|LayoutPageBreak|LayoutSubtotalLocation|" & _
+    "NumberFormat|RepeatLabels|" & _
+    "SubtotalName|Subtotals"
+
+'Public Const PivotFieldProperties As String = "NumberFormat"
+
 
 Public Type TypeModelMeasures
     Name As String
@@ -44,6 +52,38 @@ Public Type TypeModelRelationship
     PrimaryKeyTable As String
     PrimaryKeyColumn As String
     Active As Boolean
+End Type
+
+'Requires reference to Microsoft Scripting Runtime (for dictionary)
+
+Type TypeReportingSheet
+    Name As String
+    Properties As Dictionary
+End Type
+
+Type TypePvtTable
+    Name As String
+    Properties As Dictionary
+End Type
+
+Type TypePvtCubeField
+    Name As String
+    Properties As Dictionary
+End Type
+
+Type TypePvtField
+    Name As String
+    Properties As Dictionary
+End Type
+
+
+Public Type TypePivotReport
+    SheetName As String
+    ReportingSheet As TypeReportingSheet
+    PvtTable As TypePvtTable
+    'Some properties are set at CubeField object, others at PivotField object
+    PvtCubeFields() As TypePvtCubeField
+    PvtFields() As TypePvtCubeField
 End Type
 
 
@@ -574,7 +614,7 @@ Sub TableLooper()
 ' - target sheet category
 
 
-    Dim Arr
+    Dim arr
     Dim i As Integer
     Dim sht As Worksheet
     Dim dblRowToPaste As Double
@@ -600,7 +640,7 @@ Sub TableLooper()
     Application.DisplayAlerts = False
 
     'Read inputs for looping function
-    Arr = WorksheetFunction.Transpose(Range(LooperValue("Index Range")))
+    arr = WorksheetFunction.Transpose(Range(LooperValue("Index Range")))
     Set rngTableInputKey = Range(LooperValue("Input Key"))
     Set loCalc = Range(LooperValue("Input Calculation Table")).ListObject
     sTargetSheetName = LooperValue("Target Sheet Name")
@@ -622,8 +662,8 @@ Sub TableLooper()
     loCalc.HeaderRowRange.Copy
     sht.Cells(iStartTableRow, iStartTableCol).PasteSpecial xlPasteValues
 
-    For i = LBound(Arr) To UBound(Arr)
-        rngTableInputKey = Arr(i)
+    For i = LBound(arr) To UBound(arr)
+        rngTableInputKey = arr(i)
         Application.CalculateFull
         Application.Wait Now + #12:00:01 AM#
         loCalc.DataBodyRange.Copy
@@ -1016,9 +1056,11 @@ End Sub
 
 
 
-Sub ReadReportMetadata()
+Sub SavePivotReportMetadataInActiveWorkbook()
 'Reads all pivot table metadata in active workbook and saves on worksheets in active workbook
-
+    
+    Dim pvtReportMetaData() As TypePivotReport
+    Dim i As Integer
 
     'Setup
     Application.ScreenUpdating = False
@@ -1026,13 +1068,22 @@ Sub ReadReportMetadata()
     Application.Calculation = xlCalculationManual
     Application.DisplayAlerts = False
     
-   
-    CreateReportMetaDataSheets
-    WritePivotTableProperties
+    pvtReportMetaData = ExtractPivotReportMetadataFromReports(ActiveWorkbook)
     
+    'Do not proceed if no pivot reports exist
+    On Error Resume Next
+    i = UBound(pvtReportMetaData)
+    If Err.Number <> 0 Then
+        MsgBox ("There are no pivot reports meeting criteria in active workbook")
+    Else
+        
+    End If
+    
+    On Error GoTo 0
+    
+    SavePivotReportMetaData pvtReportMetaData
 
 ExitPoint:
-    'Cleanup
     Application.ScreenUpdating = True
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic
@@ -1042,5 +1093,46 @@ ExitPoint:
 End Sub
 
 
+
+
+Sub CreatePivotReportFromMetaData()
+
+
+    Dim wkb As Workbook
+    Dim sSheetName As String
+    Dim sht As Worksheet
+    Dim pvt As PivotTable
+    Dim pvtReportMetaData As TypePivotReport
+
+
+    '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ' Replace below with a menu choice
+    sSheetName = PivotReportSheetNameBasedOnReportHeading("Pvt 2 Heading")
+
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+
+    Set wkb = ActiveWorkbook
+
+    pvtReportMetaData = ReadPivotReportMetaData(sSheetName)
+    Set sht = CreateReportSheet(wkb, pvtReportMetaData)
+    Set pvt = CreateEmptyPowerPivotTable(sht)
+    SetPivotTableProperties pvt, pvtReportMetaData
+    SetPivotCubeFieldsProperties pvt, pvtReportMetaData
+    SetPivotFieldsProperties pvt, pvtReportMetaData
+    FormatPivotReportSheet sht, pvtReportMetaData
+
+
+'ExitPoint:
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+
+End Sub
 
 

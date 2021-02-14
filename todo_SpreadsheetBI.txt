@@ -1,10 +1,19 @@
 TODO
 -------   
+   - Need to seperately deal with subtotals (it is an array - will have to be saved outside of the properties
+  
+   - Looks as if I need to seperately get cubefield and pivotfield properties.  For examlpe the pivotfield property is set in the pivotfield object while adding is set in the cubefield object
+    * I am going to somehow have to get pivotfield name for corresponding pivotcolumname = seems to be simply pvt.cubefield.pivotfields(1)
 
- - loop sheets with 1 pivot and write properties, increasing listobject by 1 row each time before write (use sub AddOneRowToListObject in SundryUtilities module)
+  
+   -  leading towards setting filters in DAX via measures rather than in pivot table.  Harder to manage the list of values in the pivot table
 
- - After doing above ensure that older data is first deleted
+   - When setting properties if property is blank don't set as it means it wasnt saved (most likely not
+   relevant to e.g. field orientation and should not be applied)
+ 
+ -  Continue working on m006_DataAccess to save RepoertMetaData
 
+  - Store data in XML or JSON format? - No too much effort
 
  - Wondering if I should go back and re-evaluate auto report creation.  Won't necessarily complete each time a report is run but useful for recreating the entire spreadsheet.
     * Ideally I would also have code that read the pivot report settings into a worksheet.   Which could then be used to recreate the pivot reports
