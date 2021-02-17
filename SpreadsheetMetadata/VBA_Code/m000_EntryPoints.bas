@@ -15,13 +15,6 @@ Public Const PivotTableProperties As String = "LayoutRowDefault|PageFieldWrapCou
     "SubtotalHiddenPageItems|TotalsAnnotation|ViewCalculatedMembers|VisualTotals|AlternativeText|" & _
     "ErrorString|NullString|PageFieldStyle|Summary|VacatedStyle"
 
-Public Const CubeFieldProperties As String = "Caption|Orientation|Position"
-
-Public Const PivotFieldProperties As String = "LayoutBlankLine|" & _
-    "LayoutCompactRow|LayoutForm|LayoutPageBreak|LayoutSubtotalLocation|" & _
-    "NumberFormat|RepeatLabels|" & _
-    "SubtotalName|Subtotals"
-
 'Public Const PivotFieldProperties As String = "NumberFormat"
 
 
@@ -58,7 +51,8 @@ End Type
 
 Type TypeReportingSheet
     Name As String
-    Properties As Dictionary
+    SheetHeading As String
+    SheetCategory As String
 End Type
 
 Type TypePvtTable
@@ -68,12 +62,25 @@ End Type
 
 Type TypePvtCubeField
     Name As String
-    Properties As Dictionary
+    Caption As String
+    Orientation As Long
+    Position As Long
 End Type
 
 Type TypePvtField
     Name As String
-    Properties As Dictionary
+    LayoutBlankLine As Boolean
+    LayoutCompactRow As Boolean
+    LayoutForm As Long
+    LayoutPageBreak As Boolean
+    LayoutSubtotalLocation As Long
+    NumberFormat As String
+    RepeatLabels As Boolean
+    SubtotalName As String
+    Subtotals As Boolean
+    'Only use for the pivotfields("values") representing layout of the data
+    'other orientation is set via cubefields
+    Orientation As Long
 End Type
 
 
@@ -83,7 +90,7 @@ Public Type TypePivotReport
     PvtTable As TypePvtTable
     'Some properties are set at CubeField object, others at PivotField object
     PvtCubeFields() As TypePvtCubeField
-    PvtFields() As TypePvtCubeField
+    PvtFields() As TypePvtField
 End Type
 
 
@@ -1099,7 +1106,7 @@ Sub CreatePivotReportFromMetaData()
 
 
     Dim wkb As Workbook
-    Dim sSheetName As String
+    Dim sSheetHeading As String
     Dim sht As Worksheet
     Dim pvt As PivotTable
     Dim pvtReportMetaData As TypePivotReport
@@ -1107,7 +1114,7 @@ Sub CreatePivotReportFromMetaData()
 
     '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ' Replace below with a menu choice
-    sSheetName = PivotReportSheetNameBasedOnReportHeading("Pvt 2 Heading")
+     sSheetHeading = "Pvt 2 Heading"
 
     'Setup
     Application.ScreenUpdating = False
@@ -1117,13 +1124,14 @@ Sub CreatePivotReportFromMetaData()
 
     Set wkb = ActiveWorkbook
 
-    pvtReportMetaData = ReadPivotReportMetaData(sSheetName)
-    Set sht = CreateReportSheet(wkb, pvtReportMetaData)
-    Set pvt = CreateEmptyPowerPivotTable(sht)
-    SetPivotTableProperties pvt, pvtReportMetaData
-    SetPivotCubeFieldsProperties pvt, pvtReportMetaData
-    SetPivotFieldsProperties pvt, pvtReportMetaData
-    FormatPivotReportSheet sht, pvtReportMetaData
+    pvtReportMetaData = ReadPivotReportMetaData(sSheetHeading)
+    
+'    Set sht = CreateReportSheet(wkb, pvtReportMetaData)
+'    Set pvt = CreateEmptyPowerPivotTable(sht)
+'    SetPivotTableProperties pvt, pvtReportMetaData
+'    SetPivotCubeFieldsProperties pvt, pvtReportMetaData
+'    SetPivotFieldsProperties pvt, pvtReportMetaData
+'    FormatPivotReportSheet sht, pvtReportMetaData
 
 
 'ExitPoint:

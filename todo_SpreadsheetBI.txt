@@ -1,6 +1,20 @@
 TODO
 -------   
-   - Need to seperately deal with subtotals (it is an array - will have to be saved outside of the properties
+  - Interfaces?
+  http://www.cpearson.com/excel/Implements.aspx
+ 
+ - Read https://rubberduckvba.wordpress.com/2020/02/27/vba-classes-gateway-to-solid/
+
+  - Continue to work on ListStorage class model
+ - Build in query using an evaluation of excel filter function
+
+
+ - Create more generic code to retrieve data from listobject using the filter function called
+   via an evaluate (create a listobject data class?)
+
+
+    - Maybe will simplify things if I got rid of properties under cubefields and pivotfields as there 
+      arent that many to deal with and there are a lot of exceptions to general rules
   
    - Looks as if I need to seperately get cubefield and pivotfield properties.  For examlpe the pivotfield property is set in the pivotfield object while adding is set in the cubefield object
     * I am going to somehow have to get pivotfield name for corresponding pivotcolumname = seems to be simply pvt.cubefield.pivotfields(1)

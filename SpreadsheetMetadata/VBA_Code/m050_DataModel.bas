@@ -493,7 +493,7 @@ ExitPoint:
 End Sub
 
 
-Sub test()
+Sub Test()
 
     WriteModelRelationshipsToPipeDelimitedFile Workbooks("Temp.xlsx"), "C:\Users\charl\Dropbox\Dropbox_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\TestRelationships.txt"
 

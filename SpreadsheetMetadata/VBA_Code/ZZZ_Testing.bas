@@ -2,75 +2,26 @@ Attribute VB_Name = "ZZZ_Testing"
 Option Explicit
 
 
+Sub Test()
 
-
-
-Sub temp()
-'Requires reference to Microsoft Scripting Runtime
-
-    Dim dict As Dictionary
-    Set dict = New Dictionary
+    Dim a As ListStorage
+    Dim Headings(3) As String
+    Dim bCreated As Boolean
     
-    dict.Add "key1", "value1"
-    dict.Add "key2", "value2"
+    Set a = New ListStorage
     
-    Dim key As Variant
-    For Each key In dict.Keys
-        Debug.Print "Key: " & key, "Value: " & dict.item(key)
-    Next
+    Headings(0) = "a"
+    Headings(1) = "b"
+    Headings(2) = "c"
+    Headings(3) = "d"
+    
+    bCreated = a.CreateStorage(ActiveWorkbook, "Test", Headings)
+    
+    If bCreated Then
+        MsgBox (a.Name)
+    Else
+        MsgBox ("Not created")
+    End If
 
-        
-
+    
 End Sub
-
-
-Sub temp2()
-    
-    Dim a As Variant
-    Dim b As Variant
-    Dim v As Variant
-    Dim l As Variant
-    
-    
-    a = WorksheetFunction.Unique(Selection)
-    l = ActiveSheet.ListObjects(1).DataBodyRange.Value
-    
-    v = ActiveSheet.ListObjects(1).ListColumns("Name").DataBodyRange.Value
-    
-    b = Evaluate("=FILTER(tbl_ReportProperties, tbl_ReportProperties[DataType] = ""SheetProperty"")")
-    
-    
-
-End Sub
-
-
-Sub temp3()
-
-    Dim lo As ListObject
-    Dim vPivotFieldArray As Variant
-    
-    Set lo = ActiveWorkbook.Sheets("ReportSheetProperties").ListObjects("tbl_ReportProperties")
-    vPivotFieldArray = WorksheetFunction.Unique(lo.ListColumns("Name").DataBodyRange.SpecialCells(xlCellTypeVisible))
-        
-
-
-End Sub
-
-Sub AddField()
-    
-    Dim pvt As PivotTable
-    Dim pvtField As PivotField
-    Set pvt = ActiveSheet.PivotTables(1)
-
-    pvt.CubeFields("[DimAccounts].[Group]").Orientation = xlRowField
-    '    .Position = 1
-    
-    
-    'ActiveSheet.PivotTables("PivotTable6").AddDataField ActiveSheet.PivotTables( _
-     '   "PivotTable6").PivotFields("B"), "Sum of B", xlSum
-End Sub
-
-
-    
-    
-

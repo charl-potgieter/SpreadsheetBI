@@ -49,7 +49,7 @@ Public Sub CreatePowerPivotDmvInventory()
 End Sub
 
 
-Private Sub WriteDmvContent(ByVal dmvName As String, ByRef conn As ADODB.Connection, ByRef sheet As Worksheet, ByRef iRowNum)
+Private Sub WriteDmvContent(ByVal dmvName As String, ByRef conn As ADODB.Connection, ByRef Sheet As Worksheet, ByRef iRowNum)
 
     Dim rs As ADODB.Recordset
     Dim cell As Excel.Range
@@ -67,21 +67,21 @@ Private Sub WriteDmvContent(ByVal dmvName As String, ByRef conn As ADODB.Connect
     On Error GoTo 0
     
     ' Output of the DMV name
-    sheet.Cells(iRowNum, 1) = dmvName
-    FormatDmvName sheet.Cells(iRowNum, 1)
+    Sheet.Cells(iRowNum, 1) = dmvName
+    FormatDmvName Sheet.Cells(iRowNum, 1)
     
     iRowNum = iRowNum + 1
     ' Output of the column names
     For i = 0 To rs.Fields.Count - 1
-        sheet.Cells(iRowNum, i + 1) = rs.Fields(i).Name
-        FormatColumnHeader sheet.Cells(iRowNum, i + 1)
+        Sheet.Cells(iRowNum, i + 1) = rs.Fields(i).Name
+        FormatColumnHeader Sheet.Cells(iRowNum, i + 1)
     Next i
     
     iRowNum = iRowNum + 1
     ' Output of the query results
     Do Until rs.EOF
         For i = 0 To rs.Fields.Count - 1
-            WriteFormatedCellValue sheet.Cells(iRowNum, i + 1), rs.Fields(i)
+            WriteFormatedCellValue Sheet.Cells(iRowNum, i + 1), rs.Fields(i)
         Next i
     
         iRowNum = iRowNum + 1
