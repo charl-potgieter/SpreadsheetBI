@@ -150,7 +150,7 @@ Sub FileItemsInFolder(ByVal sFolderPath As String, ByVal bRecursive As Boolean, 
     
     For Each FileItem In SourceFolder.Files
     
-        If Not ArrayIsDimensioned(FileItems) Then
+        If Not IsArrayAllocated(FileItems) Then
             ReDim FileItems(0)
         Else
             ReDim Preserve FileItems(UBound(FileItems) + 1)

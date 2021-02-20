@@ -108,19 +108,6 @@ Function TableExistsInSheet(ByVal sTableName As String, Optional sht As Workshee
 End Function
 
 
-
-Function ArrayIsDimensioned(arr As Variant) As Boolean
-
-    Dim b As Boolean
-    
-    On Error Resume Next
-    ArrayIsDimensioned = (UBound(arr, 1)) >= 0 And UBound(arr) >= LBound(arr)
-    If Err.Number <> 0 Then ArrayIsDimensioned = False
-
-End Function
-
-
-
 Sub CommaSeperatedDelimit(ByVal sInput As String, ByRef aDelimited() As String)
     
     Dim i As Double
@@ -152,23 +139,7 @@ End Function
 
 
 
-Sub AddOneRowToListObject(lo As ListObject)
 
-    Dim str As String
-    
-    On Error Resume Next
-    str = lo.DataBodyRange.Address
-    If Err.Number <> 0 Then
-        'Force empty row in databody range if it does not yet exist
-        lo.HeaderRowRange.Cells(1).Offset(1, 0) = " "
-        lo.HeaderRowRange.Cells(1).Offset(1, 0).ClearContents
-    Else
-        lo.Resize lo.Range.Resize(lo.Range.Rows.Count + 1)
-    End If
-    On Error GoTo 0
-    
-
-End Sub
 
 
 

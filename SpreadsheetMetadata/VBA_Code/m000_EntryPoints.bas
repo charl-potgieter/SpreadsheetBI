@@ -621,7 +621,7 @@ Sub TableLooper()
 ' - target sheet category
 
 
-    Dim arr
+    Dim Arr
     Dim i As Integer
     Dim sht As Worksheet
     Dim dblRowToPaste As Double
@@ -647,7 +647,7 @@ Sub TableLooper()
     Application.DisplayAlerts = False
 
     'Read inputs for looping function
-    arr = WorksheetFunction.Transpose(Range(LooperValue("Index Range")))
+    Arr = WorksheetFunction.Transpose(Range(LooperValue("Index Range")))
     Set rngTableInputKey = Range(LooperValue("Input Key"))
     Set loCalc = Range(LooperValue("Input Calculation Table")).ListObject
     sTargetSheetName = LooperValue("Target Sheet Name")
@@ -669,8 +669,8 @@ Sub TableLooper()
     loCalc.HeaderRowRange.Copy
     sht.Cells(iStartTableRow, iStartTableCol).PasteSpecial xlPasteValues
 
-    For i = LBound(arr) To UBound(arr)
-        rngTableInputKey = arr(i)
+    For i = LBound(Arr) To UBound(Arr)
+        rngTableInputKey = Arr(i)
         Application.CalculateFull
         Application.Wait Now + #12:00:01 AM#
         loCalc.DataBodyRange.Copy
@@ -952,7 +952,7 @@ Sub CopyPowerQueriesFromWorkbook()
 'Copies power queries from selected workbook into active workbook
 
     
-    Dim fDialog As FileDialog, result As Integer
+    Dim fDialog As FileDialog, Result As Integer
     Dim sFilePathAndName As String
     Dim bWorkbookIsOpen As Boolean
     Dim fso As New FileSystemObject
@@ -1038,7 +1038,6 @@ Sub TempDeleteAllPQ()
 
        
     Dim qry As WorkbookQuery
-
     
     'Setup
     Application.ScreenUpdating = False
@@ -1061,86 +1060,86 @@ ExitPoint:
 
 End Sub
 
-
-
-Sub SavePivotReportMetadataInActiveWorkbook()
-'Reads all pivot table metadata in active workbook and saves on worksheets in active workbook
-    
-    Dim pvtReportMetaData() As TypePivotReport
-    Dim i As Integer
-
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-    
-    pvtReportMetaData = ExtractPivotReportMetadataFromReports(ActiveWorkbook)
-    
-    'Do not proceed if no pivot reports exist
-    On Error Resume Next
-    i = UBound(pvtReportMetaData)
-    If Err.Number <> 0 Then
-        MsgBox ("There are no pivot reports meeting criteria in active workbook")
-    Else
-        
-    End If
-    
-    On Error GoTo 0
-    
-    SavePivotReportMetaData pvtReportMetaData
-
-ExitPoint:
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-
-End Sub
-
-
-
-
-Sub CreatePivotReportFromMetaData()
-
-
-    Dim wkb As Workbook
-    Dim sSheetHeading As String
-    Dim sht As Worksheet
-    Dim pvt As PivotTable
-    Dim pvtReportMetaData As TypePivotReport
-
-
-    '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ' Replace below with a menu choice
-     sSheetHeading = "Pvt 2 Heading"
-
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-
-    Set wkb = ActiveWorkbook
-
-    pvtReportMetaData = ReadPivotReportMetaData(sSheetHeading)
-    
-'    Set sht = CreateReportSheet(wkb, pvtReportMetaData)
-'    Set pvt = CreateEmptyPowerPivotTable(sht)
-'    SetPivotTableProperties pvt, pvtReportMetaData
-'    SetPivotCubeFieldsProperties pvt, pvtReportMetaData
-'    SetPivotFieldsProperties pvt, pvtReportMetaData
-'    FormatPivotReportSheet sht, pvtReportMetaData
-
-
+'
+'
+'Sub SavePivotReportMetadataInActiveWorkbook()
+''Reads all pivot table metadata in active workbook and saves on worksheets in active workbook
+'
+'    Dim pvtReportMetaData() As TypePivotReport
+'    Dim i As Integer
+'
+'    'Setup
+'    Application.ScreenUpdating = False
+'    Application.EnableEvents = False
+'    Application.Calculation = xlCalculationManual
+'    Application.DisplayAlerts = False
+'
+'    pvtReportMetaData = ExtractPivotReportMetadataFromReports(ActiveWorkbook)
+'
+'    'Do not proceed if no pivot reports exist
+'    On Error Resume Next
+'    i = UBound(pvtReportMetaData)
+'    If Err.Number <> 0 Then
+'        MsgBox ("There are no pivot reports meeting criteria in active workbook")
+'    Else
+'
+'    End If
+'
+'    On Error GoTo 0
+'
+'    SavePivotReportMetaData pvtReportMetaData
+'
 'ExitPoint:
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-
-End Sub
-
-
+'    Application.ScreenUpdating = True
+'    Application.EnableEvents = True
+'    Application.Calculation = xlCalculationAutomatic
+'    Application.DisplayAlerts = True
+'
+'
+'End Sub
+'
+'
+'
+'
+'Sub CreatePivotReportFromMetaData()
+'
+'
+'    Dim wkb As Workbook
+'    Dim sSheetHeading As String
+'    Dim sht As Worksheet
+'    Dim pvt As PivotTable
+'    Dim pvtReportMetaData As TypePivotReport
+'
+'
+'    '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+'    ' Replace below with a menu choice
+'     sSheetHeading = "Pvt 2 Heading"
+'
+'    'Setup
+'    Application.ScreenUpdating = False
+'    Application.EnableEvents = False
+'    Application.Calculation = xlCalculationManual
+'    Application.DisplayAlerts = False
+'
+'    Set wkb = ActiveWorkbook
+'
+'    pvtReportMetaData = ReadPivotReportMetaData(sSheetHeading)
+'
+''    Set sht = CreateReportSheet(wkb, pvtReportMetaData)
+''    Set pvt = CreateEmptyPowerPivotTable(sht)
+''    SetPivotTableProperties pvt, pvtReportMetaData
+''    SetPivotCubeFieldsProperties pvt, pvtReportMetaData
+''    SetPivotFieldsProperties pvt, pvtReportMetaData
+''    FormatPivotReportSheet sht, pvtReportMetaData
+'
+'
+''ExitPoint:
+'    Application.ScreenUpdating = True
+'    Application.EnableEvents = True
+'    Application.Calculation = xlCalculationAutomatic
+'    Application.DisplayAlerts = True
+'
+'
+'End Sub
+'
+'

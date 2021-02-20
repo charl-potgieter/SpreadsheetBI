@@ -11,11 +11,18 @@ Option Explicit
 
 'Use "This" declaration as an easy way to get intellisense to the classes private variables
 'https://rubberduckvba.wordpress.com/2020/02/27/vba-classes-gateway-to-solid/
-Private Type ListObjectStorage
+Private Type TypeListStorage
     Sheet As Worksheet
     ListObj As ListObject
+    FilteredListObj As ListObject
 End Type
-Private This As ListObjectStorage
+Private This As TypeListStorage
+
+Public Enum lsSortOrder  'ls = ListStorage
+    lsAsc = 1
+    lsDesc = -1
+End Enum
+
 
 Public Function CreateStorage(ByRef wkb As Workbook, ByVal sName As String, Headings() As String) As Boolean
 'Does nothing and returns FALSE if sheet or listobject already exist
@@ -25,17 +32,187 @@ Public Function CreateStorage(ByRef wkb As Workbook, ByVal sName As String, Head
         CreateStorage = False
     Else
         CreateStorage = True
+        
         Set This.Sheet = CreateListStorageSheet(wkb, sName)
         FormatListStorageSheet This.Sheet
-        Set This.ListObj = CreateListStorageListObject(This.Sheet, Headings())
+        
+        Set This.ListObj = CreateListStorageListObject(This.Sheet, Headings)
         FormatStorageListObject This.ListObj
+        
+        Set This.FilteredListObj = CreateFilteredListStorageListObject(This.Sheet, Headings)
+        FormatStorageListObject This.FilteredListObj
     End If
 
 End Function
 
+
+
+
+Public Function AssignStorage(ByRef wkb As Workbook, ByVal sName As String) As Boolean
+'Assigns the storage object to a specific sheet and listobject
+    
+    
+    On Error Resume Next
+    Set This.Sheet = wkb.Worksheets(sName)
+    Set This.ListObj = This.Sheet.ListObjects("tbl_" & sName)
+    Set This.FilteredListObj = This.Sheet.ListObjects("tbl_" & sName & "_Filtered")
+    
+    This.ListObj.ShowAutoFilter = True
+    This.ListObj.AutoFilter.ShowAllData
+        
+    If Err.Number = 0 Then
+        AssignStorage = True
+    Else
+        AssignStorage = False
+    End If
+    
+    On Error GoTo 0
+
+End Function
+
+
 Public Property Get Name() As String
     Name = This.Sheet.Name
 End Property
+
+
+Public Property Get NumberOfRecords(Optional bFiltered As Boolean = False) As Long
+    
+    
+    On Error Resume Next
+
+    NumberOfRecords = SelectedListObject(bFiltered).DataBodyRange.Rows.Count
+    
+    If Err.Number <> 0 Then
+        'There is no databodyrange
+        NumberOfRecords = 0
+    End If
+    On Error GoTo 0
+    
+End Property
+
+
+Public Function ItemsInField(ByVal sFieldName As String, _
+    Optional bIgnoreBlanks As Boolean = True, _
+    Optional bUnique As Boolean = False, _
+    Optional bSorted As Boolean = False, _
+    Optional SortOrder As lsSortOrder = lsAsc, _
+    Optional bFiltered As Boolean = False) As Variant
+'Returns a list of items in sFieldname as a one dimensional variant array with base 1
+
+    Dim sEvalStr As String
+    Dim sTableName As String
+    
+    sTableName = SelectedListObject(bFiltered).Name
+    
+    If bIgnoreBlanks Then
+        sEvalStr = "FILTER(<<Table>>[<<Field>>], <<Table>>[<<Field>>]<>"""")"
+    Else
+        sEvalStr = "SUBSTITUTE(<<Table>>[<<Field>>], """", """")"
+    End If
+    
+    sEvalStr = Replace(sEvalStr, "<<Table>>", sTableName)
+    sEvalStr = Replace(sEvalStr, "<<Field>>", sFieldName)
+    
+    If bUnique Then
+        sEvalStr = "UNIQUE(" & sEvalStr & ")"
+    End If
+    If bSorted And SortOrder = lsAsc Then
+        sEvalStr = "SORT(" & sEvalStr & ",, 1)"
+    End If
+    If bSorted And SortOrder = lsDesc Then
+        sEvalStr = "SORT(" & sEvalStr & ",, -1)"
+    End If
+    
+    sEvalStr = "=" & sEvalStr
+    
+    
+    ItemsInField = Evaluate(sEvalStr)
+       
+    'Transpose to allow referncing with single index and utilise ubound and lbound with one dimension
+    ItemsInField = WorksheetFunction.Transpose(ItemsInField)
+
+End Function
+
+
+
+
+Public Function FieldItemByIndex(ByVal sFieldName As String, ByVal i As Long, _
+    Optional bFiltered As Boolean = False) As Variant
+'Returns the i'th item (1-indexed) from field sFieldName
+    
+    Dim lo As ListObject
+
+    Set lo = SelectedListObject(bFiltered)
+    
+    Select Case True
+    Case WorksheetFunction.CountIfs(lo.HeaderRowRange, sFieldName) = 0
+        FieldItemByIndex = "<<Field name out of range>>"
+    Case i > Me.NumberOfRecords(bFiltered)
+        FieldItemByIndex = "<<Index out of range>>"
+    Case Else
+        FieldItemByIndex = lo.ListColumns(sFieldName).DataBodyRange.Cells(i)
+    End Select
+
+End Function
+
+
+
+Public Function InsertFromDictionary(InsertValues As Dictionary) As Boolean
+'Insets one record from dictionary where keys are fieldheaders
+
+    Dim key As Variant
+    Dim bKeysAreValid As Boolean
+    Dim i As Double
+
+    bKeysAreValid = True
+
+    'First test that keys in dictionary correspond to field headers
+    For Each key In InsertValues.Keys
+        bKeysAreValid = bKeysAreValid And _
+            (WorksheetFunction.CountIfs(This.ListObj.HeaderRowRange, key) = 1)
+    Next key
+    
+    'Insert values
+    If bKeysAreValid Then
+        InsertFromDictionary = True
+        AddOneRowToListObject This.ListObj
+        i = This.ListObj.DataBodyRange.Rows.Count
+        For Each key In InsertValues.Keys
+            This.ListObj.ListColumns(key).DataBodyRange(i) = InsertValues.item(key)
+        Next key
+    Else
+        InsertFromDictionary = False
+    End If
+
+
+End Function
+
+
+Public Function Filter(ByVal sFilterString As String)
+
+    Dim V As Variant
+    
+    On Error Resume Next
+    This.FilteredListObj.DataBodyRange.Delete
+    On Error GoTo 0
+    
+    AddOneRowToListObject This.FilteredListObj
+    
+    sFilterString = Replace(sFilterString, "[", This.ListObj.Name & "[")
+    sFilterString = "=FILTER(" & This.ListObj.Name & ", " & sFilterString & ")"
+    
+    V = Evaluate(sFilterString)
+    
+    If NumberOfArrayDimensions(V) = 2 Then
+        This.FilteredListObj.DataBodyRange.Cells(1).Resize(UBound(V, 1), UBound(V, 2)) = V
+    Else
+        'If the filter returns only one row the variant is a one dimensional array and
+        'requires a different mechanism to write to sheet
+        This.FilteredListObj.DataBodyRange.Cells(1).Resize(, UBound(V)) = V
+    End If
+
+End Function
 
 
 
@@ -104,6 +281,11 @@ Private Sub FormatListStorageSheet(ByRef sht As Worksheet)
         .Font.Size = 8
     End With
     
+    'Freeze Panes
+    sht.Activate
+    ActiveWindow.SplitRow = 7
+    ActiveWindow.FreezePanes = True
+
 
 End Sub
 
@@ -112,15 +294,50 @@ Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings() 
     Dim i As Integer
     Const iTableRowStart As Integer = 7
     Const iTableColStart As Integer = 2
+    Dim lo As ListObject
     
     For i = LBound(Headings) To UBound(Headings)
         sht.Cells(iTableRowStart, iTableColStart + i).Value = Headings(i)
     Next i
 
-    Set CreateListStorageListObject = sht.ListObjects.Add(xlSrcRange, _
+    Set lo = sht.ListObjects.Add(xlSrcRange, _
         sht.Cells(iTableRowStart, iTableColStart).CurrentRegion, , xlYes)
+    lo.Name = "tbl_" & sht.Name
+    
+    sht.Cells(iTableRowStart - 2, iTableColStart).Value = "Original List"
+    sht.Cells(iTableRowStart - 2, iTableColStart).Font.Bold = True
+    
+    Set CreateListStorageListObject = lo
 
 End Function
+
+
+Private Function CreateFilteredListStorageListObject(ByRef sht As Worksheet, Headings() As String) As ListObject
+
+    Dim i As Integer
+    Const iTableRowStart As Integer = 7
+    Dim iTableColStart As Integer
+    Const iUnfilteredTableColStart As Integer = 2
+    Const iGapBetweenTables = 1
+    Dim lo As ListObject
+    
+    iTableColStart = iUnfilteredTableColStart + (UBound(Headings)) + (iGapBetweenTables + 1)
+    
+    For i = LBound(Headings) To UBound(Headings)
+        sht.Cells(iTableRowStart, iTableColStart + i).Value = Headings(i)
+    Next i
+
+    Set lo = sht.ListObjects.Add(xlSrcRange, _
+        sht.Cells(iTableRowStart, iTableColStart).CurrentRegion, , xlYes)
+    lo.Name = "tbl_" & sht.Name & "_Filtered"
+    
+    sht.Cells(iTableRowStart - 2, iTableColStart).Value = "Filtered List"
+    sht.Cells(iTableRowStart - 2, iTableColStart).Font.Bold = True
+    
+    Set CreateFilteredListStorageListObject = lo
+
+End Function
+
 
 
 Private Sub FormatStorageListObject(ByRef lo As ListObject)
@@ -170,3 +387,38 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
     
 
 End Sub
+
+
+Private Sub AddOneRowToListObject(lo As ListObject)
+
+    Dim str As String
+    
+    On Error Resume Next
+    str = lo.DataBodyRange.Address
+    If Err.Number <> 0 Then
+        'Force empty row in databody range if it does not yet exist
+        lo.HeaderRowRange.Cells(1).Offset(1, 0) = " "
+        lo.HeaderRowRange.Cells(1).Offset(1, 0).ClearContents
+    Else
+        lo.Resize lo.Range.Resize(lo.Range.Rows.Count + 1)
+    End If
+    On Error GoTo 0
+    
+
+End Sub
+
+
+
+
+Private Function SelectedListObject(ByVal bFiltered) As ListObject
+'Returns either This.ListObj or This.FilteredListObj depending on the
+'bFiltered paramater
+
+
+    If bFiltered Then
+        Set SelectedListObject = This.FilteredListObj
+    Else
+        Set SelectedListObject = This.ListObj
+    End If
+
+End Function

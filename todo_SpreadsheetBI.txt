@@ -1,16 +1,8 @@
 TODO
 -------   
-  - Interfaces?
-  http://www.cpearson.com/excel/Implements.aspx
- 
- - Read https://rubberduckvba.wordpress.com/2020/02/27/vba-classes-gateway-to-solid/
 
-  - Continue to work on ListStorage class model
- - Build in query using an evaluation of excel filter function
-
-
- - Create more generic code to retrieve data from listobject using the filter function called
-   via an evaluate (create a listobject data class?)
+ - Create an Xlookup cell on the ListStorage sheet for purposes of single cell lookup
+    
 
 
     - Maybe will simplify things if I got rid of properties under cubefields and pivotfields as there 
@@ -25,7 +17,7 @@ TODO
    - When setting properties if property is blank don't set as it means it wasnt saved (most likely not
    relevant to e.g. field orientation and should not be applied)
  
- -  Continue working on m006_DataAccess to save RepoertMetaData
+ -  Continue working on m006_DataAccess to save ReportMetaData
 
   - Store data in XML or JSON format? - No too much effort
 
