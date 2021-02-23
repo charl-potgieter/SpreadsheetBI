@@ -1,11 +1,14 @@
 TODO
--------   
+-------    
+  - Continue to work on EntryPoints.SavePivotReportMetadataInActiveWorkbook and at same time build out the PowerReport class and subclasses
+  -> Continue work on m070_PivotReports.SavePowerReportCubeFieldProperties and 
+  SavePowerReportPivotFieldProperties
+  -> Dont use dictionaries  --> too many exceptions
+  --> See old commented code for if branching which checks field types rather than relying on on
+  error resume next
 
- - Create an Xlookup cell on the ListStorage sheet for purposes of single cell lookup
-    
 
-
-    - Maybe will simplify things if I got rid of properties under cubefields and pivotfields as there 
+     - Maybe will simplify things if I got rid of properties under cubefields and pivotfields as there 
       arent that many to deal with and there are a lot of exceptions to general rules
   
    - Looks as if I need to seperately get cubefield and pivotfield properties.  For examlpe the pivotfield property is set in the pivotfield object while adding is set in the cubefield object

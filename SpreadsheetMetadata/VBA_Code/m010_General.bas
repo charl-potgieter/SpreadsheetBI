@@ -307,3 +307,22 @@ End Sub
 
 
 
+Function SheetIsAPowerReportSheet(ByRef sht As Worksheet) As Boolean
+
+    On Error Resume Next
+    
+    SheetIsAPowerReportSheet = sht.PivotTables.Count = 1 And _
+            SheetLevelRangeNameExists(sht, "SheetHeading") And _
+            SheetLevelRangeNameExists(sht, "SheetCategory") And _
+            sht.PivotTables(1).PivotCache.WorkbookConnection.Name = "ThisWorkbookDataModel"
+            
+    If Err.Number <> 0 Then
+        SheetIsAPowerReportSheet = False
+    End If
+            
+
+End Function
+
+
+
+

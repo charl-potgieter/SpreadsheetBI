@@ -92,17 +92,17 @@ End Sub
 
 Sub Test6()
 
-    Dim V() As Variant
+    Dim v() As Variant
     
-    V = Evaluate("=UNIQUE(FILTER(tbl_Test[b], tbl_Test[b]<>""""))")
-    ReDim Preserve V(2, 2)
+    v = Evaluate("=UNIQUE(FILTER(tbl_Test[b], tbl_Test[b]<>""""))")
+    ReDim Preserve v(2, 2)
 
 End Sub
 
 Sub Test7()
 
     Dim ls As ListStorage
-    Dim V As Variant
+    Dim v As Variant
     Dim i As Long
     
     Set ls = New ListStorage
@@ -110,19 +110,19 @@ Sub Test7()
     
     ls.AssignStorage ActiveWorkbook, "Test2"
 
-    V = ls.ItemsInField("a", bIgnoreBlanks:=False, bUnique:=True, bSorted:=True, SortOrder:=lsAsc, bFiltered:=False)
+    v = ls.ItemsInField("a", bIgnoreBlanks:=False, bUnique:=True, bSorted:=True, SortOrder:=lsAsc, bFiltered:=False)
     
-    ActiveSheet.Range("Q8").Resize(UBound(V)) = WorksheetFunction.Transpose(V)
+    ActiveSheet.Range("Q8").Resize(UBound(v)) = WorksheetFunction.Transpose(v)
 
 End Sub
 
 
 Sub Test8()
 
-    Dim V As Variant
+    Dim v As Variant
     Dim v2 As Variant
     
-    V = Evaluate("=FILTER(tbl_Test, tbl_Test[a]=22)")
+    v = Evaluate("=FILTER(tbl_Test, tbl_Test[a]=22)")
     v2 = Evaluate("=FILTER(tbl_Test, tbl_Test[a]=222)")
     ActiveSheet.ListObjects("Table1").ListColumns(1).DataBodyRange.Cells(1).Resize(UBound(v2, 1), UBound(v2, 2)).Value = v2
     
@@ -177,10 +177,81 @@ Sub Test11()
     
     a.AssignStorage ActiveWorkbook, "Test2"
     
-    a.Filter "([a] = 50)"
+    a.Filter "([a] = ""ace"")"
     
     Debug.Print (a.FieldItemByIndex("b", 4))
     Debug.Print (a.FieldItemByIndex("b", 4, False))
     Debug.Print (a.FieldItemByIndex("b", 4, True))
     
+End Sub
+
+
+
+
+Sub Test12()
+
+    Dim a As ListStorage
+    
+    Set a = New ListStorage
+    
+    a.AssignStorage ActiveWorkbook, "Test2"
+    
+    Debug.Print (a.Xlookup(3, "[a]", "[c]", "blah", , , True))
+        
+        
+    
+End Sub
+
+Sub Test13()
+
+    Dim a As ListStorage
+    
+    Set a = New ListStorage
+    
+    a.AssignStorage ActiveWorkbook, "Test2"
+        
+    a.ReplaceDataWithFilteredData
+    
+End Sub
+
+
+
+
+Sub TestEmptyStorageFilter()
+
+    Dim ls As ListStorage
+    Dim sHeadings(2) As String
+    Dim bStorageCreated As Boolean
+    
+    sHeadings(0) = "a"
+    sHeadings(1) = "b"
+    sHeadings(2) = "c"
+    
+    Set ls = New ListStorage
+    bStorageCreated = ls.CreateStorage(ThisWorkbook, "Test4", sHeadings)
+    
+    If Not bStorageCreated Then
+        ls.AssignStorage ActiveWorkbook, "Test4"
+    End If
+    
+    
+    ls.Filter ("[a] = 77")
+    
+
+End Sub
+
+
+
+Sub TestArray()
+    
+    Dim v() As Variant
+    Dim item As Variant
+    
+    v = Array(1, 2, 3)
+    
+    For Each item In v
+        Debug.Print item
+    Next item
+
+
 End Sub

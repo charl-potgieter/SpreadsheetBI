@@ -1,23 +1,6 @@
 Attribute VB_Name = "m000_EntryPoints"
 Option Explicit
 
-Public Const PivotTableProperties As String = "LayoutRowDefault|PageFieldWrapCount|CompactRowIndent|" & _
-    "PageFieldOrder|CompactLayoutColumnHeader|GrandTotalName|TableStyle2|Value|" & _
-    "CompactLayoutRowHeader|AllowMultipleFilters|DisplayEmptyColumn|DisplayEmptyRow|" & _
-    "DisplayErrorString|EnableDataValueEditing|FieldListSortAscending|" & _
-    "InGridDropZones|ManualUpdate|MergeLabels|PrintDrillIndicators|PrintTitles|" & _
-    "ShowTableStyleColumnStripes|ShowTableStyleRowStripes|ShowValuesRow|SmallGrid|" & _
-    "VisualTotalsForSets|CalculatedMembersInFilters|ColumnGrand|DisplayContextTooltips|" & _
-    "DisplayFieldCaptions|DisplayImmediateItems|DisplayMemberPropertyTooltips|DisplayNullString|" & _
-    "EnableDrilldown|EnableFieldDialog|EnableFieldList|EnableWizard|HasAutoFormat|PreserveFormatting|" & _
-    "RepeatItemsOnEachPrintedPage|RowGrand|ShowDrillIndicators|ShowPageMultipleItemLabel|" & _
-    "ShowTableStyleColumnHeaders|ShowTableStyleLastColumn|ShowTableStyleRowHeaders|SortUsingCustomLists|" & _
-    "SubtotalHiddenPageItems|TotalsAnnotation|ViewCalculatedMembers|VisualTotals|AlternativeText|" & _
-    "ErrorString|NullString|PageFieldStyle|Summary|VacatedStyle"
-
-'Public Const PivotFieldProperties As String = "NumberFormat"
-
-
 Public Type TypeModelMeasures
     Name As String
     UniqueName As String
@@ -49,49 +32,49 @@ End Type
 
 'Requires reference to Microsoft Scripting Runtime (for dictionary)
 
-Type TypeReportingSheet
-    Name As String
-    SheetHeading As String
-    SheetCategory As String
-End Type
-
-Type TypePvtTable
-    Name As String
-    Properties As Dictionary
-End Type
-
-Type TypePvtCubeField
-    Name As String
-    Caption As String
-    Orientation As Long
-    Position As Long
-End Type
-
-Type TypePvtField
-    Name As String
-    LayoutBlankLine As Boolean
-    LayoutCompactRow As Boolean
-    LayoutForm As Long
-    LayoutPageBreak As Boolean
-    LayoutSubtotalLocation As Long
-    NumberFormat As String
-    RepeatLabels As Boolean
-    SubtotalName As String
-    Subtotals As Boolean
-    'Only use for the pivotfields("values") representing layout of the data
-    'other orientation is set via cubefields
-    Orientation As Long
-End Type
-
-
-Public Type TypePivotReport
-    SheetName As String
-    ReportingSheet As TypeReportingSheet
-    PvtTable As TypePvtTable
-    'Some properties are set at CubeField object, others at PivotField object
-    PvtCubeFields() As TypePvtCubeField
-    PvtFields() As TypePvtField
-End Type
+'Type TypeReportingSheet
+'    Name As String
+'    SheetHeading As String
+'    SheetCategory As String
+'End Type
+'
+'Type TypePvtTable
+'    Name As String
+'    Properties As Dictionary
+'End Type
+'
+'Type TypePvtCubeField
+'    Name As String
+'    Caption As String
+'    Orientation As Long
+'    Position As Long
+'End Type
+'
+'Type TypePvtField
+'    Name As String
+'    LayoutBlankLine As Boolean
+'    LayoutCompactRow As Boolean
+'    LayoutForm As Long
+'    LayoutPageBreak As Boolean
+'    LayoutSubtotalLocation As Long
+'    NumberFormat As String
+'    RepeatLabels As Boolean
+'    SubtotalName As String
+'    Subtotals As Boolean
+'    'Only use for the pivotfields("values") representing layout of the data
+'    'other orientation is set via cubefields
+'    Orientation As Long
+'End Type
+'
+'
+'Public Type TypePivotReport
+'    SheetName As String
+'    ReportingSheet As TypeReportingSheet
+'    PvtTable As TypePvtTable
+'    'Some properties are set at CubeField object, others at PivotField object
+'    PvtCubeFields() As TypePvtCubeField
+'    PvtFields() As TypePvtField
+'End Type
 
 
 Public Const MaxInt As Integer = 32767
@@ -1060,47 +1043,44 @@ ExitPoint:
 
 End Sub
 
-'
-'
-'Sub SavePivotReportMetadataInActiveWorkbook()
-''Reads all pivot table metadata in active workbook and saves on worksheets in active workbook
-'
-'    Dim pvtReportMetaData() As TypePivotReport
-'    Dim i As Integer
-'
-'    'Setup
-'    Application.ScreenUpdating = False
-'    Application.EnableEvents = False
-'    Application.Calculation = xlCalculationManual
-'    Application.DisplayAlerts = False
-'
-'    pvtReportMetaData = ExtractPivotReportMetadataFromReports(ActiveWorkbook)
-'
-'    'Do not proceed if no pivot reports exist
-'    On Error Resume Next
-'    i = UBound(pvtReportMetaData)
-'    If Err.Number <> 0 Then
-'        MsgBox ("There are no pivot reports meeting criteria in active workbook")
-'    Else
-'
-'    End If
-'
-'    On Error GoTo 0
-'
-'    SavePivotReportMetaData pvtReportMetaData
-'
-'ExitPoint:
-'    Application.ScreenUpdating = True
-'    Application.EnableEvents = True
-'    Application.Calculation = xlCalculationAutomatic
-'    Application.DisplayAlerts = True
-'
-'
-'End Sub
-'
-'
-'
-'
+
+
+Sub SavePivotReportMetadataInActiveWorkbook()
+'Reads all pivot table metadata in active workbook and saves on worksheets in active workbook
+
+    Dim sht As Worksheet
+    Dim Report As PowerReport
+
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+
+    For Each sht In ActiveWorkbook.Worksheets
+        If SheetIsAPowerReportSheet(sht) Then
+            Set Report = New PowerReport
+            Report.GetSheetProperties sht
+            Set Report.PvtTable = sht.PivotTables(1)
+            SavePowerReportStructure Report
+        End If
+    Next sht
+
+    ActiveWorkbook.Sheets("ReportSheetProperties").Activate
+    ActiveWorkbook.Sheets("ReportSheetProperties").Range("B8").Select
+
+ExitPoint:
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+
+End Sub
+
+
+
+
 'Sub CreatePivotReportFromMetaData()
 '
 '

@@ -46,8 +46,6 @@ Public Function CreateStorage(ByRef wkb As Workbook, ByVal sName As String, Head
 End Function
 
 
-
-
 Public Function AssignStorage(ByRef wkb As Workbook, ByVal sName As String) As Boolean
 'Assigns the storage object to a specific sheet and listobject
     
@@ -77,8 +75,7 @@ End Property
 
 
 Public Property Get NumberOfRecords(Optional bFiltered As Boolean = False) As Long
-    
-    
+
     On Error Resume Next
 
     NumberOfRecords = SelectedListObject(bFiltered).DataBodyRange.Rows.Count
@@ -125,16 +122,12 @@ Public Function ItemsInField(ByVal sFieldName As String, _
     End If
     
     sEvalStr = "=" & sEvalStr
-    
-    
     ItemsInField = Evaluate(sEvalStr)
        
     'Transpose to allow referncing with single index and utilise ubound and lbound with one dimension
     ItemsInField = WorksheetFunction.Transpose(ItemsInField)
 
 End Function
-
-
 
 
 Public Function FieldItemByIndex(ByVal sFieldName As String, ByVal i As Long, _
@@ -155,7 +148,6 @@ Public Function FieldItemByIndex(ByVal sFieldName As String, ByVal i As Long, _
     End Select
 
 End Function
-
 
 
 Public Function InsertFromDictionary(InsertValues As Dictionary) As Boolean
@@ -190,33 +182,110 @@ End Function
 
 
 Public Function Filter(ByVal sFilterString As String)
+'Filters the original listobject storage into a 2nd list object
+'Format of sFilterString for example paramater set "[a] = 2" translates into excel function as follows:
+'=FILTER(tbl_Name, tbl_Name[a] = 2)
 
-    Dim V As Variant
+    Dim v As Variant
     
+    'If Original list is blank then clear filter list and exit sub
+    '(there is notging to filter)
+    If This.ListObj.DataBodyRange Is Nothing Then
+        If Not (This.FilteredListObj.DataBodyRange Is Nothing) Then
+            This.FilteredListObj.DataBodyRange.Rows.Delete
+        End If
+        Exit Function
+    End If
+          
     On Error Resume Next
     This.FilteredListObj.DataBodyRange.Delete
     On Error GoTo 0
     
-    AddOneRowToListObject This.FilteredListObj
-    
     sFilterString = Replace(sFilterString, "[", This.ListObj.Name & "[")
     sFilterString = "=FILTER(" & This.ListObj.Name & ", " & sFilterString & ")"
     
-    V = Evaluate(sFilterString)
+    v = Evaluate(sFilterString)
     
-    If NumberOfArrayDimensions(V) = 2 Then
-        This.FilteredListObj.DataBodyRange.Cells(1).Resize(UBound(V, 1), UBound(V, 2)) = V
-    Else
-        'If the filter returns only one row the variant is a one dimensional array and
-        'requires a different mechanism to write to sheet
-        This.FilteredListObj.DataBodyRange.Cells(1).Resize(, UBound(V)) = V
+    Select Case NumberOfArrayDimensions(v)
+        Case 2
+            AddOneRowToListObject This.FilteredListObj
+            This.FilteredListObj.DataBodyRange.Cells(1).Resize(UBound(v, 1), UBound(v, 2)) = v
+        Case 1
+            'If the filter returns only one row the variant is a one dimensional array and
+            'requires a different mechanism to write to sheet
+            AddOneRowToListObject This.FilteredListObj
+            This.FilteredListObj.DataBodyRange.Cells(1).Resize(, UBound(v)) = v
+        Case 0
+          'No data returned.  Keep filtered list empty
+    End Select
+
+End Function
+
+Public Sub ReplaceDataWithFilteredData()
+'Replaces the Original data per the listobject with the filtered versions per This.FilteredListObject
+'Filtered List object is cleared
+    
+    If Not This.ListObj.DataBodyRange Is Nothing Then
+        This.ListObj.DataBodyRange.Rows.Delete
     End If
+    
+    If Not (This.FilteredListObj.DataBodyRange Is Nothing) Then
+        AddOneRowToListObject This.ListObj
+        This.FilteredListObj.DataBodyRange.Copy
+        This.ListObj.DataBodyRange.Cells(1).PasteSpecial xlPasteValues
+        Application.CutCopyMode = False
+        This.FilteredListObj.DataBodyRange.Rows.Delete
+    End If
+    
+
+End Sub
+
+Public Function Xlookup(ByVal LookupValue As Variant, _
+    ByVal sLookupArray As String, _
+    ByVal sReturnArray As String, _
+    Optional ByVal IfNotFound As Variant = """#N/A""", _
+    Optional ByVal MatchMode As Integer = 0, _
+    Optional SearchMode As Integer = 1, _
+    Optional ByVal bFiltered As Boolean = False) As Variant
+
+'Replicates Xlookup on the liststorage, either original or filtered data depending on value of
+'the bFiltered parameter.  Table name does not need to be specified for example
+'Xlookup([a], [b], [c]) becomes Xlookup(tbl_TableName[a], tbl_TableName[b], tbl_TableName[c])
+
+
+    Dim sEvalStr As String
+    Dim lo As ListObject
+
+    Set lo = SelectedListObject(bFiltered)
+
+    sEvalStr = "=XLOOKUP(lookup_value, lookup_array, return_array, if_not_found," & _
+        "match_mode, search_mode) "
+    
+    'Add quotes if values are strings
+    If VarType(LookupValue) = vbString Then
+        LookupValue = """" & LookupValue & """"
+    End If
+    If VarType(IfNotFound) = vbString Then
+        IfNotFound = """" & IfNotFound & """"
+    End If
+    
+
+    sEvalStr = Replace(sEvalStr, "lookup_value", LookupValue)
+    sEvalStr = Replace(sEvalStr, "lookup_array", sLookupArray)
+    sEvalStr = Replace(sEvalStr, "return_array", sReturnArray)
+    sEvalStr = Replace(sEvalStr, "if_not_found", IfNotFound)
+    sEvalStr = Replace(sEvalStr, "match_mode", MatchMode)
+    sEvalStr = Replace(sEvalStr, "search_mode", SearchMode)
+
+    sEvalStr = Replace(sEvalStr, "[", lo.Name & "[")
+        
+    Xlookup = Evaluate(sEvalStr)
 
 End Function
 
 
 
-Private Function StorageAlreadyExists(ByRef wkb As Workbook, ByVal sName As String) As Boolean
+Function StorageAlreadyExists(ByRef wkb As Workbook, ByVal sName As String) As Boolean
 
     Dim sht As Worksheet
     Dim sTestSheet As String
@@ -243,7 +312,6 @@ Private Function StorageAlreadyExists(ByRef wkb As Workbook, ByVal sName As Stri
 End Function
 
 
-
 Private Function CreateListStorageSheet(ByRef wkb As Workbook, ByVal sName As String) As Worksheet
 
     Dim sht As Worksheet
@@ -252,6 +320,7 @@ Private Function CreateListStorageSheet(ByRef wkb As Workbook, ByVal sName As St
     Set CreateListStorageSheet = sht
     
 End Function
+
 
 Private Sub FormatListStorageSheet(ByRef sht As Worksheet)
 'Applies my preferred sheet formattting
@@ -288,6 +357,7 @@ Private Sub FormatListStorageSheet(ByRef sht As Worksheet)
 
 
 End Sub
+
 
 Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings() As String) As ListObject
 
@@ -406,8 +476,6 @@ Private Sub AddOneRowToListObject(lo As ListObject)
     
 
 End Sub
-
-
 
 
 Private Function SelectedListObject(ByVal bFiltered) As ListObject

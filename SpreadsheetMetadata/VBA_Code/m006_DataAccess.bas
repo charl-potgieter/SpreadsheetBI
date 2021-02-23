@@ -1,7 +1,11 @@
 Attribute VB_Name = "m006_DataAccess"
-'Option Explicit
-'Option Private Module
-'
+Option Explicit
+Option Private Module
+
+
+
+
+
 'Sub SavePivotReportMetaData(ByRef pvtReportMetaData() As TypePivotReport)
 ''Saves pivot report metadata on sheeet in active workbook
 '
