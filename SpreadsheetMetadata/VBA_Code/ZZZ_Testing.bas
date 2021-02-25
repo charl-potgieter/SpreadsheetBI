@@ -254,4 +254,15 @@ Sub TestArray()
     Next item
 
 
+
+End Sub
+
+
+
+Sub TestArray2()
+
+    Dim pr As PowerReport
+
+
+
 End Sub

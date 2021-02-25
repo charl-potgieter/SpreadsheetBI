@@ -30,52 +30,6 @@ Public Type TypeModelRelationship
     Active As Boolean
 End Type
 
-'Requires reference to Microsoft Scripting Runtime (for dictionary)
-
-'Type TypeReportingSheet
-'    Name As String
-'    SheetHeading As String
-'    SheetCategory As String
-'End Type
-'
-'Type TypePvtTable
-'    Name As String
-'    Properties As Dictionary
-'End Type
-'
-'Type TypePvtCubeField
-'    Name As String
-'    Caption As String
-'    Orientation As Long
-'    Position As Long
-'End Type
-'
-'Type TypePvtField
-'    Name As String
-'    LayoutBlankLine As Boolean
-'    LayoutCompactRow As Boolean
-'    LayoutForm As Long
-'    LayoutPageBreak As Boolean
-'    LayoutSubtotalLocation As Long
-'    NumberFormat As String
-'    RepeatLabels As Boolean
-'    SubtotalName As String
-'    Subtotals As Boolean
-'    'Only use for the pivotfields("values") representing layout of the data
-'    'other orientation is set via cubefields
-'    Orientation As Long
-'End Type
-'
-'
-'Public Type TypePivotReport
-'    SheetName As String
-'    ReportingSheet As TypeReportingSheet
-'    PvtTable As TypePvtTable
-'    'Some properties are set at CubeField object, others at PivotField object
-'    PvtCubeFields() As TypePvtCubeField
-'    PvtFields() As TypePvtField
-'End Type
-
 
 Public Const MaxInt As Integer = 32767
 
@@ -1060,9 +1014,9 @@ Sub SavePivotReportMetadataInActiveWorkbook()
     For Each sht In ActiveWorkbook.Worksheets
         If SheetIsAPowerReportSheet(sht) Then
             Set Report = New PowerReport
-            Report.GetSheetProperties sht
-            Set Report.PvtTable = sht.PivotTables(1)
-            SavePowerReportStructure Report
+            Report.AssignToExistingSheet sht
+            Report.SavePowerReportStructure
+            Set Report = Nothing
         End If
     Next sht
 
@@ -1081,45 +1035,33 @@ End Sub
 
 
 
-'Sub CreatePivotReportFromMetaData()
-'
-'
-'    Dim wkb As Workbook
-'    Dim sSheetHeading As String
-'    Dim sht As Worksheet
-'    Dim pvt As PivotTable
-'    Dim pvtReportMetaData As TypePivotReport
-'
-'
-'    '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-'    ' Replace below with a menu choice
-'     sSheetHeading = "Pvt 2 Heading"
-'
-'    'Setup
-'    Application.ScreenUpdating = False
-'    Application.EnableEvents = False
-'    Application.Calculation = xlCalculationManual
-'    Application.DisplayAlerts = False
-'
-'    Set wkb = ActiveWorkbook
-'
-'    pvtReportMetaData = ReadPivotReportMetaData(sSheetHeading)
-'
-''    Set sht = CreateReportSheet(wkb, pvtReportMetaData)
-''    Set pvt = CreateEmptyPowerPivotTable(sht)
-''    SetPivotTableProperties pvt, pvtReportMetaData
-''    SetPivotCubeFieldsProperties pvt, pvtReportMetaData
-''    SetPivotFieldsProperties pvt, pvtReportMetaData
-''    FormatPivotReportSheet sht, pvtReportMetaData
-'
-'
-''ExitPoint:
-'    Application.ScreenUpdating = True
-'    Application.EnableEvents = True
-'    Application.Calculation = xlCalculationAutomatic
-'    Application.DisplayAlerts = True
-'
-'
-'End Sub
-'
-'
+Sub CreatePivotReportFromMetaData()
+
+    Dim Report As PowerReport
+    Dim sSelectedSheetName As String
+
+
+    '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ' Replace below with a menu choice
+     sSelectedSheetName = "Pvt_c"
+
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+
+    Set Report = New PowerReport
+    Report.CreateFromStoredData ActiveWorkbook, sSelectedSheetName
+
+
+'ExitPoint:
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+
+End Sub
+
+

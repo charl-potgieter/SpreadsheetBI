@@ -1,6 +1,10 @@
 TODO
 -------    
-  - Continue to work on EntryPoints.SavePivotReportMetadataInActiveWorkbook and at same time build out the PowerReport class and subclasses
+  - Continue to work on PowerReports.CreateFromStoredData (in class module)
+  
+  - Move the code in m070_PivotReports into the PowerReports class
+ 
+   - Continue to work on EntryPoints.SavePivotReportMetadataInActiveWorkbook and at same time build out the PowerReport class and subclasses
   -> Continue work on m070_PivotReports.SavePowerReportCubeFieldProperties and 
   SavePowerReportPivotFieldProperties
   -> Dont use dictionaries  --> too many exceptions

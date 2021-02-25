@@ -1,127 +1,45 @@
 Attribute VB_Name = "m070_PivotReports"
 Option Explicit
 
-Sub SavePowerReportStructure(ByRef Report As PowerReport)
-
-    Dim ls As ListStorage
-    
-    Set ls = SetupPowerReportListStorage(Report)
-    DeleteExistingData Report, ls
-    SavePowerReportSheetProperties Report, ls
-    SavePowerReportPivotTableProperties Report, ls
-    SavePowerReportCubeFieldProperties Report, ls
-    SavePowerReportPivotFieldProperties Report, ls
-    
-End Sub
 
 
-Function SetupPowerReportListStorage(ByRef Report As PowerReport) As ListStorage
-'Assigns storage to liststorage object if it exists, otthwerise creates new storage
 
-    Dim ls As ListStorage
-    Dim bStorageIsAssigned
-    Dim sHeaders(4) As String
-    
-    Set ls = New ListStorage
-    bStorageIsAssigned = ls.AssignStorage(ActiveWorkbook, "ReportSheetProperties")
-
-    If Not bStorageIsAssigned Then
-        'Storage not assigned, need to create
-        sHeaders(0) = "SheetName"
-        sHeaders(1) = "Name"
-        sHeaders(2) = "DataType"
-        sHeaders(3) = "Property"
-        sHeaders(4) = "Value"
-        ls.CreateStorage ActiveWorkbook, "ReportSheetProperties", sHeaders
-    End If
-    
-    Set SetupPowerReportListStorage = ls
-
-End Function
-
-Sub DeleteExistingData(ByRef Report As PowerReport, ByRef ls As ListStorage)
-'If there is any existing data in Listorage with same Sheetname as report then this is deleted
-    
-    Dim sFilterString As String
-    
-    'Create Filter excluding Report name and then replace data with filter
-    sFilterString = "[SheetName] <> """ & Report.SheetName & """"
-    ls.Filter sFilterString
-    ls.ReplaceDataWithFilteredData
-        
-End Sub
-
-
-Sub SavePowerReportSheetProperties(ByRef Report As PowerReport, ByRef ls As ListStorage)
-
-    Dim Dict As Dictionary
-    
-    'Save sheet heading
-    Set Dict = New Dictionary
-    Dict.Add "SheetName", Report.SheetName
-    Dict.Add "Name", Report.SheetName
-    Dict.Add "DataType", "SheetDataType"
-    Dict.Add "Property", "SheetHeading"
-    Dict.Add "Value", Report.SheetHeading
-    ls.InsertFromDictionary Dict
-    
-    'Save sheet Categoryt
-    Set Dict = New Dictionary
-    Dict.Add "SheetName", Report.SheetName
-    Dict.Add "Name", Report.SheetName
-    Dict.Add "DataType", "SheetDataType"
-    Dict.Add "Property", "SheetCategory"
-    Dict.Add "Value", Report.SheetCategory
-    ls.InsertFromDictionary Dict
-    
-End Sub
-
-
-Sub SavePowerReportPivotTableProperties(ByRef Report As PowerReport, ByRef ls As ListStorage)
-
-    Dim Dict As Dictionary
-    Dim Properties As Variant
-    Dim item As Variant
-
-    Properties = Array("LayoutRowDefault", "PageFieldWrapCount", "CompactRowIndent", _
-        "PageFieldOrder", "CompactLayoutColumnHeader", "GrandTotalName", "TableStyle2", "Value", _
-        "CompactLayoutRowHeader", "AllowMultipleFilters", "DisplayEmptyColumn", "DisplayEmptyRow", _
-        "DisplayErrorString", "EnableDataValueEditing", "FieldListSortAscending", _
-        "InGridDropZones", "ManualUpdate", "MergeLabels", "PrintDrillIndicators", "PrintTitles", _
-        "ShowTableStyleColumnStripes", "ShowTableStyleRowStripes", "ShowValuesRow", "SmallGrid", _
-        "VisualTotalsForSets", "CalculatedMembersInFilters", "ColumnGrand", "DisplayContextTooltips", _
-        "DisplayFieldCaptions", "DisplayImmediateItems", "DisplayMemberPropertyTooltips", "DisplayNullString", _
-        "EnableDrilldown", "EnableFieldDialog", "EnableFieldList", "EnableWizard", "HasAutoFormat", "PreserveFormatting", _
-        "RepeatItemsOnEachPrintedPage", "RowGrand", "ShowDrillIndicators", "ShowPageMultipleItemLabel", _
-        "ShowTableStyleColumnHeaders", "ShowTableStyleLastColumn", "ShowTableStyleRowHeaders", "SortUsingCustomLists", _
-        "SubtotalHiddenPageItems", "TotalsAnnotation", "ViewCalculatedMembers", "VisualTotals", "AlternativeText", _
-        "ErrorString", "NullString", "PageFieldStyle", "Summary", "VacatedStyle")
-        
-    With Report.PvtTable
-        For Each item In Properties
-            Set Dict = New Dictionary
-            Dict.Add "SheetName", Report.SheetName
-            Dict.Add "Name", .Name
-            Dict.Add "DataType", "PivotTableDataType"
-            Dict.Add "Property", item
-            Dict.Add "Value", CallByName(Report.PvtTable, item, VbGet)
-            ls.InsertFromDictionary Dict
-            Set Dict = Nothing
-        Next item
-    End With
-    
-End Sub
-
-Sub SavePowerReportCubeFieldProperties(ByRef Report As PowerReport, ByRef ls As ListStorage)
-
-
-End Sub
-
-
-Sub SavePowerReportPivotFieldProperties(ByRef Report As PowerReport, ByRef ls As ListStorage)
-
-
-End Sub
+'Function CreateReportSheet(ByRef wkb As Workbook, ByRef pvtReportMetaData As TypePivotReport) As Worksheet
+'
+'    Dim sSheetName As String
+'    Dim sht As Worksheet
+'
+'
+'    sSheetName = pvtReportMetaData.SheetName
+'    If SheetExists(wkb, sSheetName) Then
+'        wkb.Sheets(sSheetName).Delete
+'    End If
+'
+'    Set sht = wkb.Sheets.Add(After:=ActiveSheet)
+'
+'    sht.Name = sSheetName
+'    Set CreateReportSheet = sht
+'
+'
+'
+'End Function
+'
+'
+'
+'Function CreateEmptyPowerPivotTable(ByRef sht As Worksheet) As PivotTable
+'
+'    Dim pvt As PivotTable
+'
+'    'Create pivot table from data model
+'    'report is subsequently shifted down once design is complete and size is known
+'    Set pvt = ActiveWorkbook.PivotCaches.Create(SourceType:=xlExternal, SourceData:= _
+'        ActiveWorkbook.Connections("ThisWorkbookDataModel"), Version:=6). _
+'        CreatePivotTable(sht.Range("B7"))
+'
+'    Set CreateEmptyPowerPivotTable = pvt
+'
+'
+'End Function
 
 
 
@@ -226,43 +144,7 @@ End Sub
 '
 '
 '
-'Function CreateReportSheet(ByRef wkb As Workbook, ByRef pvtReportMetaData As TypePivotReport) As Worksheet
-'
-'    Dim sSheetName As String
-'    Dim sht As Worksheet
-'
-'
-'    sSheetName = pvtReportMetaData.SheetName
-'    If SheetExists(wkb, sSheetName) Then
-'        wkb.Sheets(sSheetName).Delete
-'    End If
-'
-'    Set sht = wkb.Sheets.Add(After:=ActiveSheet)
-'
-'    sht.Name = sSheetName
-'    Set CreateReportSheet = sht
-'
-'
-'
-'End Function
-'
-'
-'
-'Function CreateEmptyPowerPivotTable(ByRef sht As Worksheet) As PivotTable
-'
-'    Dim pvt As PivotTable
-'
-'    'Create pivot table from data model
-'    'report is subsequently shifted down once design is complete and size is known
-'    Set pvt = ActiveWorkbook.PivotCaches.Create(SourceType:=xlExternal, SourceData:= _
-'        ActiveWorkbook.Connections("ThisWorkbookDataModel"), Version:=6). _
-'        CreatePivotTable(sht.Range("B1"))
-'
-'    Set CreateEmptyPowerPivotTable = pvt
-'
-'
-'End Function
-'
+
 '
 'Sub SetPivotTableProperties(ByRef pvt As PivotTable, ByRef pvtReportMetaData As TypePivotReport)
 '

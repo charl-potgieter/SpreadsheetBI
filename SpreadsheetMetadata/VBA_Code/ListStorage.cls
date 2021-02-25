@@ -243,7 +243,7 @@ End Sub
 Public Function Xlookup(ByVal LookupValue As Variant, _
     ByVal sLookupArray As String, _
     ByVal sReturnArray As String, _
-    Optional ByVal IfNotFound As Variant = """#N/A""", _
+    Optional ByVal IfNotFound As Variant = "#N/A", _
     Optional ByVal MatchMode As Integer = 0, _
     Optional SearchMode As Integer = 1, _
     Optional ByVal bFiltered As Boolean = False) As Variant
