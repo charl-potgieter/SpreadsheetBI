@@ -4,12 +4,12 @@ Option Private Module
 
 Const csPowerReportStorageName As String = "ReportSheetProperties"
 
-Sub SetupOrAssignPowerReportStorage()
+Sub PR_SetupOrAssignStorage()
 'Assigns storage to liststorage object if it exists, otthwerise creates new storage
 
     Dim ls As ListStorage
     Dim bStorageIsAssigned
-    Dim sHeaders(4) As String
+    Dim sHeaders(5) As String
     
     Set ls = New ListStorage
     bStorageIsAssigned = ls.AssignStorage(ActiveWorkbook, csPowerReportStorageName)
@@ -21,6 +21,7 @@ Sub SetupOrAssignPowerReportStorage()
         sHeaders(2) = "DataType"
         sHeaders(3) = "Property"
         sHeaders(4) = "Value"
+        sHeaders(5) = "CubeFieldPosition"
         ls.CreateStorage ActiveWorkbook, csPowerReportStorageName, sHeaders
     End If
 
@@ -29,7 +30,7 @@ End Sub
 
 
 
-Sub DeleteExistingReportData(ByVal sSheetName As String)
+Sub PR_DeleteExistingData(ByVal sSheetName As String)
 'If there is any existing data in Listorage with same sSheetname as report then this is deleted
     
     Dim sFilterString As String
@@ -46,12 +47,13 @@ Sub DeleteExistingReportData(ByVal sSheetName As String)
 End Sub
 
 
-Sub WritePowerReportRecord( _
+Sub PR_WriteRecords( _
     ByVal sSheetName As String, _
     ByVal sName As String, _
     ByVal sDataType As String, _
     ByVal sProperty As String, _
-    ByVal sValue As String)
+    ByVal sValue As String, _
+    ByVal lPosition As Variant)
     
 'Writes a single property of PowerReport to list storage
     
@@ -67,11 +69,12 @@ Sub WritePowerReportRecord( _
     Dict.Add "DataType", sDataType
     Dict.Add "Property", sProperty
     Dict.Add "Value", sValue
+    Dict.Add "CubeFieldPosition", lPosition
     ls.InsertFromDictionary Dict
     
 End Sub
     
-Function GetReportHeadingNameBasedOnSheetName(ByVal sSheetName As String) As String
+Function PR_GetHeadingNameBasedOnSheetName(ByVal sSheetName As String) As String
 
     Dim ls As ListStorage
     Const csStorageName As String = "ReportSheetProperries"
@@ -79,7 +82,7 @@ Function GetReportHeadingNameBasedOnSheetName(ByVal sSheetName As String) As Str
     Set ls = New ListStorage
     ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
     
-    GetReportHeadingNameBasedOnSheetName = ls.Xlookup( _
+    PR_GetHeadingNameBasedOnSheetName = ls.Xlookup( _
         LookupValue:=sSheetName & "SheetDataType" & "SheetHeading", _
         sLookupArray:="[SheetName] & [DataType] & [Property]", _
         sReturnArray:="[Value]")
@@ -87,7 +90,7 @@ Function GetReportHeadingNameBasedOnSheetName(ByVal sSheetName As String) As Str
 End Function
 
 
-Function GetReportCategoryNameBasedOnSheetName(ByVal sSheetName As String) As String
+Function PR_GetCategoryNameBasedOnSheetName(ByVal sSheetName As String) As String
 
     Dim ls As ListStorage
     Const csStorageName As String = "ReportSheetProperries"
@@ -95,10 +98,154 @@ Function GetReportCategoryNameBasedOnSheetName(ByVal sSheetName As String) As St
     Set ls = New ListStorage
     ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
     
-    GetReportCategoryNameBasedOnSheetName = ls.Xlookup( _
+    PR_GetCategoryNameBasedOnSheetName = ls.Xlookup( _
         LookupValue:=sSheetName & "SheetDataType" & "SheetCategory", _
         sLookupArray:="[SheetName] & [DataType] & [Property]", _
         sReturnArray:="[Value]")
         
+End Function
+
+Function PR_GetPivotTableProperties(ByVal sSheetName As String, _
+    ByRef StorageRecords() As TypePowerReportStorageRecord)
+'Returns  Pivot Table properties in the Storage Array.
+
+    
+    Dim ls As ListStorage
+    Dim i As Long
+    Dim sFilterStr As String
+
+    Set ls = New ListStorage
+    ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
+
+    sFilterStr = "([SheetName]=""" & sSheetName & """) * " & _
+        "([DataType] = ""PivotTableDataType"")"
+
+    ls.Filter sFilterStr
+
+    ReDim StorageRecords(ls.NumberOfRecords(bFiltered:=True) - 1)
+    
+    For i = LBound(StorageRecords) To UBound(StorageRecords)
+        StorageRecords(i).SheetName = ls.FieldItemByIndex("SheetName", i + 1, True)
+        StorageRecords(i).Name = ls.FieldItemByIndex("Name", i + 1, True)
+        StorageRecords(i).DataType = ls.FieldItemByIndex("DataType", i + 1, True)
+        StorageRecords(i).Property = ls.FieldItemByIndex("Property", i + 1, True)
+        StorageRecords(i).Value = ls.FieldItemByIndex("Value", i + 1, True)
+    Next i
+
+End Function
+
+
+Function PR_GetPivotCubeFieldDataOrientationSortedByCubeFieldPosition(ByVal sSheetName As String, _
+    ByRef StorageRecords() As TypePowerReportStorageRecord)
+'Returns storage orientation property of pivot cube fields in the
+'Storage Array.   Sorted by CubefieldPosition to ensure correct position when pivot table is created
+'For some reason it doesn't work setting the position property directly in VBA
+
+    
+    Dim ls As ListStorage
+    Dim i As Long
+    Dim sFilterStr As String
+
+    Set ls = New ListStorage
+    ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
+    sFilterStr = "([SheetName]=""" & sSheetName & """) * " & _
+        "([DataType] = ""PivotCubeFieldDataType"") * " & _
+        "([Property] = ""Orientation"")"
+
+    ls.Filter sFilterStr, True, "[CubeFieldPosition]", lsAsc
+
+    ReDim StorageRecords(ls.NumberOfRecords(bFiltered:=True) - 1)
+    
+    For i = LBound(StorageRecords) To UBound(StorageRecords)
+        StorageRecords(i).SheetName = ls.FieldItemByIndex("SheetName", i + 1, True)
+        StorageRecords(i).Name = ls.FieldItemByIndex("Name", i + 1, True)
+        StorageRecords(i).DataType = ls.FieldItemByIndex("DataType", i + 1, True)
+        StorageRecords(i).Property = ls.FieldItemByIndex("Property", i + 1, True)
+        StorageRecords(i).Value = ls.FieldItemByIndex("Value", i + 1, True)
+    Next i
+
+End Function
+
+
+Function PR_GetPivotCubeFieldDataPropertiesExOrientation(ByVal sSheetName As String, _
+    ByRef StorageRecords() As TypePowerReportStorageRecord)
+'Returns storage properties ex-orientation property of pivot cube fields to the
+'Storage Array
+
+    
+    Dim ls As ListStorage
+    Dim i As Long
+
+    Set ls = New ListStorage
+    ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
+    ls.Filter "([SheetName]=""" & sSheetName & """) * " & _
+        "([DataType] = ""PivotCubeFieldDataType"") * " & _
+        "([Property] <> ""Orientation"")"
+
+    ReDim StorageRecords(ls.NumberOfRecords(bFiltered:=True) - 1)
+    
+    For i = LBound(StorageRecords) To UBound(StorageRecords)
+        StorageRecords(i).SheetName = ls.FieldItemByIndex("SheetName", i + 1, True)
+        StorageRecords(i).Name = ls.FieldItemByIndex("Name", i + 1, True)
+        StorageRecords(i).DataType = ls.FieldItemByIndex("DataType", i + 1, True)
+        StorageRecords(i).Property = ls.FieldItemByIndex("Property", i + 1, True)
+        StorageRecords(i).Value = ls.FieldItemByIndex("Value", i + 1, True)
+    Next i
+
+End Function
+
+Function PR_GetPivotFieldDataSubtotalProperty(ByVal sSheetName As String, _
+    ByRef StorageRecords() As TypePowerReportStorageRecord)
+'Returns storage properties of pivot field subtotal to the Storage Array
+'Subtotal handled seperately as it has flow on effects and slightly different in that property
+'needs to be indexed
+
+    
+    Dim ls As ListStorage
+    Dim i As Long
+
+    Set ls = New ListStorage
+    ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
+    ls.Filter "([SheetName]=""" & sSheetName & """) * " & _
+        "([DataType] = ""PivotFieldDataType"") * " & _
+        "([Property] = ""Subtotals"")"
+
+    ReDim StorageRecords(ls.NumberOfRecords(bFiltered:=True) - 1)
+    
+    For i = LBound(StorageRecords) To UBound(StorageRecords)
+        StorageRecords(i).SheetName = ls.FieldItemByIndex("SheetName", i + 1, True)
+        StorageRecords(i).Name = ls.FieldItemByIndex("Name", i + 1, True)
+        StorageRecords(i).DataType = ls.FieldItemByIndex("DataType", i + 1, True)
+        StorageRecords(i).Property = ls.FieldItemByIndex("Property", i + 1, True)
+        StorageRecords(i).Value = ls.FieldItemByIndex("Value", i + 1, True)
+    Next i
+
+End Function
+
+
+Function PR_GetPivotFieldDataPropertiesExSubtotals(ByVal sSheetName As String, _
+    ByRef StorageRecords() As TypePowerReportStorageRecord)
+'Returns storage properties of pivot fields to the Storage Array
+
+    
+    Dim ls As ListStorage
+    Dim i As Long
+
+    Set ls = New ListStorage
+    ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
+    ls.Filter "([SheetName]=""" & sSheetName & """) * " & _
+        "([DataType] = ""PivotFieldDataType"") * " & _
+        "([Property] <> ""Subtotals"")"
+
+    ReDim StorageRecords(ls.NumberOfRecords(bFiltered:=True) - 1)
+    
+    For i = LBound(StorageRecords) To UBound(StorageRecords)
+        StorageRecords(i).SheetName = ls.FieldItemByIndex("SheetName", i + 1, True)
+        StorageRecords(i).Name = ls.FieldItemByIndex("Name", i + 1, True)
+        StorageRecords(i).DataType = ls.FieldItemByIndex("DataType", i + 1, True)
+        StorageRecords(i).Property = ls.FieldItemByIndex("Property", i + 1, True)
+        StorageRecords(i).Value = ls.FieldItemByIndex("Value", i + 1, True)
+    Next i
+
 End Function
 

@@ -181,12 +181,15 @@ Public Function InsertFromDictionary(InsertValues As Dictionary) As Boolean
 End Function
 
 
-Public Function Filter(ByVal sFilterString As String)
+Public Function Filter(ByVal sFilterString As String, Optional bSorted As Boolean = False, _
+    Optional ByVal sSortField As String, Optional ByVal SortOrder As lsSortOrder = lsAsc)
 'Filters the original listobject storage into a 2nd list object
 'Format of sFilterString for example paramater set "[a] = 2" translates into excel function as follows:
 '=FILTER(tbl_Name, tbl_Name[a] = 2)
+'For sorting above by column [b] set bSorted = True and sSortField = "[b]"
 
     Dim v As Variant
+    Dim iSortColIndex As Integer
     
     'If Original list is blank then clear filter list and exit sub
     '(there is notging to filter)
@@ -202,7 +205,17 @@ Public Function Filter(ByVal sFilterString As String)
     On Error GoTo 0
     
     sFilterString = Replace(sFilterString, "[", This.ListObj.Name & "[")
-    sFilterString = "=FILTER(" & This.ListObj.Name & ", " & sFilterString & ")"
+    sFilterString = "FILTER(" & This.ListObj.Name & ", " & sFilterString & ")"
+    
+    If bSorted Then
+        sSortField = Replace(sSortField, "[", "")
+        sSortField = Replace(sSortField, "]", "")
+        iSortColIndex = WorksheetFunction.Match(sSortField, This.ListObj.HeaderRowRange, 0)
+        sFilterString = "SORT(" & sFilterString & ", " & iSortColIndex & ", " & SortOrder & ")"
+    End If
+    
+    
+    sFilterString = "=" & sFilterString
     
     v = Evaluate(sFilterString)
     

@@ -31,7 +31,18 @@ Public Type TypeModelRelationship
 End Type
 
 
+'Utilised for saving data
+Public Type TypePowerReportStorageRecord
+    SheetName As String
+    Name As String
+    DataType As String
+    Property As String
+    Value As String
+    CubeFieldPosition As Variant
+End Type
+
 Public Const MaxInt As Integer = 32767
+Public Const cPR_MaxStorageRecords As Long = 1000000  'PR  = PowerReport
 
 
 Sub DisplayPopUpMenu()
@@ -1043,7 +1054,7 @@ Sub CreatePivotReportFromMetaData()
 
     '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ' Replace below with a menu choice
-     sSelectedSheetName = "Pvt_c"
+     sSelectedSheetName = "Pvt_a2"
 
     'Setup
     Application.ScreenUpdating = False
