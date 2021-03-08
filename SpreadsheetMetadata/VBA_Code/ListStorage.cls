@@ -256,7 +256,7 @@ End Sub
 Public Function Xlookup(ByVal LookupValue As Variant, _
     ByVal sLookupArray As String, _
     ByVal sReturnArray As String, _
-    Optional ByVal IfNotFound As Variant = "#N/A", _
+    Optional ByVal IfNotFound As Variant, _
     Optional ByVal MatchMode As Integer = 0, _
     Optional SearchMode As Integer = 1, _
     Optional ByVal bFiltered As Boolean = False) As Variant
@@ -264,10 +264,12 @@ Public Function Xlookup(ByVal LookupValue As Variant, _
 'Replicates Xlookup on the liststorage, either original or filtered data depending on value of
 'the bFiltered parameter.  Table name does not need to be specified for example
 'Xlookup([a], [b], [c]) becomes Xlookup(tbl_TableName[a], tbl_TableName[b], tbl_TableName[c])
+'Null is returned when optional parameter IfNotFound is missing and xlookup is not found
 
 
     Dim sEvalStr As String
     Dim lo As ListObject
+    Dim vReturnValue As Variant
 
     Set lo = SelectedListObject(bFiltered)
 
@@ -286,14 +288,26 @@ Public Function Xlookup(ByVal LookupValue As Variant, _
     sEvalStr = Replace(sEvalStr, "lookup_value", LookupValue)
     sEvalStr = Replace(sEvalStr, "lookup_array", sLookupArray)
     sEvalStr = Replace(sEvalStr, "return_array", sReturnArray)
-    sEvalStr = Replace(sEvalStr, "if_not_found", IfNotFound)
+    If IsMissing(IfNotFound) Then
+        sEvalStr = Replace(sEvalStr, "if_not_found", "")
+    Else
+        sEvalStr = Replace(sEvalStr, "if_not_found", IfNotFound)
+    End If
     sEvalStr = Replace(sEvalStr, "match_mode", MatchMode)
     sEvalStr = Replace(sEvalStr, "search_mode", SearchMode)
 
     sEvalStr = Replace(sEvalStr, "[", lo.Name & "[")
         
-    Xlookup = Evaluate(sEvalStr)
+    vReturnValue = Evaluate(sEvalStr)
+    
+    'Return null if no value found and not alternative specified
+    If WorksheetFunction.IsError(vReturnValue) Then
+        Xlookup = Null
+    Else
+        Xlookup = vReturnValue
+    End If
 
+    
 End Function
 
 

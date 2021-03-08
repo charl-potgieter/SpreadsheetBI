@@ -145,7 +145,13 @@ Sub CreatePopUpMenu()
     MenuItem.Caption = "Create report from metadata"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreatePivotReportFromMetaData"
     
-       
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Create value copy"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateValueReportWorkbook"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Create storage for supporting DAX queries"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "SetupPivotReportBackingStorage"
     
         
     'Pivot Table Menu

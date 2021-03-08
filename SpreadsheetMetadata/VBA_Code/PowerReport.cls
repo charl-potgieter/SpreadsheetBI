@@ -21,9 +21,60 @@ End Type
 Private This As TypePowerReport
 
 
-Public Sub AssignToExistingSheet(ByRef sht As Worksheet)
-    Set This.sht = sht
-End Sub
+Public Function AssignToExistingSheet(ByRef shtToAssign As Worksheet) As Boolean
+
+    Dim bValidSheet As Boolean
+
+    bValidSheet = True
+
+    'Check if sht meets criteria for a Power Pivot Report
+    On Error Resume Next
+    Select Case True
+    Case shtToAssign.PivotTables.Count <> 1
+        bValidSheet = False
+    Case shtToAssign.PivotTables(1).PivotCache.WorkbookConnection.Name <> "ThisWorkbookDataModel"
+        bValidSheet = False
+    Case IsError(Evaluate("='" & shtToAssign.Name & "'!SheetCategory"))
+        bValidSheet = False
+    Case IsError(Evaluate("='" & shtToAssign.Name & "'!SheetHeading"))
+        bValidSheet = False
+    Case Err.Number <> 0
+        bValidSheet = False
+    End Select
+
+    On Error GoTo 0
+
+
+
+    If bValidSheet Then
+        Set This.sht = shtToAssign
+        AssignToExistingSheet = True
+    Else
+        AssignToExistingSheet = False
+    End If
+    
+    
+End Function
+
+Public Property Get SheetName() As String
+    SheetName = This.sht.Name
+End Property
+
+
+Public Property Get HasFilters() As Boolean
+'Returns true if any of the Cubefields are filtered
+
+    Dim pvtCubeField As cubeField
+        
+    HasFilters = False
+     
+    For Each pvtCubeField In This.sht.PivotTables(1).CubeFields
+        If Not pvtCubeField.AllItemsVisible Then
+            HasFilters = True
+        End If
+    Next pvtCubeField
+
+End Property
 
 
 Public Sub SavePowerReportStructure()
@@ -33,10 +84,11 @@ Public Sub SavePowerReportStructure()
     ReDim This.StorageRecords(cPR_MaxStorageRecords)
     
     This.StorageIndex = 0
-    ReadPowerReportSheetProperties
-    ReadPowerReportPivotTableProperties
-    ReadPowerReportCubeFieldProperties
-    ReadPowerReportPivotFieldProperties
+    PR_GetReportSheetProperties
+    PR_GetPivotTableProperties
+    PR_GetCubeFieldProperties
+    PR_GetPivotFieldProperties
+    PR_GetViewLayout
     ReDim Preserve This.StorageRecords(This.StorageIndex)
     WritePowerReportPropertiesToStorage
     
@@ -48,15 +100,93 @@ Public Sub CreateFromStoredData(ByRef wkb As Workbook, ByVal sSheetName)
     
     Dim pvt As PivotTable
     
-    Set This.sht = PR_CreateWorksheet(wkb, sSheetName)
+    Set This.sht = PR_SetSheet(wkb, sSheetName)
     PR_CreateEmptyPivot
     PR_SetPivotTableProperties
     PR_SetCubeFieldOrientation
     PR_SetCubeFieldPropertiesExOrientation
     PR_SetPivotFieldSubtotals
     PR_SetPivotFieldProperties
-    
+    PR_SetPivotTableLocation
+    PR_SetSheetFormat
+    PR_SetViewLayout
 
+
+End Sub
+
+
+Sub CreateValueReport()
+'Create a copy of PowerReport as values (no pivot table) in a new workbook
+
+    Dim pvt As PivotTable
+    Dim shtNew As Worksheet
+    Dim shtBacking As Worksheet
+    Dim sht As Worksheet
+    Dim sPageRangeFirstCellAddress As String
+    Dim sTable1RangeFirstCellAddress As String
+    Dim vDaxBackingQuery As Variant
+    Dim wkbValues As Workbook
+    
+    Const csDummyQueryName As String = "DummyTableForDaxQueries"
+
+    Set pvt = This.sht.PivotTables(1)
+
+    This.sht.Copy Before:=This.sht.Parent.Sheets(1)
+    Set shtNew = This.sht.Parent.Sheets(1)
+    
+    shtNew.PivotTables(1).TableRange2.Clear
+    
+    
+    'Copy table filter range value and formats
+    'Needs to be done seperately to Table1Range for some unknwon reason as
+    'otherwise formats are not copied.
+    'https://www.contextures.com/excel-vba-pivot-table-paste-format.html
+    'On error checks in case range does not exist
+    On Error Resume Next
+    sPageRangeFirstCellAddress = pvt.PageRange.Cells(1).Address
+    If Err.Number = 0 Then
+        pvt.PageRange.Copy
+        shtNew.Range(sPageRangeFirstCellAddress).PasteSpecial xlPasteValues
+        shtNew.Range(sPageRangeFirstCellAddress).PasteSpecial xlPasteFormats
+    End If
+    On Error GoTo 0
+    
+    'CopyTable1 range values and formats
+    On Error Resume Next
+    sTable1RangeFirstCellAddress = pvt.TableRange1.Cells(1).Address
+    If Err.Number = 0 Then
+        pvt.TableRange1.Copy
+        shtNew.Range(sTable1RangeFirstCellAddress).PasteSpecial xlPasteValues
+        shtNew.Range(sTable1RangeFirstCellAddress).PasteSpecial xlPasteFormats
+    End If
+    On Error GoTo 0
+        
+    'Optionally create backup data to report based on a saved DAX query
+    vDaxBackingQuery = m001_DataAccess.PR_GetBackingQuery(This.sht.Name)
+    If Not IsNull(vDaxBackingQuery) Then
+        CreateDummyPowerPivotTable csDummyQueryName
+        Set shtBacking = PR_CreateDataQueryBackingSheet
+        PR_CreateListObjectBacking shtBacking, csDummyQueryName, This.sht.Name, vDaxBackingQuery
+    End If
+    
+    'Move value report into new workbook
+    Set wkbValues = Workbooks.Add
+    shtNew.Move Before:=wkbValues.Sheets(1)
+    wkbValues.Sheets(1).Name = This.sht.Name
+    
+    'If applicable move backing sheet into the above created new workbook
+    If Not IsNull(vDaxBackingQuery) Then
+        shtBacking.Move After:=wkbValues.Sheets(1)
+    End If
+
+    For Each sht In wkbValues.Sheets
+        If sht.Name <> This.sht.Name And sht.Name <> This.sht.Name & "_Backing" Then
+            sht.Delete
+        End If
+    Next sht
+        
+    wkbValues.Sheets(1).Activate
+    wkbValues.Sheets(1).Range("a1").Select
 
 End Sub
 
@@ -67,7 +197,7 @@ End Sub
 '********************************************************************************************************
 
 
-Private Sub ReadPowerReportSheetProperties()
+Private Sub PR_GetReportSheetProperties()
 'Reads sheet properties into records for later saving
 
     'Read Sheet Heading
@@ -89,10 +219,11 @@ Private Sub ReadPowerReportSheetProperties()
         .Value = This.sht.Range("SheetCategory")
     End With
     
+    
 End Sub
 
 
-Private Sub ReadPowerReportPivotTableProperties()
+Private Sub PR_GetPivotTableProperties()
 'Reads pivot table properties into records for later saving
 
     Dim Properties As Variant
@@ -127,7 +258,7 @@ Private Sub ReadPowerReportPivotTableProperties()
     
 End Sub
 
-Private Sub ReadPowerReportCubeFieldProperties()
+Private Sub PR_GetCubeFieldProperties()
 'Some of Object model properties are set at cube field level.   Others at a PivotField level
 'Simpler not to loop a Properties array due to exceptions that need to be handled as below.
  
@@ -170,7 +301,7 @@ Private Sub ReadPowerReportCubeFieldProperties()
 End Sub
 
 
-Private Sub ReadPowerReportPivotFieldProperties()
+Private Sub PR_GetPivotFieldProperties()
 'Some of Object model properties are set at pivot field level.   Others at a cubefield level
 
 
@@ -313,6 +444,71 @@ Private Sub ReadPowerReportPivotFieldProperties()
 
 End Sub
 
+
+Private Sub PR_GetViewLayout()
+' Reads freeze panes and col widths.  This is performed last to mirror the creation as this can only
+'be created last once the report is in place
+
+    Dim rng As Range
+    Dim sRowRangeColWidthsStr As String
+    Dim sDataRangeColWidthsStr As String
+
+    'Required to activate sheet to read the pane freeze location
+    This.sht.Activate
+    
+    'Read pane freeze if applicable into a pipe delimited format
+    If (ActiveWindow.SplitColumn <> 0 And CStr(ActiveWindow.SplitColumn) <> "") Or _
+        (ActiveWindow.SplitRow <> 0 And CStr(ActiveWindow.SplitRow) <> "") Then
+        
+        This.StorageIndex = This.StorageIndex + 1
+        With This.StorageRecords(This.StorageIndex)
+            .SheetName = This.sht.Name
+            .Name = This.sht.Name
+            .DataType = "ViewLayoutDataType"
+            .Property = "FreezePanes"
+            .Value = ActiveWindow.SplitRow & "|" & ActiveWindow.SplitColumn
+        End With
+    
+    End If
+    
+    'Save pivot row column widths as pipe delimited string
+    If PR_PivotTableHasRowRange Then
+        This.StorageIndex = This.StorageIndex + 1
+        sRowRangeColWidthsStr = ""
+        For Each rng In This.sht.PivotTables(1).RowRange.Rows(1).Cells
+            If sRowRangeColWidthsStr = "" Then
+                sRowRangeColWidthsStr = CStr(rng.ColumnWidth)
+            Else
+                sRowRangeColWidthsStr = sRowRangeColWidthsStr & "|" & CStr(rng.ColumnWidth)
+            End If
+        Next rng
+        With This.StorageRecords(This.StorageIndex)
+            .SheetName = This.sht.Name
+            .Name = This.sht.Name
+            .DataType = "ViewLayoutDataType"
+            .Property = "PivotRowRangeColWidths"
+            .Value = sRowRangeColWidthsStr
+        End With
+    End If
+
+    'Save data column  - all data columns are set at same width which is obtained from
+    'first column
+    If PR_PivotTableHasRowRange Then
+        This.StorageIndex = This.StorageIndex + 1
+        sDataRangeColWidthsStr = CStr(This.sht.PivotTables(1).DataBodyRange.Cells(1).ColumnWidth)
+        With This.StorageRecords(This.StorageIndex)
+            .SheetName = This.sht.Name
+            .Name = This.sht.Name
+            .DataType = "ViewLayoutDataType"
+            .Property = "PivotDataBodyRangeColWidths"
+            .Value = sDataRangeColWidthsStr
+        End With
+    End If
+
+End Sub
+
+
+
 Private Sub WritePowerReportPropertiesToStorage()
 
     Dim i As Long
@@ -327,7 +523,7 @@ Private Sub WritePowerReportPropertiesToStorage()
 End Sub
 
 
-Private Function PR_CreateWorksheet(ByRef wkb As Workbook, ByVal sSheetName) As Worksheet
+Private Function PR_SetSheet(ByRef wkb As Workbook, ByVal sSheetName)
 'Note this will delete any existing sSheetName if it exists
 
     Dim sht As Worksheet
@@ -335,40 +531,12 @@ Private Function PR_CreateWorksheet(ByRef wkb As Workbook, ByVal sSheetName) As 
     On Error Resume Next
     wkb.Sheets(sSheetName).Delete
     On Error GoTo 0
-
-    
     Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
     sht.Name = sSheetName
-    sht.Cells.Font.Name = "Calibri"
-    sht.Cells.Font.Size = 11
     
-    'Add heading and category
-    sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
-    sht.Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
-    sht.Range("SheetHeading") = m001_DataAccess.PR_GetHeadingNameBasedOnSheetName(sSheetName)
-    
-    sht.Range("SheetCategory") = m001_DataAccess.PR_GetCategoryNameBasedOnSheetName(sSheetName)
-        With sht.Range("SheetHeading")
-        .Font.Bold = True
-        .Font.Size = 16
-    End With
-    
-    With sht.Range("SheetCategory")
-        .Font.Color = RGB(170, 170, 170)
-        .Font.Size = 8
-    End With
-    
-    sht.Activate
-    ActiveWindow.DisplayGridlines = False
-    ActiveWindow.Zoom = 80
-    sht.DisplayPageBreaks = False
-    sht.Columns("A:A").ColumnWidth = 4
-    
-    Set PR_CreateWorksheet = sht
+    Set PR_SetSheet = sht
 
 End Function
-
-
 
 Private Function PR_CreateEmptyPivot()
 
@@ -377,9 +545,11 @@ Private Function PR_CreateEmptyPivot()
     Set wkb = This.sht.Parent
 
     'Create empty pivot table from data model
+    'Create in 1st row then shfit down to allow for number of filter fields that are
+    'unknown at the moment
     Set PR_CreateEmptyPivot = wkb.PivotCaches.Create(SourceType:=xlExternal, SourceData:= _
         ActiveWorkbook.Connections("ThisWorkbookDataModel"), Version:=6). _
-        CreatePivotTable(This.sht.Range("B7"))
+        CreatePivotTable(This.sht.Range("B1"))
 
 End Function
 
@@ -447,7 +617,7 @@ Private Sub PR_SetCubeFieldPropertiesExOrientation()
 
 End Sub
 
-Sub PR_SetPivotFieldSubtotals()
+Private Sub PR_SetPivotFieldSubtotals()
 'Needs to be done first as it has flow on impacts to other properties.
 'Also slightly different as the subtotal property requires an index
 
@@ -472,7 +642,7 @@ Sub PR_SetPivotFieldSubtotals()
 End Sub
 
 
-Sub PR_SetPivotFieldProperties()
+Private Sub PR_SetPivotFieldProperties()
 
     Dim pvt As PivotTable
     Dim i As Long
@@ -493,3 +663,264 @@ Sub PR_SetPivotFieldProperties()
     Next i
 
 End Sub
+
+Sub PR_SetPivotTableLocation()
+'Move pivot table down now that filters are in place
+    
+    This.sht.Range("1:5").Insert xlShiftDown
+
+End Sub
+
+
+Private Sub PR_SetSheetFormat()
+'Sets sht format includiing range names
+    
+    With This.sht
+        
+        'Necessary to activate to set gridlines and zoom
+        .Activate
+        ActiveWindow.DisplayGridlines = False
+        ActiveWindow.Zoom = 80
+
+        .Cells.Font.Name = "Calibri"
+        .Cells.Font.Size = 11
+        .DisplayPageBreaks = False
+        .Columns("A:A").ColumnWidth = 4
+        
+        'Add sheet heading named range and format
+        .Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
+        .Range("SheetHeading") = m001_DataAccess.PR_GetHeadingNameBasedOnSheetName(This.sht.Name)
+        .Range("SheetHeading").Font.Bold = True
+        .Range("SheetHeading").Font.Size = 16
+        
+        'Add sheet category named range and format
+        .Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
+        .Range("SheetCategory") = m001_DataAccess.PR_GetCategoryNameBasedOnSheetName(This.sht.Name)
+        .Range("SheetCategory").Font.Color = RGB(170, 170, 170)
+        .Range("SheetCategory").Font.Size = 8
+
+    End With
+
+End Sub
+
+
+
+Private Sub PR_SetViewLayout()
+'Freezes panes and sets the column widths.  Can only be set once the rest of the pivot table is
+'in place
+    
+    Dim vFreezeDetails As Variant
+    Dim iFreezeRow As Integer
+    Dim iFreezeCol As Integer
+    Dim vRowRangeColWidths As Variant
+    Dim vArrayRowRangeColWidths As Variant
+    Dim vDataBodyRangeColWidth As Variant
+    Dim i As Integer
+    
+    'Set freeze pane locations
+    vFreezeDetails = m001_DataAccess.PR_GetFreezePaneLocation(This.sht.Name)
+    If Not IsNull(vFreezeDetails) Then
+        iFreezeRow = Split(vFreezeDetails, "|")(0)
+        iFreezeCol = Split(vFreezeDetails, "|")(1)
+        This.sht.Activate
+        This.sht.Cells(iFreezeRow + 1, iFreezeCol + 1).Select
+        ActiveWindow.FreezePanes = True
+    End If
+
+    'Set Row Range column widths
+    vRowRangeColWidths = m001_DataAccess.PR_GetRowRangeColWidths(This.sht.Name)
+    If Not IsNull(vRowRangeColWidths) Then
+        vArrayRowRangeColWidths = Split(vRowRangeColWidths, "|")
+        For i = LBound(vArrayRowRangeColWidths) To UBound(vArrayRowRangeColWidths)
+            This.sht.PivotTables(1).RowRange.Rows(1).Cells(i + 1).ColumnWidth = _
+                vArrayRowRangeColWidths(i)
+        Next i
+    End If
+
+    'Set data body range column widths (all widths are set identical sizes)
+    vDataBodyRangeColWidth = m001_DataAccess.PR_GetDataBodyRowRangeColWidth(This.sht.Name)
+    If Not IsNull(vDataBodyRangeColWidth) Then
+        This.sht.PivotTables(1).DataBodyRange.EntireColumn.ColumnWidth = vDataBodyRangeColWidth
+    End If
+
+
+End Sub
+
+
+
+Private Function PR_PivotTableHasRowRange() As Boolean
+
+    Dim rng As Range
+    On Error Resume Next
+    
+    Set rng = This.sht.PivotTables(1).RowRange
+    
+    If Err.Number = 0 Then
+        PR_PivotTableHasRowRange = True
+    Else
+        PR_PivotTableHasRowRange = False
+    End If
+
+    On Error GoTo 0
+
+End Function
+
+
+Private Function ReportBackingQuery() As Variant
+'Returns a DAX query for the current power query report to provide backing data.  Null is returned if
+'it doesnt exist
+    
+    
+    
+    
+    
+
+End Function
+
+
+
+Private Function PR_PivotTableHasDataBodyRange() As Boolean
+
+    Dim rng As Range
+    On Error Resume Next
+    
+    Set rng = This.sht.PivotTables(1).DataBodyRange
+    
+    If Err.Number = 0 Then
+        PR_PivotTableHasDataBodyRange = True
+    Else
+        PR_PivotTableHasDataBodyRange = False
+    End If
+
+    On Error GoTo 0
+
+End Function
+
+
+Private Sub CreateDummyPowerPivotTable(ByVal sQueryName As String)
+'Creates empty table loaded into Power Pivot to form source of listobject connection for DAX queries
+
+    Dim sQueryStr As String
+    Dim sTestTableName As String
+    Dim bDummyTableExistsInDataModel As Boolean
+    
+    
+    On Error Resume Next
+    sTestTableName = ActiveWorkbook.Model.ModelTables(sQueryName).Name
+    bDummyTableExistsInDataModel = (Err.Number = 0)
+    On Error GoTo 0
+    
+    If Not bDummyTableExistsInDataModel Then
+    
+        'Query may exist but not in data model
+        On Error Resume Next
+            ActiveWorkbook.Queries(sQueryName).Delete
+        On Error GoTo 0
+    
+        sQueryStr = "let" & vbCr & _
+            "    tbl = Table.FromRecords({[NullHeader = """"]}), " & vbCr & _
+            "    ChangedType = Table.TransformColumnTypes(tbl, {{""NullHeader"", type text}})" & vbCr & _
+            "in" & vbCr & _
+            "    ChangedType"
+    
+        ActiveWorkbook.Queries.Add Name:="DummyTableForDaxQueries", Formula:=sQueryStr
+        Workbooks("PivotReportExample.xlsm").Connections.Add2 _
+            Name:="Query - DummyTableForDaxQueries", _
+            Description:="Connection to the 'DummyTableForDaxQueries' query in the workbook.", _
+            ConnectionString:="OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=DummyTableForDaxQueries;Extended Properties=", _
+            CommandText:="""DummyTableForDaxQueries""", _
+            lCmdtype:=6, _
+            CreateModelConnection:=True, _
+            ImportRelationships:=False
+
+    End If
+
+End Sub
+
+
+
+Private Function PR_CreateDataQueryBackingSheet() As Worksheet
+'Sets sht format includiing range names
+    
+    Dim shtDataBacking As Worksheet
+    Dim wkb As Workbook
+    
+    
+    Set wkb = This.sht.Parent
+    On Error Resume Next
+    wkb.Sheets(This.sht.Name & "_Backing").Delete
+    On Error GoTo 0
+    
+    Set shtDataBacking = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    shtDataBacking.Name = This.sht.Name & "_Backing"
+    
+    With shtDataBacking
+        
+        'Necessary to activate to set gridlines and zoom
+        .Activate
+        ActiveWindow.DisplayGridlines = False
+        ActiveWindow.Zoom = 80
+
+        .Cells.Font.Name = "Calibri"
+        .Cells.Font.Size = 11
+        .DisplayPageBreaks = False
+        .Columns("A:A").ColumnWidth = 4
+        
+        'Add sheet heading named range and format
+        .Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
+        .Range("SheetHeading") = "Backing: " & _
+            m001_DataAccess.PR_GetHeadingNameBasedOnSheetName(This.sht.Name)
+        .Range("SheetHeading").Font.Bold = True
+        .Range("SheetHeading").Font.Size = 16
+        
+        'Add sheet category named range and format
+        .Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
+        .Range("SheetCategory") = m001_DataAccess.PR_GetCategoryNameBasedOnSheetName(This.sht.Name)
+        .Range("SheetCategory").Font.Color = RGB(170, 170, 170)
+        .Range("SheetCategory").Font.Size = 8
+
+    End With
+
+    Set PR_CreateDataQueryBackingSheet = shtDataBacking
+
+End Function
+
+
+Private Sub PR_CreateListObjectBacking(ByVal sht As Worksheet, _
+    ByVal sQueryName As String, ByVal sReportName As String, _
+    ByVal sDaxQuery As String)
+'Utilsied for creating optional backing tab of data when values report sheet is created.
+'This sub creates the ListObject query.
+
+
+    Dim lo As ListObject
+    Dim sConnectionName As String
+    
+    'PowerPivot seems to append "Query - " to the query name to arrive at connection name
+    sConnectionName = "Query - " & sQueryName
+    
+    Set lo = ActiveSheet.ListObjects.Add( _
+        SourceType:=xlSrcModel, _
+        Source:=ActiveWorkbook.Connections(sConnectionName), _
+        Destination:=Range("$B$5"))
+             
+    With lo.TableObject
+        .PreserveFormatting = True
+        .RefreshStyle = xlOverwriteCells
+        .AdjustColumnWidth = True
+        .ListObject.Name = "tbl_Backing"
+    End With
+    
+    With lo.TableObject.WorkbookConnection.OLEDBConnection
+        .CommandText = Array(sDaxQuery)
+        .CommandType = xlCmdDAX
+    End With
+
+    lo.Refresh
+    
+    'Remove link to Power Pivot change to values
+    lo.TableObject.Delete
+    
+    
+End Sub
+

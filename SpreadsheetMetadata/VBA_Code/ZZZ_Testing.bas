@@ -257,5 +257,234 @@ Sub TestArray()
 
 End Sub
 
+Sub TestCateogories()
+
+    Dim v As Variant
+    Dim item As Variant
+
+    v = m001_DataAccess.PR_GetUniqueReportCategories
+    For Each item In v
+        Debug.Print (item)
+    Next item
+    
+
+End Sub
 
 
+
+
+Sub TestUserFrm()
+    
+    Dim v As Variant
+    Dim item As Variant
+    Dim uf As ufPivotReportGenerator
+    
+    
+    Set uf = New ufPivotReportGenerator
+    v = m001_DataAccess.PR_GetUniqueReportCategories
+    For Each item In v
+        uf.lbCategories.AddItem item
+    Next item
+    
+    uf.Show
+    
+    Set uf = Nothing
+    
+End Sub
+
+
+
+Sub TestFreeze()
+
+    
+    If (ActiveWindow.SplitColumn <> 0 And CStr(ActiveWindow.SplitColumn) <> "") Or _
+        (ActiveWindow.SplitRow <> 0 And CStr(ActiveWindow.SplitRow) <> "") Then
+        MsgBox ("Split")
+    Else
+        MsgBox ("Not")
+    End If
+        
+
+End Sub
+
+
+Sub TestReadFreezePanes()
+
+    Dim sSheetName As String
+    Dim ls As ListStorage
+    Set ls = New ListStorage
+    Dim sFreezePosition As String
+    Dim vReturnValue As Variant
+    
+    sSheetName = "Pvt_b"
+    ls.AssignStorage ActiveWorkbook, "ReportSheetProperties"
+    
+    vReturnValue = ls.Xlookup(sSheetName & "ViewLayoutDataType" & "FreezePanes", _
+        "[SheetName] & [DataType] & [Property]", _
+        "[Value]")
+
+    
+    If IsNull(vReturnValue) Then
+        MsgBox ("Null")
+    Else
+        MsgBox (vReturnValue)
+    End If
+    
+    
+End Sub
+
+
+Sub PivotCopyFormatValues()
+'select pivot table cell first
+
+    Dim ws As Worksheet
+    Dim pt As PivotTable
+    Dim rngPT As Range
+    Dim rngPTa As Range
+    Dim rngCopy As Range
+    Dim rngCopy2 As Range
+    Dim lRowTop As Long
+    Dim lRowsPT As Long
+    Dim lRowPage As Long
+    Dim msgSpace As String
+    
+    On Error Resume Next
+    Set pt = ActiveCell.PivotTable
+    Set rngPTa = pt.PageRange
+    On Error GoTo errHandler
+    
+    If pt Is Nothing Then
+        MsgBox "Could not copy pivot table for active cell"
+        GoTo exitHandler
+    End If
+    
+    If pt.PageFieldOrder = xlOverThenDown Then
+      If pt.PageFields.Count > 1 Then
+        msgSpace = "Horizontal filters with spaces." _
+          & vbCrLf _
+          & "Could not copy Filters formatting."
+      End If
+    End If
+    
+    Set rngPT = pt.TableRange1
+    lRowTop = rngPT.Rows(1).Row
+    lRowsPT = rngPT.Rows.Count
+    Set ws = Worksheets.Add
+    Set rngCopy = rngPT.Resize(lRowsPT - 1)
+    Set rngCopy2 = rngPT.Rows(lRowsPT)
+    
+    rngCopy.Copy Destination:=ws.Cells(lRowTop, 1)
+    rngCopy2.Copy _
+      Destination:=ws.Cells(lRowTop + lRowsPT - 1, 1)
+    
+    If Not rngPTa Is Nothing Then
+        lRowPage = rngPTa.Rows(1).Row
+        rngPTa.Copy Destination:=ws.Cells(lRowPage, 1)
+    End If
+        
+    ws.Columns.AutoFit
+    If msgSpace <> "" Then
+      MsgBox msgSpace
+    End If
+    
+exitHandler:
+        Exit Sub
+errHandler:
+        MsgBox "Could not copy pivot table for active cell"
+        Resume exitHandler
+End Sub
+
+Sub TestPivotReportValueCopy()
+
+    Dim pr As PowerReport
+    Dim sTest As String
+    Dim bAssignedOk As Boolean
+    Dim wkb As Workbook
+    Dim sht As Worksheet
+    
+    Set pr = New PowerReport
+    bAssignedOk = pr.AssignToExistingSheet(ActiveSheet)
+    
+    If Not bAssignedOk Then
+        MsgBox ("Not a valid Power Pivot Report sheet")
+        Exit Sub
+    End If
+        
+    Set wkb = Workbooks.Add
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    sht.Name = "Blah"
+    sht.Cells.Font.Name = "Calibri"
+    sht.Cells.Font.Size = 11
+    
+    'Add heading and category
+    sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
+    sht.Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
+    sht.Range("SheetHeading") = "Blah"
+    
+    sht.Range("SheetCategory") = "Blah"
+        With sht.Range("SheetHeading")
+        .Font.Bold = True
+        .Font.Size = 16
+    End With
+    
+    With sht.Range("SheetCategory")
+        .Font.Color = RGB(170, 170, 170)
+        .Font.Size = 8
+    End With
+    
+    sht.Activate
+    ActiveWindow.DisplayGridlines = False
+    ActiveWindow.Zoom = 80
+    sht.DisplayPageBreaks = False
+    sht.Columns("A:A").ColumnWidth = 4
+    
+
+End Sub
+
+
+
+Sub TestPivotReportValueCopy_Alternative()
+
+    Dim pvt As PivotTable
+    
+    Set pvt = ActiveSheet.PivotTables(1)
+    pvt.TableRange2.ClearContents
+End Sub
+
+
+Sub TestForFilters()
+
+    Dim pvtCubeField As cubeField
+    
+    
+    For Each pvtCubeField In ActiveSheet.PivotTables(1).CubeFields
+        Debug.Print pvtCubeField.Name & " : " & pvtCubeField.AllItemsVisible
+    Next pvtCubeField
+    
+
+End Sub
+
+
+Sub TestFilters2()
+
+    Dim item As Variant
+    
+    
+    For Each item In ActiveSheet.PivotTables("PivotTable1").PivotFields("[DimAccounts].[Account].[Account]").HiddenItemsList
+        Debug.Print item
+    Next item
+
+End Sub
+
+
+
+
+Sub TestDeleteTableConnection()
+
+   Dim lo As ListObject
+   
+   Set lo = ActiveCell.ListObject
+
+    lo.TableObject.Delete
+
+End Sub

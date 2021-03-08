@@ -249,3 +249,133 @@ Function PR_GetPivotFieldDataPropertiesExSubtotals(ByVal sSheetName As String, _
 
 End Function
 
+
+
+Function PR_GetUniqueReportCategories() As Variant
+'Returns a variant array of unique report categories
+
+    Dim ls As ListStorage
+    
+    Set ls = New ListStorage
+    ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
+    ls.Filter "([DataType] = ""SheetDataType"") * ([Property] = ""SheetCategory"")"
+    
+    PR_GetUniqueReportCategories = ls.ItemsInField( _
+        sFieldName:="Value", _
+        bUnique:=True, _
+        bSorted:=True, _
+        SortOrder:=lsAsc, _
+        bFiltered:=True)
+
+End Function
+
+
+Function PR_GetReportsByCategory(sReportCategory As String) As Variant
+'Returns a variany array of reports based sReportCategory (the sheetname of the report is returned)
+
+    Dim ls As ListStorage
+    Dim sFilterStr As String
+       
+    Set ls = New ListStorage
+   ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
+    
+    sFilterStr = "([DataType] = ""SheetDataType"") * ([Property] = ""SheetCategory"") * " & _
+        "([Value] = """ & sReportCategory & """)"
+    ls.Filter sFilterStr
+    
+    PR_GetReportsByCategory = ls.ItemsInField( _
+        sFieldName:="SheetName", _
+        bUnique:=True, _
+        bSorted:=True, _
+        SortOrder:=lsAsc, _
+        bFiltered:=True)
+
+End Function
+
+
+Function PR_GetFreezePaneLocation(ByVal sSheetName As String) As Variant
+'Returns null if none found
+
+    Dim ls As ListStorage
+    Dim sFreezePosition As String
+    
+    Set ls = New ListStorage
+    ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
+    
+    PR_GetFreezePaneLocation = ls.Xlookup(sSheetName & "ViewLayoutDataType" & "FreezePanes", _
+        "[SheetName] & [DataType] & [Property]", _
+        "[Value]")
+
+End Function
+
+
+Function PR_GetRowRangeColWidths(ByVal sSheetName As String) As Variant
+'Returns null if none found, else pipe delimited string of widths
+
+    Dim ls As ListStorage
+    Dim sFreezePosition As String
+    
+    Set ls = New ListStorage
+    ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
+    
+    PR_GetRowRangeColWidths = ls.Xlookup(sSheetName & "ViewLayoutDataType" & "PivotRowRangeColWidths", _
+        "[SheetName] & [DataType] & [Property]", _
+        "[Value]")
+
+End Function
+
+
+Function PR_GetDataBodyRowRangeColWidth(ByVal sSheetName As String) As Variant
+'Returns null if none found, else pipe delimited string of widths
+
+    Dim ls As ListStorage
+    Dim sFreezePosition As String
+    
+    Set ls = New ListStorage
+    ls.AssignStorage ActiveWorkbook, csPowerReportStorageName
+    
+    PR_GetDataBodyRowRangeColWidth = ls.Xlookup(sSheetName & "ViewLayoutDataType" & "PivotDataBodyRangeColWidths", _
+        "[SheetName] & [DataType] & [Property]", _
+        "[Value]")
+
+End Function
+
+
+
+Function PR_CreatStorageForPowerReportBacking() As Boolean
+'Create a ListStorage sheet for storing queries that can optionaly be used to provide data backing
+'PowerReports (per PowerReport class module)
+
+    Dim ls As ListStorage
+    Dim Headings(1) As String
+    
+    
+    Headings(0) = "SheetName"
+    Headings(1) = "DaxQuery"
+    Set ls = New ListStorage
+    PR_CreatStorageForPowerReportBacking = ls.CreateStorage(ActiveWorkbook, "ReportBackingQueries", Headings)
+
+End Function
+
+
+
+Function PR_GetBackingQuery(ByVal sReportName As String) As Variant
+'Returns DAX query providing supporting data for PowerReport.  If none found null is returned
+
+    Dim bStorageAssigned As Boolean
+    Dim ls As ListStorage
+    Const csBackingListStorageName As String = "ReportBackingQueries"
+    
+    Set ls = New ListStorage
+    bStorageAssigned = ls.AssignStorage(ActiveWorkbook, csBackingListStorageName)
+
+    If Not bStorageAssigned Then
+        PR_GetBackingQuery = Null
+        Exit Function
+    End If
+        
+    PR_GetBackingQuery = ls.Xlookup(sReportName, "[SheetName]", "[DaxQuery]")
+    
+End Function
+
+

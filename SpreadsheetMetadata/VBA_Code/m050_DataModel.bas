@@ -85,7 +85,7 @@ Sub LoadQueryToDataModel(ByVal sQueryName As String, Optional wkb As Workbook)
             Description:=sQueryName, _
             ConnectionString:="OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=" & sQueryName & ";Extended Properties=", _
             CommandText:=sQueryName, _
-            lCmdType:=6, _
+            lCmdtype:=6, _
             CreateModelConnection:=True, _
             ImportRelationships:=False
     End If

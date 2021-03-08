@@ -1,22 +1,7 @@
 TODO
 -------     
-   -  leading towards setting filters in DAX via measures rather than in pivot table.  Harder to manage the list of values in the pivot table
+ - I may need to consider pivotstyles when creating pivot tables from metadata.   Do I want to go as far as saving pivot style attributes or just apply styles that exist in the workbook?
 
-   - When setting properties if property is blank don't set as it means it wasnt saved (most likely not
-   relevant to e.g. field orientation and should not be applied)
- 
- -  Continue working on m006_DataAccess to save ReportMetaData
-
-  - Store data in XML or JSON format? - No too much effort
-
- - Wondering if I should go back and re-evaluate auto report creation.  Won't necessarily complete each time a report is run but useful for recreating the entire spreadsheet.
-    * Ideally I would also have code that read the pivot report settings into a worksheet.   Which could then be used to recreate the pivot reports
-    * A lot of pivot reports can really slow down a workbook every time there is a refresh or change.  Generating on fly as needed may help this.
-    * Populate the list headers with below  
-       ActiveCell.Formula2R1C1 = "={""A"",""b"",""C""}"
-
-
- 
  - Include DAX table queries when generating spreadsheet metadata
 
   - Remove TableLooper from SpreadsheetBI?   Process is better in seperate spreadsheet "Spreadsheet_Iterative_Model"
@@ -27,8 +12,6 @@ TODO
      Maybe best option is to remove newlines before writing to the text file
      The Human readable DAX measure file is fine
      The same issue occures in teh listobject metadata exports (both formulas and values) when there is an Alt-enter newline in the cell
-
-How about writing to a workbook and saving as XML?
 
 
   - Create a readme
@@ -56,5 +39,3 @@ Website  / Twitter
   
  - Consider below theme, used by https://xxlbi.com/ as per code inspector
  https://wordpress.org/themes/twentysixteen/   maybe rather TwentyTwenty or something in between
-  
-- Tweet re Excel Book, Conditional Formatting, VBA approach

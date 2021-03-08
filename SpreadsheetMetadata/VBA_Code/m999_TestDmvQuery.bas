@@ -35,7 +35,6 @@ Public Sub CreatePowerPivotDmvInventory()
     With lo
         For i = 1 To .DataBodyRange.Rows.Count
             WriteDmvContent .ListColumns("DMV Name").DataBodyRange.Cells(i), conn, sht, iRowNum
-            Debug.Print (.ListColumns("DMV Name").DataBodyRange.Cells(i))
             'Application.Wait Now + #12:00:01 AM#
        Next i
     End With

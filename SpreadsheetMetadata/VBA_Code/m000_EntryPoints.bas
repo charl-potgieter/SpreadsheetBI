@@ -1015,6 +1015,7 @@ Sub SavePivotReportMetadataInActiveWorkbook()
 
     Dim sht As Worksheet
     Dim Report As PowerReport
+    Dim bSheetAsssignedOk As Boolean
 
     'Setup
     Application.ScreenUpdating = False
@@ -1023,12 +1024,23 @@ Sub SavePivotReportMetadataInActiveWorkbook()
     Application.DisplayAlerts = False
 
     For Each sht In ActiveWorkbook.Worksheets
-        If SheetIsAPowerReportSheet(sht) Then
-            Set Report = New PowerReport
-            Report.AssignToExistingSheet sht
-            Report.SavePowerReportStructure
-            Set Report = Nothing
-        End If
+        Set Report = New PowerReport
+        bSheetAsssignedOk = Report.AssignToExistingSheet(sht)
+        
+        Select Case True
+        
+            Case Not bSheetAsssignedOk
+            'Not a valid sheet - do nothing
+            
+            Case Report.HasFilters
+                MsgBox ("Pivot table on sheet with name """ & Report.SheetName & """ contains " & _
+                    "filters.  This pivot table has not been assigned for processing")
+            Case Else
+                Report.SavePowerReportStructure
+        
+        End Select
+        
+        Set Report = Nothing
     Next sht
 
     ActiveWorkbook.Sheets("ReportSheetProperties").Activate
@@ -1049,21 +1061,33 @@ End Sub
 Sub CreatePivotReportFromMetaData()
 
     Dim Report As PowerReport
-    Dim sSelectedSheetName As String
-
-
-    '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ' Replace below with a menu choice
-     sSelectedSheetName = "Pvt_a2"
+    Dim v As Variant
+    Dim item As Variant
+    Dim uf As ufPivotReportGenerator
 
     'Setup
     Application.ScreenUpdating = False
     Application.EnableEvents = False
     Application.Calculation = xlCalculationManual
     Application.DisplayAlerts = False
-
-    Set Report = New PowerReport
-    Report.CreateFromStoredData ActiveWorkbook, sSelectedSheetName
+        
+    'Populate the unique report categories on the userform
+    Set uf = New ufPivotReportGenerator
+    v = m001_DataAccess.PR_GetUniqueReportCategories
+    For Each item In v
+        uf.lbCategories.AddItem item
+    Next item
+    
+    uf.Show
+        
+    If Not uf.bCancelled And uf.lbReports.Text <> "" Then
+        Set Report = New PowerReport
+        Report.CreateFromStoredData ActiveWorkbook, uf.lbReports.Text
+    End If
+    
+    Unload uf
+    Set uf = Nothing
+    
 
 
 'ExitPoint:
@@ -1076,3 +1100,58 @@ Sub CreatePivotReportFromMetaData()
 End Sub
 
 
+Sub CreateValueReportWorkbook()
+'Copies a report of class PowerReport into a new Workbook as values
+
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+
+
+    Dim pr As PowerReport
+    Dim bReportAssigned As Boolean
+    
+    Set pr = New PowerReport
+    
+    bReportAssigned = pr.AssignToExistingSheet(ActiveSheet)
+    If bReportAssigned Then
+        pr.CreateValueReport
+    Else
+        MsgBox ("Active sheet does not contain a valid Power Report")
+    End If
+
+'ExitPoint:
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+
+End Sub
+
+
+Sub SetupPivotReportBackingStorage()
+'Utilsied as storage for optional saving of DAX queries that can be created to backupa a PowerReport
+
+    Dim bStorageCreated As Boolean
+    
+    'Setup
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+    
+    bStorageCreated = m001_DataAccess.PR_CreatStorageForPowerReportBacking
+    
+    If Not bStorageCreated Then
+        MsgBox ("Error creating storage - potentially already exists")
+    End If
+
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+
+End Sub
