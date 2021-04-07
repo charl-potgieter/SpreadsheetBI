@@ -1,1 +1,2 @@
 Name|Table Name|Unique Name|Visible
+NullHeader|EmptyTable|[EmptyTable].[NullHeader]|True

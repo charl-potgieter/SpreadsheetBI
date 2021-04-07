@@ -2,7 +2,7 @@ Attribute VB_Name = "ZZZ_Testing"
 Option Explicit
 
 
-Sub Test()
+Sub test()
 
     Dim a As ListStorage
     Dim Headings(3) As String
@@ -78,7 +78,7 @@ Sub test4()
 End Sub
 
 
-Sub Test5()
+Sub test5()
 
     Dim lo As ListObject
     
@@ -257,40 +257,40 @@ Sub TestArray()
 
 End Sub
 
-Sub TestCateogories()
-
-    Dim v As Variant
-    Dim item As Variant
-
-    v = m001_DataAccess.PR_GetUniqueReportCategories
-    For Each item In v
-        Debug.Print (item)
-    Next item
-    
-
-End Sub
-
-
+'Sub TestCateogories()
+'
+'    Dim v As Variant
+'    Dim item As Variant
+'
+'    v = m001_DataPivotReporting.ReadUniquePivotReportCategories
+'    For Each item In v
+'        Debug.Print (item)
+'    Next item
+'
+'
+'End Sub
 
 
-Sub TestUserFrm()
-    
-    Dim v As Variant
-    Dim item As Variant
-    Dim uf As ufPivotReportGenerator
-    
-    
-    Set uf = New ufPivotReportGenerator
-    v = m001_DataAccess.PR_GetUniqueReportCategories
-    For Each item In v
-        uf.lbCategories.AddItem item
-    Next item
-    
-    uf.Show
-    
-    Set uf = Nothing
-    
-End Sub
+
+
+'Sub TestUserFrm()
+'
+'    Dim v As Variant
+'    Dim item As Variant
+'    Dim uf As ufPivotReportGenerator
+'
+'
+'    Set uf = New ufPivotReportGenerator
+'    v = m001_DataPivotReporting.ReadUniquePivotReportCategories
+'    For Each item In v
+'        uf.lbCategories.AddItem item
+'    Next item
+'
+'    uf.Show
+'
+'    Set uf = Nothing
+'
+'End Sub
 
 
 
@@ -394,52 +394,52 @@ errHandler:
         Resume exitHandler
 End Sub
 
-Sub TestPivotReportValueCopy()
-
-    Dim pr As PowerReport
-    Dim sTest As String
-    Dim bAssignedOk As Boolean
-    Dim wkb As Workbook
-    Dim sht As Worksheet
-    
-    Set pr = New PowerReport
-    bAssignedOk = pr.AssignToExistingSheet(ActiveSheet)
-    
-    If Not bAssignedOk Then
-        MsgBox ("Not a valid Power Pivot Report sheet")
-        Exit Sub
-    End If
-        
-    Set wkb = Workbooks.Add
-    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
-    sht.Name = "Blah"
-    sht.Cells.Font.Name = "Calibri"
-    sht.Cells.Font.Size = 11
-    
-    'Add heading and category
-    sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
-    sht.Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
-    sht.Range("SheetHeading") = "Blah"
-    
-    sht.Range("SheetCategory") = "Blah"
-        With sht.Range("SheetHeading")
-        .Font.Bold = True
-        .Font.Size = 16
-    End With
-    
-    With sht.Range("SheetCategory")
-        .Font.Color = RGB(170, 170, 170)
-        .Font.Size = 8
-    End With
-    
-    sht.Activate
-    ActiveWindow.DisplayGridlines = False
-    ActiveWindow.Zoom = 80
-    sht.DisplayPageBreaks = False
-    sht.Columns("A:A").ColumnWidth = 4
-    
-
-End Sub
+'Sub TestPivotReportValueCopy()
+'
+'    Dim pr As PivotReport
+'    Dim sTest As String
+'    Dim bAssignedOk As Boolean
+'    Dim wkb As Workbook
+'    Dim sht As Worksheet
+'
+'    Set pr = New PivotReport
+'    bAssignedOk = pr.AssignToExistingSheet(ActiveSheet)
+'
+'    If Not bAssignedOk Then
+'        MsgBox ("Not a valid Power Pivot Report sheet")
+'        Exit Sub
+'    End If
+'
+'    Set wkb = Workbooks.Add
+'    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+'    sht.Name = "Blah"
+'    sht.Cells.Font.Name = "Calibri"
+'    sht.Cells.Font.Size = 11
+'
+'    'Add heading and category
+'    sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
+'    sht.Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
+'    sht.Range("SheetHeading") = "Blah"
+'
+'    sht.Range("SheetCategory") = "Blah"
+'        With sht.Range("SheetHeading")
+'        .Font.Bold = True
+'        .Font.Size = 16
+'    End With
+'
+'    With sht.Range("SheetCategory")
+'        .Font.Color = RGB(170, 170, 170)
+'        .Font.Size = 8
+'    End With
+'
+'    sht.Activate
+'    ActiveWindow.DisplayGridlines = False
+'    ActiveWindow.Zoom = 80
+'    sht.DisplayPageBreaks = False
+'    sht.Columns("A:A").ColumnWidth = 4
+'
+'
+'End Sub
 
 
 
@@ -454,12 +454,12 @@ End Sub
 
 Sub TestForFilters()
 
-    Dim pvtCubeField As cubeField
+    Dim PvtCubeField As CubeField
     
     
-    For Each pvtCubeField In ActiveSheet.PivotTables(1).CubeFields
-        Debug.Print pvtCubeField.Name & " : " & pvtCubeField.AllItemsVisible
-    Next pvtCubeField
+    For Each PvtCubeField In ActiveSheet.PivotTables(1).CubeFields
+        Debug.Print PvtCubeField.Name & " : " & PvtCubeField.AllItemsVisible
+    Next PvtCubeField
     
 
 End Sub
@@ -488,3 +488,50 @@ Sub TestDeleteTableConnection()
     lo.TableObject.Delete
 
 End Sub
+
+
+Sub TestActiveWorkbookChange()
+
+    Dim ls As ListStorage
+    Dim v As Variant
+    Dim item As Variant
+    Dim d As Dictionary
+    
+    Set ls = New ListStorage
+    ls.AssignStorage ActiveWorkbook, "ReportSheetProperties"
+
+    Set d = New Dictionary
+    d.Add "Name", "blah blah"
+    d.Add "DataType", "blah blah"
+
+     Workbooks("Book1").Activate
+    Debug.Print (ls.Xlookup("Caption", "[Property]", "[Value]"))
+     
+'    v = ls.ItemsInField("DataType", , True, True)
+'    For Each item In v
+'        Debug.Print (item)
+'    Next item
+    'Debug.Print (ls.FieldItemByIndex("DataType", 2))
+    'ls.InsertFromDictionary d
+    'ls.Filter "[Property] = ""Caption""", True, "Name", lsDesc
+
+End Sub
+
+'
+'Sub TestStandardPivot_1()
+'
+'    Dim SPR As StandardPivotReport
+'
+'    Set SPR = New StandardPivotReport
+'    SPR.DaxQueryFilePath = "C:\Users\charl\Dropbox\Dropbox_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\TestDaxQuery_1.dax"
+'    SPR.GenerateDataFromQuery ActiveWorkbook
+'
+'    SPR.AddCalculatedTableColumn "Double Fcst", "=[@[Forecast Amt]] * 2"
+'
+'End Sub
+
+
+
+
+
+

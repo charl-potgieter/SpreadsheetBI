@@ -1,35 +1,53 @@
 Attribute VB_Name = "m010_General"
-    Option Explicit
+Option Explicit
 Option Private Module
 Global Const gcsMenuName As String = "SpreadsheetBI"
 
 
+Sub StandardEntry()
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+End Sub
+
+
+Sub StandardExit()
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.DisplayAlerts = True
+End Sub
+
+
+
 Sub FormatSheet(ByRef sht As Worksheet)
+'TODO  - consider removing and replacing with creation of ReportSheet object
 'Applies my preferred sheet formattting
 
     sht.Activate
-    
+
     sht.Cells.Font.Name = "Calibri"
     sht.Cells.Font.Size = 11
-    
+
     sht.Range("A1").Font.Color = RGB(170, 170, 170)
     sht.Range("A1").Font.Size = 8
-    
+
     ActiveWindow.DisplayGridlines = False
     ActiveWindow.Zoom = 80
     sht.DisplayPageBreaks = False
     sht.Columns("A:A").ColumnWidth = 4
-    
+
     If SheetLevelRangeNameExists(sht, "SheetHeading") Then
         sht.Names("SheetHeading").Delete
     End If
     sht.Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
-    
+
     If SheetLevelRangeNameExists(sht, "SheetCategory") Then
         sht.Names("SheetCategory").Delete
     End If
     sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
-    
+
     With sht.Range("SheetHeading")
         If .Value = "" Then
             .Value = "Heading"
@@ -41,7 +59,7 @@ Sub FormatSheet(ByRef sht As Worksheet)
 End Sub
 
 
-
+'TODO consider moving into the ReportingTable class
 
 Sub FormatTable(lo As ListObject)
 
@@ -88,8 +106,6 @@ Sub FormatTable(lo As ListObject)
         lo.DataBodyRange.EntireColumn.AutoFit
     End If
     
-
-
 End Sub
 
 

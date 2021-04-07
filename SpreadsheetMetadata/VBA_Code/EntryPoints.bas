@@ -1,4 +1,6 @@
-Attribute VB_Name = "m000_EntryPoints"
+Attribute VB_Name = "EntryPoints"
+'@Folder ("000_EntryPoints")
+
 Option Explicit
 
 Public Type TypeModelMeasures
@@ -30,7 +32,6 @@ Public Type TypeModelRelationship
     Active As Boolean
 End Type
 
-
 'Utilised for saving data
 Public Type TypePowerReportStorageRecord
     SheetName As String
@@ -39,6 +40,21 @@ Public Type TypePowerReportStorageRecord
     Property As String
     Value As String
     CubeFieldPosition As Variant
+End Type
+
+
+Public Enum EnumPivotReportType
+    PowerPivotSource
+    ExcelTableSource
+    ExcelTableOnly
+End Enum
+
+Public Type TypePivotReportUserSelection
+    SelectionMade As Boolean
+    ReportList() As String
+    PivotReportType As EnumPivotReportType
+    GenerateValueCopyNewWorkbook As Boolean
+    RetainLiveInCurrentWorkbook As Boolean
 End Type
 
 Public Const MaxInt As Integer = 32767
@@ -237,20 +253,17 @@ End Sub
 
 
 Function InsertFormattedSheetIntoActiveWorkbook()
-    
-    Dim sht As Worksheet
-    
-    Set sht = ActiveWorkbook.Sheets.Add(After:=ActiveSheet)
-    FormatSheet sht
-    
-    Set InsertFormattedSheetIntoActiveWorkbook = sht
-
+    Dim ReportSht As ReportingSheet
+    Set ReportSht = New ReportingSheet
+    ReportSht.Create ActiveWorkbook, ActiveSheet.Index
 End Function
 
 
 Sub FormatActiveSheet()
 
-    FormatSheet ActiveSheet
+    Dim Report As ReportingSheet
+    Set Report = New ReportingSheet
+    Report.CreateFromExistingSheet ActiveSheet
 
 End Sub
 
@@ -258,7 +271,7 @@ End Sub
 
 Sub FormatHeadings()
 
-    Application.ScreenUpdating = False
+    StandardEntry
     
     'Remove all current borders
     Selection.Borders(xlDiagonalDown).LineStyle = xlNone
@@ -310,9 +323,7 @@ Sub FormatHeadings()
         .WrapText = True
     End With
     
-    
-    Application.ScreenUpdating = True
-
+    StandardExit
 
 End Sub
 
@@ -409,27 +420,11 @@ Sub ImportSelectedPowerQueries()
 End Sub
 
 
-
-
 Sub InsertIndexPageActiveWorkbook()
-
-
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-    
+    StandardEntry
     InsertIndexPage ActiveWorkbook
-        
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
+    StandardExit
 End Sub
-
-
-
 
 
 
@@ -439,19 +434,13 @@ Sub FormatPivotTableFlatten()
     Dim pvtField As PivotField
     Dim b_mu As Boolean
     
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-        
+    StandardEntry
     On Error Resume Next
     Set pvt = ActiveCell.PivotTable
     On Error GoTo 0
     
     If Not pvt Is Nothing Then
-        
         With pvt
-        
             'Get update status and suspend updates
             b_mu = .ManualUpdate
             .ManualUpdate = True
@@ -475,15 +464,7 @@ Sub FormatPivotTableFlatten()
         End With
     End If
 
-
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-
-
-
+    StandardExit
 End Sub
 
 
@@ -511,36 +492,19 @@ Sub CreateDataModelRelationships()
     Dim sPrimaryKeyTable As String
     Dim sPrimaryKeyCol As String
     
-    
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-    
-    
+    StandardEntry
     Set mdl = ActiveWorkbook.Model
     Set lo = ActiveWorkbook.Sheets("Model_Relationships").ListObjects(1)
-    
     For i = 1 To lo.DataBodyRange.Rows.Count
-    
         sForeignKeyTable = lo.ListColumns("Foreign Key Table").DataBodyRange.Cells(i)
         sForeignKeyCol = lo.ListColumns("Foreign Key Column").DataBodyRange.Cells(i)
         sPrimaryKeyTable = lo.ListColumns("Primary Key Table").DataBodyRange.Cells(i)
         sPrimaryKeyCol = lo.ListColumns("Primary Key Table").DataBodyRange.Cells(i)
-    
         mdl.ModelRelationships.Add _
             mdl.ModelTables(sForeignKeyTable).ModelTableColumns(sForeignKeyCol), _
             mdl.ModelTables(sPrimaryKeyTable).ModelTableColumns(sPrimaryKeyCol)
-            
     Next i
-
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-
-
+    StandardExit
 End Sub
 
 
@@ -586,13 +550,10 @@ Sub TableLooper()
     Const iStartTableRow As Integer = 5
     Const iStartTableCol As Integer = 2
     
-    'Setup
+    
+    StandardEntry
     sActiveSheetName = ActiveSheet.Name
     sActiveRangeAddress = Selection.Address
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
 
     'Read inputs for looping function
     Arr = WorksheetFunction.Transpose(Range(LooperValue("Index Range")))
@@ -636,14 +597,9 @@ Sub TableLooper()
     
     InsertIndexPageActiveWorkbook
     
-    'Cleanup
     Worksheets(sActiveSheetName).Activate
     Range(sActiveRangeAddress).Select
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
+    StandardExit
 
 End Sub
 
@@ -657,11 +613,7 @@ Sub WriteModelInfoToSheets()
     
     Dim iMsgBoxResponse As Integer
     
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
+    StandardEntry
         
     If SheetExists(ActiveWorkbook, "ModelMeasures") Or SheetExists(ActiveWorkbook, "ModelCalcColumns") Or _
     SheetExists(ActiveWorkbook, "ModelColumns") Or SheetExists(ActiveWorkbook, "ModelRelationships") Then
@@ -671,24 +623,16 @@ Sub WriteModelInfoToSheets()
             End If
     End If
     
-    
     WriteModelMeasuresToSheet
     WriteModelCalcColsToSheet
     WriteModelColsToSheet
     WriteModelRelationshipsToSheet
     
-    'Cleanup
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-    
-
+    StandardExit
 End Sub
 
 
 Sub MimimiseRibbon()
-Attribute MimimiseRibbon.VB_ProcData.VB_Invoke_Func = "R\n14"
     CommandBars.ExecuteMso "MinimizeRibbon"
 End Sub
 
@@ -698,13 +642,7 @@ Sub CreatePowerQueryGeneratorSheet()
 
     Dim iMsgBoxResponse As Integer
 
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-
-
+    StandardEntry
     'Give user choice to delete sheet or cancel if sheet already exists?
     If SheetExists(ActiveWorkbook, "PqTableGenerator") Then
         iMsgBoxResponse = MsgBox("Sheet already exists, delete?", vbQuestion + vbYesNo + vbDefaultButton2)
@@ -716,14 +654,7 @@ Sub CreatePowerQueryGeneratorSheet()
     End If
         
     CreateTableGeneratorSheet ActiveWorkbook
-
-    'Cleanup
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-
+    StandardExit
 End Sub
 
 
@@ -738,13 +669,7 @@ Sub GeneratePowerQueryTable()
     Dim j As Integer
     Dim lo As ListObject
     
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-    
-    
+    StandardEntry
     sQueryName = ActiveWorkbook.Sheets("PqTableGenerator").Range("TableName")
 
     If QueryExists(sQueryName, ActiveWorkbook) Then
@@ -798,13 +723,7 @@ Sub GeneratePowerQueryTable()
     ActiveWorkbook.Queries.Add sQueryName, sQueryText
     
     MsgBox ("Query Generated")
-
-    'Cleanup
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
+    StandardExit
 
 End Sub
 
@@ -841,11 +760,7 @@ Sub GenerateSpreadsheetMetaData()
     Dim sVbaCodePath As String
     Dim sDataModelPath As String
 
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
+    StandardEntry
 
     sMetaDataRootPath = ActiveWorkbook.Path & Application.PathSeparator & "SpreadsheetMetadata"
     sWorksheetStructurePath = sMetaDataRootPath & Application.PathSeparator & "WorksheetStructure"
@@ -885,13 +800,9 @@ Sub GenerateSpreadsheetMetaData()
     'Export Power Queries
     ExportPowerQueriesToFiles sPowerQueriesPath, ActiveWorkbook
 
-    'Cleanup
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-        
     MsgBox ("Metadata created")
+    StandardExit
+    
 
 End Sub
 
@@ -909,12 +820,7 @@ Sub CopyPowerQueriesFromWorkbook()
     Dim wkbTarget As Workbook
     Dim qry As WorkbookQuery
 
-    
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
+    StandardEntry
     
     Set wkbTarget = ActiveWorkbook
     Set fDialog = Application.FileDialog(msoFileDialogFilePicker)
@@ -968,11 +874,7 @@ Sub CopyPowerQueriesFromWorkbook()
     MsgBox ("Power Queries copied")
 
 ExitPoint:
-    'Cleanup
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
+    StandardExit
 
 End Sub
 
@@ -982,176 +884,221 @@ End Sub
 
 
 Sub TempDeleteAllPQ()
-'Copies power queries from selected workbook into active workbook
+'Deletes all power queries in active workbook
 
-       
     Dim qry As WorkbookQuery
     
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-    
-   
+    StandardEntry
     For Each qry In ThisWorkbook.Queries
         qry.Delete
     Next qry
-    
-
-ExitPoint:
-    'Cleanup
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
+    StandardExit
 
 End Sub
 
+
+
+
+
+
+Sub AssignPivotReportFormulaStorageInActiveWorkbook()
+'Utilsied as storage for saving of DAX query files utilised to create a drillable pivot report
+'that uses excel data table (potentially with formulas) fo backing
+
+    Dim bStorageCreated As Boolean
+    StandardEntry
+    DataPivotReporting.AssignPivotReportFormulaStorage ActiveWorkbook
+    StandardExit
+
+End Sub
 
 
 Sub SavePivotReportMetadataInActiveWorkbook()
 'Reads all pivot table metadata in active workbook and saves on worksheets in active workbook
 
     Dim sht As Worksheet
-    Dim Report As PowerReport
-    Dim bSheetAsssignedOk As Boolean
+    Dim bValidAssignment As Boolean
+    Dim PvtReport As PivotReport
+    Dim vStorageObject As Variant 'abstract away the storage structure
 
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
+    StandardEntry
+    Set vStorageObject = AssignPivotReportStructureStorage(ActiveWorkbook, True)
 
     For Each sht In ActiveWorkbook.Worksheets
-        Set Report = New PowerReport
-        bSheetAsssignedOk = Report.AssignToExistingSheet(sht)
-        
-        Select Case True
-        
-            Case Not bSheetAsssignedOk
-            'Not a valid sheet - do nothing
-            
-            Case Report.HasFilters
-                MsgBox ("Pivot table on sheet with name """ & Report.SheetName & """ contains " & _
-                    "filters.  This pivot table has not been assigned for processing")
-            Case Else
-                Report.SavePowerReportStructure
-        
-        End Select
-        
-        Set Report = Nothing
+        Set PvtReport = New PivotReport
+        bValidAssignment = PvtReport.AssignToExistingSheet(sht)
+        If bValidAssignment Then
+            SaveSinglePivotReportDataToStorage vStorageObject, PvtReport
+        End If
+        Set PvtReport = Nothing
     Next sht
+    
+    StandardExit
 
-    ActiveWorkbook.Sheets("ReportSheetProperties").Activate
-    ActiveWorkbook.Sheets("ReportSheetProperties").Range("B8").Select
+End Sub
 
+
+Sub CreatePivotReportFromMetadata()
+
+    Dim vStorageObject As Variant
+    Dim UserReportSelection As TypePivotReportUserSelection
+    Dim i As Long
+    Dim PvtReport As PivotReport
+    Dim sReportName As String
+
+    StandardEntry
+    Set vStorageObject = DataPivotReporting.AssignPivotReportStructureStorage(ActiveWorkbook)
+    
+    'Exit if no report metadata exists on active sheet
+    If vStorageObject Is Nothing Then
+        MsgBox ("No pivot report metadata exists on active sheet")
+        GoTo ExitPoint
+    End If
+    
+    UserReportSelection = GetUserPivotReportSelection
+    
+    With UserReportSelection
+        If .SelectionMade = False Then GoTo ExitPoint
+        Select Case .PivotReportType
+            Case PowerPivotSource
+                For i = LBound(.ReportList) To UBound(.ReportList)
+                    sReportName = .ReportList(i)
+                    Set PvtReport = New PivotReport
+                    PvtReport.CreateEmptyPivotReport ActiveWorkbook, sReportName, DataModel
+                    DesignPivotReportBasedOnStoredData vStorageObject, PvtReport
+                Next i
+            Case ExcelTableOnly
+                'TODO Create Excel Table
+            Case ExcelTableSource
+                'TODO Create Excel Table and pivot
+        End Select
+    End With
+    
 ExitPoint:
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
+    StandardExit
 
 End Sub
 
 
+'
+'Sub CreatePowerPivotReportFromMetaData()
+'
+'    Dim Report As PivotReport
+'    Dim vStorageObject As Variant
+'    Dim Records_PivotTableProperties() As TypePowerReportStorageRecord
+'    Dim Records_CubeFieldOrientationProperties() As TypePowerReportStorageRecord
+'    Dim Records_CubeFieldExOrientationProperties() As TypePowerReportStorageRecord
+'    Dim Records_PivotFieldSubtotalProperties() As TypePowerReportStorageRecord
+'    Dim Records_PivotFieldProperties() As TypePowerReportStorageRecord
+'    Dim iPivotFirstRowNumber As Integer
+'    Dim sSheetHeading As String
+'    Dim sSheetCategory As String
+'    Dim vFreezeDetails As Variant
+'    Dim vRowRangeColWidths As Variant
+'    Dim vDataBodyRangeColWidth As Variant
+'
+'    Dim v As Variant
+'    Dim item As Variant
+'    Dim uf As ufPivotReportGenerator
+'    Dim i As Integer
+'    Dim wkbReportSource As Workbook
+'    Dim wkbValues As Workbook
+'    Dim sSheetName As String
+'
+'
+'
+'    'Setup
+'    Application.ScreenUpdating = False
+'    Application.EnableEvents = False
+'    Application.Calculation = xlCalculationManual
+'    Application.DisplayAlerts = False
+'
+'    Set wkbReportSource = ActiveWorkbook
+'    Set vStorageObject = DataPivotReporting.AssignPivotReportStorage(ActiveWorkbook)
+'
+'    'Exit if no report metadata exists on active sheet
+'    If vStorageObject Is Nothing Then
+'        MsgBox ("No report metadata exists on active sheet")
+'        Exit Sub
+'    End If
+'
+'    Set uf = New ufPivotReportGenerator
+'
+'    uf.Show
+'
+'    If Not uf.bCancelled Then
+'        If uf.chkValueCopy.Value = True Then
+'            Set wkbValues = Workbooks.Add
+'        End If
+'        For i = 0 To uf.lbReports.ListCount - 1
+'            If uf.lbReports.Selected(i) Then
+'
+'                'Get required data to generate the report
+'                sSheetName = uf.lbReports.List(i)
+'                DataPivotReporting.PR_GetPivotTableProperties vStorageObject, sSheetName, _
+'                    Records_PivotTableProperties
+'                DataPivotReporting.PR_GetPivotCubeFieldDataOrientationSortedByCubeFieldPosition _
+'                    vStorageObject, sSheetName, Records_CubeFieldOrientationProperties
+'                DataPivotReporting.PR_GetPivotCubeFieldDataPropertiesExOrientation _
+'                    vStorageObject, sSheetName, Records_CubeFieldExOrientationProperties
+'                DataPivotReporting.PR_GetPivotFieldDataSubtotalProperty vStorageObject, _
+'                    sSheetName, Records_PivotFieldSubtotalProperties
+'                DataPivotReporting.PR_GetPivotFieldDataPropertiesExSubtotals vStorageObject, _
+'                    sSheetName, Records_PivotFieldProperties
+'                iPivotFirstRowNumber = DataPivotReporting.PR_GetFirstPivotRow(vStorageObject, _
+'                    sSheetName)
+'                sSheetHeading = DataPivotReporting.PR_GetHeadingBasedOnSheetName( _
+'                    vStorageObject, sSheetName)
+'                sSheetCategory = DataPivotReporting.PR_GetCategoryBasedOnSheetName( _
+'                    vStorageObject, sSheetName)
+'                vFreezeDetails = DataPivotReporting.PR_GetFreezePaneLocation(vStorageObject, _
+'                    sSheetName)
+'                vRowRangeColWidths = DataPivotReporting.PR_GetRowRangeColWidths(vStorageObject, _
+'                    sSheetName)
+'                vDataBodyRangeColWidth = DataPivotReporting.PR_GetDataBodyRowRangeColWidth _
+'                    (vStorageObject, sSheetName)
+'
+'                'Create Report
+'                Set Report = New PivotReport
+'
+'                Select Case True
+'
+'                    Case uf.obPowePivotSource.Value = True
+'                        Report.CreatePowerPivotReportFromData wkbReportSource, sSheetName, _
+'                            Records_PivotTableProperties, Records_CubeFieldOrientationProperties, _
+'                            Records_CubeFieldExOrientationProperties, Records_PivotFieldSubtotalProperties, _
+'                            Records_PivotFieldProperties, iPivotFirstRowNumber, sSheetHeading, _
+'                            sSheetCategory, vFreezeDetails, vRowRangeColWidths, vDataBodyRangeColWidth
+'                        'Copy Values if selected
+'                        If uf.chkValueCopy.Value = True Then
+'                            Report.CreateValueCopy wkbValues
+'                            If uf.chkRetainLiveReport = False Then
+'                                Report.Delete
+'                            End If
+'                        End If
+'
+'                    Case uf.obExcelTableOnly.Value = True
+'                        Report.CreateExcelBacking wkbReportSource, sSheetName, sSheetCategory
+'
+'
+'                End Select
+'
+'            End If
+'        Next i
+'    End If
+'
+'    Unload uf
+'    Set uf = Nothing
+'
+'    wkbValues.Saved = True
+'
+''ExitPoint:
+'    Application.ScreenUpdating = True
+'    Application.EnableEvents = True
+'    Application.Calculation = xlCalculationAutomatic
+'    Application.DisplayAlerts = True
+'
+'
+'End Sub
 
 
-Sub CreatePivotReportFromMetaData()
-
-    Dim Report As PowerReport
-    Dim v As Variant
-    Dim item As Variant
-    Dim uf As ufPivotReportGenerator
-
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-        
-    'Populate the unique report categories on the userform
-    Set uf = New ufPivotReportGenerator
-    v = m001_DataAccess.PR_GetUniqueReportCategories
-    For Each item In v
-        uf.lbCategories.AddItem item
-    Next item
-    
-    uf.Show
-        
-    If Not uf.bCancelled And uf.lbReports.Text <> "" Then
-        Set Report = New PowerReport
-        Report.CreateFromStoredData ActiveWorkbook, uf.lbReports.Text
-    End If
-    
-    Unload uf
-    Set uf = Nothing
-    
-
-
-'ExitPoint:
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-
-End Sub
-
-
-Sub CreateValueReportWorkbook()
-'Copies a report of class PowerReport into a new Workbook as values
-
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-
-
-    Dim pr As PowerReport
-    Dim bReportAssigned As Boolean
-    
-    Set pr = New PowerReport
-    
-    bReportAssigned = pr.AssignToExistingSheet(ActiveSheet)
-    If bReportAssigned Then
-        pr.CreateValueReport
-    Else
-        MsgBox ("Active sheet does not contain a valid Power Report")
-    End If
-
-'ExitPoint:
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-
-End Sub
-
-
-Sub SetupPivotReportBackingStorage()
-'Utilsied as storage for optional saving of DAX queries that can be created to backupa a PowerReport
-
-    Dim bStorageCreated As Boolean
-    
-    'Setup
-    Application.ScreenUpdating = False
-    Application.EnableEvents = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
-    
-    bStorageCreated = m001_DataAccess.PR_CreatStorageForPowerReportBacking
-    
-    If Not bStorageCreated Then
-        MsgBox ("Error creating storage - potentially already exists")
-    End If
-
-    Application.ScreenUpdating = True
-    Application.EnableEvents = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
-
-End Sub

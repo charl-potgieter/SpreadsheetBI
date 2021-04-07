@@ -138,11 +138,33 @@ Function ValueIsInStringArray(ByVal aValueToTest As Variant, ByRef aArray() As S
 End Function
 
 
+Function UserFormListBoxHasSelectedItems(ByRef lb As MSForms.ListBox) As Boolean
+    Dim i As Long
+    UserFormListBoxHasSelectedItems = False
+    i = 0
+    Do While Not UserFormListBoxHasSelectedItems And i <= lb.ListCount - 1
+        UserFormListBoxHasSelectedItems = lb.Selected(i)
+        i = i + 1
+    Loop
+End Function
 
 
+Function UserFormListBoxSelectedArray(ByVal lb As MSForms.ListBox) As String()
 
+    Dim ReturnArray() As String
+    Dim i As Long
+    Dim j As Long
 
+    'Leave array empty if nothing selected
+    If Not UserFormListBoxHasSelectedItems(lb) Then Exit Function
+    j = 0
+    For i = 0 To lb.ListCount - 1
+        If lb.Selected(i) = True Then
+            ReDim Preserve ReturnArray(j)
+            ReturnArray(j) = lb.List(i)
+            j = j + 1
+        End If
+    Next i
+    UserFormListBoxSelectedArray = ReturnArray
 
-
-
-
+End Function

@@ -1,5 +1,78 @@
 TODO
--------     
+-------    
+  - Look at 
+   * NumberFormatting
+   * Freeze Panes
+   * Column Widths
+ 
+ - If above is successful remove name colum from the ListStorage sheet
+
+Create pivot table on a temp sheet until sheet properties are set? 
+
+Is it possible to programmatically create dax query based on pivot table data?  I think that a measure can be defined in an evaluate statement.  Won't work as time intelligence measures a d measures depending on measures will be very difficult to get working. 
+
+Continue to work on PowerPivotReport.CreateStandardPivotReportFromData
+ - Maybe first create a PowerPivot.CreateExcelTable function  (which can now be directly called from the menu)
+ - at the same time expand EntryPoints.CreatePowerPivotReportFromMetaData to include 
+   the option to create a standard pivot table report
+
+Listobject class (and calling subs) --> need to protect against errors generated with bull data, 
+including in transpose functions
+
+ - How about having one PowerReport class but have options to 
+  - create live PowerPivot report
+  - Create values Power Pivot Report (in seperate workbook)
+  - Create excel data backing and drillable standard Excel pivot table (which includes Excel formulas rather than measures)
+
+ - PowerReportDaxQueries could be automatically obtained by checking for DAX files in a specific subfolder, where files are named as sheetname.DAX
+ --> This can be populated in the read Pivot table metadata sub
+ --> Maybe save in current storage in sheet properties
+
+ - Userform --> allow for possibility that all reports may not have an Excel table equivalent
+  --> when I report is selected in userform check if a dax query file exists in the list storage
+     and if not grey out the Excel Table source option button
+
+
+ - Attempt to create data query as basis for P&L pviot before attempting below
+ * In some ways it is nicer to have table formulas in Excel - more transparent
+
+
+  Maybe also have option to create the pivot report from the dataquery (As values) that way one can drill to underlying pivot details as per normal Excel functionality.  Queries could be structured with unions something like the below do seperate YTD, MTD etc (in below case this is done for actual vs forecast)
+      /* START QUERY BUILDER */
+
+      DEFINE
+        VAR _ActTable = SUMMARIZECOLUMNS(
+          FactFinanceData[Fiscal Month],
+          FactFinanceData[Profit Center],
+          "Type", "Actual",
+          "Amt", [Actual Amt]
+      )
+
+        VAR _FcstTable = SUMMARIZECOLUMNS(
+          FactFinanceData[Fiscal Month],
+          FactFinanceData[Profit Center],
+          "Type", "Fcst",
+          "Amt", [Forecast Amt]
+      )
+
+
+      EVALUATE
+        UNION(_ActTable, _FcstTable)
+      /* END QUERY BUILDER */
+
+
+
+ - CreatePivotReportFromMetaData call subs in DataAccess module to get all required data to create pivot reports.
+  - Pass this data as paramaters to PowerReport.CreateFromData
+
+
+  - Allow multiple value reports to be generated at the same time
+   - Create an ALL category which allows selection of allow
+   - Allow for:
+      * Multiple value reports having same backing that is not duplicated on generation
+      * Multiple value reports with different backing data
+
+
  - I may need to consider pivotstyles when creating pivot tables from metadata.   Do I want to go as far as saving pivot style attributes or just apply styles that exist in the workbook?
 
  - Include DAX table queries when generating spreadsheet metadata

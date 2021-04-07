@@ -8,15 +8,18 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
+'@Folder "Storage"
+
 
 'Use "This" declaration as an easy way to get intellisense to the classes private variables
 'https://rubberduckvba.wordpress.com/2020/02/27/vba-classes-gateway-to-solid/
 Private Type TypeListStorage
+    wkb As Workbook
     Sheet As Worksheet
     ListObj As ListObject
     FilteredListObj As ListObject
 End Type
-Private This As TypeListStorage
+Private this As TypeListStorage
 
 Public Enum lsSortOrder  'ls = ListStorage
     lsAsc = 1
@@ -33,14 +36,15 @@ Public Function CreateStorage(ByRef wkb As Workbook, ByVal sName As String, Head
     Else
         CreateStorage = True
         
-        Set This.Sheet = CreateListStorageSheet(wkb, sName)
-        FormatListStorageSheet This.Sheet
+        Set this.wkb = wkb
+        Set this.Sheet = CreateListStorageSheet(wkb, sName)
+        FormatListStorageSheet this.Sheet
         
-        Set This.ListObj = CreateListStorageListObject(This.Sheet, Headings)
-        FormatStorageListObject This.ListObj
+        Set this.ListObj = CreateListStorageListObject(this.Sheet, Headings)
+        FormatStorageListObject this.ListObj
         
-        Set This.FilteredListObj = CreateFilteredListStorageListObject(This.Sheet, Headings)
-        FormatStorageListObject This.FilteredListObj
+        Set this.FilteredListObj = CreateFilteredListStorageListObject(this.Sheet, Headings)
+        FormatStorageListObject this.FilteredListObj
     End If
 
 End Function
@@ -51,18 +55,16 @@ Public Function AssignStorage(ByRef wkb As Workbook, ByVal sName As String) As B
     
     
     On Error Resume Next
-    Set This.Sheet = wkb.Worksheets(sName)
-    Set This.ListObj = This.Sheet.ListObjects("tbl_" & sName)
-    Set This.FilteredListObj = This.Sheet.ListObjects("tbl_" & sName & "_Filtered")
     
-    This.ListObj.ShowAutoFilter = True
-    This.ListObj.AutoFilter.ShowAllData
+    Set this.wkb = wkb
+    Set this.Sheet = wkb.Worksheets(sName)
+    Set this.ListObj = this.Sheet.ListObjects("tbl_" & sName)
+    Set this.FilteredListObj = this.Sheet.ListObjects("tbl_" & sName & "_Filtered")
+    
+    this.ListObj.ShowAutoFilter = True
+    this.ListObj.AutoFilter.ShowAllData
         
-    If Err.Number = 0 Then
-        AssignStorage = True
-    Else
-        AssignStorage = False
-    End If
+    AssignStorage = (Err.Number = 0)
     
     On Error GoTo 0
 
@@ -70,7 +72,7 @@ End Function
 
 
 Public Property Get Name() As String
-    Name = This.Sheet.Name
+    Name = this.Sheet.Name
 End Property
 
 
@@ -96,6 +98,7 @@ Public Function ItemsInField(ByVal sFieldName As String, _
     Optional SortOrder As lsSortOrder = lsAsc, _
     Optional bFiltered As Boolean = False) As Variant
 'Returns a list of items in sFieldname as a one dimensional variant array with base 1
+'If empty or error returns null
 
     Dim sEvalStr As String
     Dim sTableName As String
@@ -122,10 +125,17 @@ Public Function ItemsInField(ByVal sFieldName As String, _
     End If
     
     sEvalStr = "=" & sEvalStr
-    ItemsInField = Evaluate(sEvalStr)
+    ItemsInField = this.Sheet.Evaluate(sEvalStr)
        
     'Transpose to allow referncing with single index and utilise ubound and lbound with one dimension
+    On Error Resume Next
     ItemsInField = WorksheetFunction.Transpose(ItemsInField)
+    If Err.Number <> 0 Then
+        ItemsInField = Null
+    End If
+    On Error GoTo 0
+    
+    
 
 End Function
 
@@ -162,16 +172,16 @@ Public Function InsertFromDictionary(InsertValues As Dictionary) As Boolean
     'First test that keys in dictionary correspond to field headers
     For Each key In InsertValues.Keys
         bKeysAreValid = bKeysAreValid And _
-            (WorksheetFunction.CountIfs(This.ListObj.HeaderRowRange, key) = 1)
+            (WorksheetFunction.CountIfs(this.ListObj.HeaderRowRange, key) = 1)
     Next key
     
     'Insert values
     If bKeysAreValid Then
         InsertFromDictionary = True
-        AddOneRowToListObject This.ListObj
-        i = This.ListObj.DataBodyRange.Rows.Count
+        AddOneRowToListObject this.ListObj
+        i = this.ListObj.DataBodyRange.Rows.Count
         For Each key In InsertValues.Keys
-            This.ListObj.ListColumns(key).DataBodyRange(i) = InsertValues.item(key)
+            this.ListObj.ListColumns(key).DataBodyRange(i) = InsertValues.item(key)
         Next key
     Else
         InsertFromDictionary = False
@@ -193,61 +203,63 @@ Public Function Filter(ByVal sFilterString As String, Optional bSorted As Boolea
     
     'If Original list is blank then clear filter list and exit sub
     '(there is notging to filter)
-    If This.ListObj.DataBodyRange Is Nothing Then
-        If Not (This.FilteredListObj.DataBodyRange Is Nothing) Then
-            This.FilteredListObj.DataBodyRange.Rows.Delete
+    If this.ListObj.DataBodyRange Is Nothing Then
+        If Not (this.FilteredListObj.DataBodyRange Is Nothing) Then
+            this.FilteredListObj.DataBodyRange.Rows.Delete
         End If
         Exit Function
     End If
           
     On Error Resume Next
-    This.FilteredListObj.DataBodyRange.Delete
+    this.FilteredListObj.DataBodyRange.Delete
     On Error GoTo 0
     
-    sFilterString = Replace(sFilterString, "[", This.ListObj.Name & "[")
-    sFilterString = "FILTER(" & This.ListObj.Name & ", " & sFilterString & ")"
+   
+    sFilterString = Replace(sFilterString, "[", this.ListObj.Name & "[")
+    sFilterString = "FILTER(" & this.ListObj.Name & ", " & sFilterString & ")"
     
     If bSorted Then
         sSortField = Replace(sSortField, "[", "")
         sSortField = Replace(sSortField, "]", "")
-        iSortColIndex = WorksheetFunction.Match(sSortField, This.ListObj.HeaderRowRange, 0)
+        iSortColIndex = WorksheetFunction.Match(sSortField, this.ListObj.HeaderRowRange, 0)
         sFilterString = "SORT(" & sFilterString & ", " & iSortColIndex & ", " & SortOrder & ")"
     End If
     
     
     sFilterString = "=" & sFilterString
     
-    v = Evaluate(sFilterString)
+    v = this.Sheet.Evaluate(sFilterString)
     
     Select Case NumberOfArrayDimensions(v)
         Case 2
-            AddOneRowToListObject This.FilteredListObj
-            This.FilteredListObj.DataBodyRange.Cells(1).Resize(UBound(v, 1), UBound(v, 2)) = v
+            AddOneRowToListObject this.FilteredListObj
+            this.FilteredListObj.DataBodyRange.Cells(1).Resize(UBound(v, 1), UBound(v, 2)) = v
         Case 1
             'If the filter returns only one row the variant is a one dimensional array and
             'requires a different mechanism to write to sheet
-            AddOneRowToListObject This.FilteredListObj
-            This.FilteredListObj.DataBodyRange.Cells(1).Resize(, UBound(v)) = v
+            AddOneRowToListObject this.FilteredListObj
+            this.FilteredListObj.DataBodyRange.Cells(1).Resize(, UBound(v)) = v
         Case 0
           'No data returned.  Keep filtered list empty
     End Select
 
 End Function
 
+
 Public Sub ReplaceDataWithFilteredData()
 'Replaces the Original data per the listobject with the filtered versions per This.FilteredListObject
 'Filtered List object is cleared
     
-    If Not This.ListObj.DataBodyRange Is Nothing Then
-        This.ListObj.DataBodyRange.Rows.Delete
+    If Not this.ListObj.DataBodyRange Is Nothing Then
+        this.ListObj.DataBodyRange.Rows.Delete
     End If
     
-    If Not (This.FilteredListObj.DataBodyRange Is Nothing) Then
-        AddOneRowToListObject This.ListObj
-        This.FilteredListObj.DataBodyRange.Copy
-        This.ListObj.DataBodyRange.Cells(1).PasteSpecial xlPasteValues
+    If Not (this.FilteredListObj.DataBodyRange Is Nothing) Then
+        AddOneRowToListObject this.ListObj
+        this.FilteredListObj.DataBodyRange.Copy
+        this.ListObj.DataBodyRange.Cells(1).PasteSpecial xlPasteValues
         Application.CutCopyMode = False
-        This.FilteredListObj.DataBodyRange.Rows.Delete
+        this.FilteredListObj.DataBodyRange.Rows.Delete
     End If
     
 
@@ -298,7 +310,7 @@ Public Function Xlookup(ByVal LookupValue As Variant, _
 
     sEvalStr = Replace(sEvalStr, "[", lo.Name & "[")
         
-    vReturnValue = Evaluate(sEvalStr)
+    vReturnValue = this.Sheet.Evaluate(sEvalStr)
     
     'Return null if no value found and not alternative specified
     If WorksheetFunction.IsError(vReturnValue) Then
@@ -509,11 +521,13 @@ Private Function SelectedListObject(ByVal bFiltered) As ListObject
 'Returns either This.ListObj or This.FilteredListObj depending on the
 'bFiltered paramater
 
-
     If bFiltered Then
-        Set SelectedListObject = This.FilteredListObj
+        Set SelectedListObject = this.FilteredListObj
     Else
-        Set SelectedListObject = This.ListObj
+        Set SelectedListObject = this.ListObj
     End If
 
 End Function
+ 
+
+

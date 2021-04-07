@@ -131,7 +131,7 @@ Dim D1 As Double
 Dim D2 As Double
 Dim Done As Boolean
 Dim Compare As VbCompareMethod
-Dim LB As Long
+Dim lb As Long
 
 ''''''''''''''''''''''''''''''''''''
 ' Set the default return value.
@@ -1614,7 +1614,7 @@ Public Function IsArrayEmpty(Arr As Variant) As Boolean
 ' This function is really the reverse of IsArrayAllocated.
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-Dim LB As Long
+Dim lb As Long
 Dim UB As Long
 
 Err.Clear
@@ -1641,8 +1641,8 @@ Else
     ' allocated.
     ''''''''''''''''''''''''''''''''''''''''''
     Err.Clear
-    LB = LBound(Arr)
-    If LB > UB Then
+    lb = LBound(Arr)
+    If lb > UB Then
         IsArrayEmpty = True
     Else
         IsArrayEmpty = False
