@@ -134,8 +134,6 @@ Public Function ItemsInField(ByVal sFieldName As String, _
         ItemsInField = Null
     End If
     On Error GoTo 0
-    
-    
 
 End Function
 
@@ -181,7 +179,7 @@ Public Function InsertFromDictionary(InsertValues As Dictionary) As Boolean
         AddOneRowToListObject this.ListObj
         i = this.ListObj.DataBodyRange.Rows.Count
         For Each key In InsertValues.Keys
-            this.ListObj.ListColumns(key).DataBodyRange(i) = InsertValues.item(key)
+            this.ListObj.ListColumns(key).DataBodyRange(i) = InsertValues.Item(key)
         Next key
     Else
         InsertFromDictionary = False
@@ -413,6 +411,10 @@ Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings() 
         sht.Cells(iTableRowStart, iTableColStart).CurrentRegion, , xlYes)
     lo.Name = "tbl_" & sht.Name
     
+    'Set number format to text to ensure no errors when saving formulas for
+    'example which will be correctly saved as strings with below setting.
+    lo.Range.EntireColumn.NumberFormat = "@"
+    
     sht.Cells(iTableRowStart - 2, iTableColStart).Value = "Original List"
     sht.Cells(iTableRowStart - 2, iTableColStart).Font.Bold = True
     
@@ -440,6 +442,11 @@ Private Function CreateFilteredListStorageListObject(ByRef sht As Worksheet, Hea
         sht.Cells(iTableRowStart, iTableColStart).CurrentRegion, , xlYes)
     lo.Name = "tbl_" & sht.Name & "_Filtered"
     
+    'Set number format to text to ensure no errors when saving formulas for
+    'example which will be correctly saved as strings with below setting.
+    'Safer to set EntireCol as values are pasted before list is expanded
+    lo.Range.EntireColumn.NumberFormat = "@"
+    
     sht.Cells(iTableRowStart - 2, iTableColStart).Value = "Filtered List"
     sht.Cells(iTableRowStart - 2, iTableColStart).Font.Bold = True
     
@@ -466,10 +473,10 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
         .Interior.Color = RGB(68, 114, 196)
         .Font.Color = RGB(255, 255, 255)
         .Font.Bold = True
-        .Borders.item(xlEdgeTop).LineStyle = xlSolid
-        .Borders.item(xlEdgeTop).Weight = xlMedium
-        .Borders.item(xlEdgeBottom).LineStyle = xlSolid
-        .Borders.item(xlEdgeBottom).Weight = xlMedium
+        .Borders.Item(xlEdgeTop).LineStyle = xlSolid
+        .Borders.Item(xlEdgeTop).Weight = xlMedium
+        .Borders.Item(xlEdgeBottom).LineStyle = xlSolid
+        .Borders.Item(xlEdgeBottom).Weight = xlMedium
     End With
 
     'Set row stripe format
@@ -477,8 +484,8 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
     sty.TableStyleElements(xlRowStripe2).Interior.Color = RGB(255, 255, 255)
     
     'Set whole table bottom edge format
-    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).LineStyle = xlSolid
-    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).Weight = xlMedium
+    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).LineStyle = xlSolid
+    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).Weight = xlMedium
 
     
     'Apply custom style and set other attributes
@@ -496,6 +503,23 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
     
 
 End Sub
+
+
+Public Sub AddFieldValidationList(ByVal sFieldName As String, sValidationList As String)
+
+    Dim TestCount As Long
+
+    'Ensure databody range exists
+    On Error Resume Next
+    TestCount = this.ListObj.DataBodyRange.Rows.Count
+    If Err.Number <> 0 Then AddOneRowToListObject this.ListObj
+
+    With this.ListObj.ListColumns(sFieldName).DataBodyRange.Validation
+        .Delete
+        .Add Type:=xlValidateList, Formula1:=sValidationList
+    End With
+End Sub
+
 
 
 Private Sub AddOneRowToListObject(lo As ListObject)

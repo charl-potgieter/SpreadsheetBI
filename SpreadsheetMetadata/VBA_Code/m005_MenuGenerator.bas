@@ -130,26 +130,33 @@ Sub CreatePopUpMenu()
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Index page"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertIndexPageActiveWorkbook"
-
     
     
-    'Pivot reports Menu
+    'Reports Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
-    MenuCategory.Caption = "Pivot reports"
+    MenuCategory.Caption = "Reports"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Save report metadata"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "SavePivotReportMetadataInActiveWorkbook"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "SaveReportMetadataInActiveWorkbook"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Create report from metadata"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreatePivotReportFromMetaData"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateReportFromMetadata"
+    
+'    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+'    MenuItem.Caption = "Create storage for table reports"
+'    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "AssignTableReportStorageInActiveWorkbook"
+    
+'    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+'    MenuItem.Caption = "Create storage for Excel table formulas"
+'    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "AssignPivotReportFormulaStorageInActiveWorkbook"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Create storage for Excel table formulas"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "AssignPivotReportFormulaStorageInActiveWorkbook"
-    
-        
+    MenuItem.Caption = "Create storage for Dax queries per report"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "AssignPivotReportQueriesPerReportActiveWorkbook"
+     
+     
     'Pivot Table Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
     MenuCategory.Caption = "Pivot table"

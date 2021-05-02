@@ -78,6 +78,7 @@ End Function
 Function WriteStringToTextFile(ByVal sStr As String, ByVal sFilePath As String)
 'Requires reference to Microsoft Scripting Runtime
 'Writes sStr to a text file
+'*** THIS WILL OVERWRITE ANY CURRENT CONTENT OF THE FILE ***
 
     Dim fso As Object
     Dim oFile As Object

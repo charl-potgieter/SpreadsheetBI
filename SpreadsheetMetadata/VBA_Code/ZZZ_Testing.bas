@@ -245,13 +245,13 @@ End Sub
 Sub TestArray()
     
     Dim v() As Variant
-    Dim item As Variant
+    Dim Item As Variant
     
     v = Array(1, 2, 3)
     
-    For Each item In v
-        Debug.Print item
-    Next item
+    For Each Item In v
+        Debug.Print Item
+    Next Item
 
 
 
@@ -262,7 +262,7 @@ End Sub
 '    Dim v As Variant
 '    Dim item As Variant
 '
-'    v = m001_DataPivotReporting.ReadUniquePivotReportCategories
+'    v = m001_Reporting_Data.ReadUniquePivotReportCategories
 '    For Each item In v
 '        Debug.Print (item)
 '    Next item
@@ -281,7 +281,7 @@ End Sub
 '
 '
 '    Set uf = New ufPivotReportGenerator
-'    v = m001_DataPivotReporting.ReadUniquePivotReportCategories
+'    v = m001_Reporting_Data.ReadUniquePivotReportCategories
 '    For Each item In v
 '        uf.lbCategories.AddItem item
 '    Next item
@@ -396,13 +396,13 @@ End Sub
 
 'Sub TestPivotReportValueCopy()
 '
-'    Dim pr As PivotReport
+'    Dim pr As ReportingPowerPivot
 '    Dim sTest As String
 '    Dim bAssignedOk As Boolean
 '    Dim wkb As Workbook
 '    Dim sht As Worksheet
 '
-'    Set pr = New PivotReport
+'    Set pr = New ReportingPowerPivot
 '    bAssignedOk = pr.AssignToExistingSheet(ActiveSheet)
 '
 '    If Not bAssignedOk Then
@@ -467,12 +467,12 @@ End Sub
 
 Sub TestFilters2()
 
-    Dim item As Variant
+    Dim Item As Variant
     
     
-    For Each item In ActiveSheet.PivotTables("PivotTable1").PivotFields("[DimAccounts].[Account].[Account]").HiddenItemsList
-        Debug.Print item
-    Next item
+    For Each Item In ActiveSheet.PivotTables("PivotTable1").PivotFields("[DimAccounts].[Account].[Account]").HiddenItemsList
+        Debug.Print Item
+    Next Item
 
 End Sub
 
@@ -494,7 +494,7 @@ Sub TestActiveWorkbookChange()
 
     Dim ls As ListStorage
     Dim v As Variant
-    Dim item As Variant
+    Dim Item As Variant
     Dim d As Dictionary
     
     Set ls = New ListStorage
@@ -531,7 +531,17 @@ End Sub
 'End Sub
 
 
+Sub TestConnection()
 
+    Dim cn As WorkbookConnection
+    
+    For Each cn In ActiveWorkbook.Connections
+        If cn.Type = xlConnectionTypeOLEDB Then
+            Debug.Print cn.Name
+        End If
+    Next cn
+
+End Sub
 
 
 

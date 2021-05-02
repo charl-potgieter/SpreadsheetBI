@@ -1,0 +1,7 @@
+﻿/* START QUERY BUILDER */
+EVALUATE
+SUMMARIZECOLUMNS(
+    DimAccounts[Class],
+    "Table B amount", [Actual Amt]
+)
+/* END QUERY BUILDER */

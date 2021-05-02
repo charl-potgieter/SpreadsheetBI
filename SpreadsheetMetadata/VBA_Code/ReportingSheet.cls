@@ -7,7 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-'@Folder "Reporting"
+'@Folder "Storage.Reporting"
 Option Explicit
 
 Private Type TReportingSheet
@@ -66,13 +66,14 @@ Public Property Let FreezePaneRow(ByVal lFreezeRow As Long)
     Dim WorkbookSelectedBeforeSub As Workbook
     Dim SelectedSheetOnReportingWorkbookBeforeSub As Worksheet
     Dim lFreezeCol As Long
+    Dim wkbToFreeze As Workbook
     
     Set WorkbookSelectedBeforeSub = ActiveWorkbook
-    this.shtReport.Parent.Activate
+    Set wkbToFreeze = this.shtReport.Parent
+    wkbToFreeze.Activate
     Set SelectedSheetOnReportingWorkbookBeforeSub = ActiveSheet
     this.shtReport.Activate
     
-    'SelectionOnReportingSheetBeforeSub = Selection
     With ActiveWindow
         lFreezeCol = ActiveWindow.SplitColumn
         .FreezePanes = False
@@ -95,8 +96,7 @@ Public Property Get FreezePaneCol() As Long
     this.shtReport.Parent.Activate
     Set SelectedSheetOnReportingWorkbookBeforeSub = ActiveSheet
     this.shtReport.Activate
-    
-    FreezePaneCol = ActiveWindow.SplitRow
+    FreezePaneCol = ActiveWindow.SplitColumn
     
     SelectedSheetOnReportingWorkbookBeforeSub.Activate
     WorkbookSelectedBeforeSub.Activate
@@ -115,7 +115,6 @@ Public Property Let FreezePaneCol(ByVal lFreezeColumn As Long)
     Set SelectedSheetOnReportingWorkbookBeforeSub = ActiveSheet
     this.shtReport.Activate
     
-    'SelectionOnReportingSheetBeforeSub = Selection
     With ActiveWindow
         lFreezeRow = ActiveWindow.SplitRow
         .FreezePanes = False
@@ -211,6 +210,10 @@ Public Function CreateFromExistingSheet(ByVal sht As Worksheet) As Boolean
 End Function
 
 
+Public Sub Delete()
+    this.shtReport.Delete
+End Sub
+
 
 Private Sub InsertReportingSheet(ByVal wkb As Workbook, _
     Optional ByVal lSheetPosition As Long = 0)
@@ -219,11 +222,11 @@ Private Sub InsertReportingSheet(ByVal wkb As Workbook, _
     
     If lSheetPosition <> 0 Then
         Set this.shtReport = wkb.Sheets.Add _
-            (After:=wkb.Worksheets.item(lSheetPosition))
+            (After:=wkb.Worksheets.Item(lSheetPosition))
     Else
         NumberOfSheetsInWorkbook = wkb.Sheets.Count
         Set this.shtReport = wkb.Sheets.Add _
-            (After:=wkb.Worksheets.item(NumberOfSheetsInWorkbook))
+            (After:=wkb.Worksheets.Item(NumberOfSheetsInWorkbook))
     End If
         
 End Sub
@@ -258,7 +261,7 @@ Private Sub FormatReportingSheet()
         .Cells.Font.Name = "Calibri"
         .Cells.Font.Size = 11
         .DisplayPageBreaks = False
-        .Columns.item("A:A").ColumnWidth = 4
+        .Columns.Item("A:A").ColumnWidth = 4
         .Range(csHeadingAddress).Font.Bold = True
         .Range(csHeadingAddress).Font.Size = 16
         .Range(csCategoryAddress).Font.Color = RGB(170, 170, 170)
@@ -276,7 +279,18 @@ End Sub
 
 Private Sub FreezeActiveWindowPanes(ByVal lFreezeRow As Long, ByVal lFreezeColumn As Long)
    
+    Const MinScreenPercent As Double = 0.25
+   
     With ActiveWindow
+    
+        'Freeze panes does not seem to work if window is too small
+        If .Width < ScreenDimensionWidth * MinScreenPercent Then
+            .Width = ScreenDimensionWidth * MinScreenPercent
+        End If
+        If .Height < ScreenDimensionHeight * MinScreenPercent Then
+            .Height = ScreenDimensionHeight * MinScreenPercent
+        End If
+        
         Select Case True
         Case lFreezeColumn = 0 And lFreezeRow <> 0
             .SplitRow = lFreezeRow

@@ -49,12 +49,11 @@ Public Enum EnumPivotReportType
     ExcelTableOnly
 End Enum
 
-Public Type TypePivotReportUserSelection
+Public Type TypeReportUserSelection
     SelectionMade As Boolean
     ReportList() As String
-    PivotReportType As EnumPivotReportType
-    GenerateValueCopyNewWorkbook As Boolean
-    RetainLiveInCurrentWorkbook As Boolean
+    ReportType As EnumPivotReportType
+    SaveInNewWorkbook As Boolean
 End Type
 
 Public Const MaxInt As Integer = 32767
@@ -879,10 +878,6 @@ ExitPoint:
 End Sub
 
 
-
-
-
-
 Sub TempDeleteAllPQ()
 'Deletes all power queries in active workbook
 
@@ -898,207 +893,92 @@ End Sub
 
 
 
+Sub AssignPivotReportQueriesPerReportActiveWorkbook()
+'Utilsied as storage for saving of DAX tables (connections and queries) to be retained per
+'report.  If nothing is specified for report than all tables are retained
 
-
-
-Sub AssignPivotReportFormulaStorageInActiveWorkbook()
-'Utilsied as storage for saving of DAX query files utilised to create a drillable pivot report
-'that uses excel data table (potentially with formulas) fo backing
-
-    Dim bStorageCreated As Boolean
     StandardEntry
-    DataPivotReporting.AssignPivotReportFormulaStorage ActiveWorkbook
+    Reporting_Data.AssignPivotTableQueriesPerReport ActiveWorkbook
     StandardExit
 
 End Sub
 
 
-Sub SavePivotReportMetadataInActiveWorkbook()
-'Reads all pivot table metadata in active workbook and saves on worksheets in active workbook
-
-    Dim sht As Worksheet
-    Dim bValidAssignment As Boolean
-    Dim PvtReport As PivotReport
-    Dim vStorageObject As Variant 'abstract away the storage structure
-
-    StandardEntry
-    Set vStorageObject = AssignPivotReportStructureStorage(ActiveWorkbook, True)
-
-    For Each sht In ActiveWorkbook.Worksheets
-        Set PvtReport = New PivotReport
-        bValidAssignment = PvtReport.AssignToExistingSheet(sht)
-        If bValidAssignment Then
-            SaveSinglePivotReportDataToStorage vStorageObject, PvtReport
-        End If
-        Set PvtReport = Nothing
-    Next sht
+Sub SaveReportMetadataInActiveWorkbook()
+'Reads all report metadata from reports in active workbook and saves
     
+    StandardEntry
+    SaveReportingPowerPivotMetaData ActiveWorkbook
+    SaveReportingTableMetadata ActiveWorkbook
     StandardExit
 
 End Sub
 
 
-Sub CreatePivotReportFromMetadata()
+Sub CreateReportFromMetadata()
 
-    Dim vStorageObject As Variant
-    Dim UserReportSelection As TypePivotReportUserSelection
+    Dim vStorageObjPowerPivotStructure As Variant
+    Dim vStorageObjTableReportStructure As Variant
+    Dim vStorageObjQueriesForSelectedReports As Variant
+    Dim UserReportSelection As TypeReportUserSelection
     Dim i As Long
-    Dim PvtReport As PivotReport
+    Dim PwrPvtReport As ReportingPowerPivot
+    Dim TableReport As ReportingTable
     Dim sReportName As String
+    Dim wkb As Workbook
+    Dim sDaxTableQueryPath As String
+    Const csSubDirectory As String = "DaxTableQueries"
 
     StandardEntry
-    Set vStorageObject = DataPivotReporting.AssignPivotReportStructureStorage(ActiveWorkbook)
-    
+    Set vStorageObjPowerPivotStructure = _
+        Reporting_Data.AssignPivotReportStructureStorage(ActiveWorkbook, False)
+    Set vStorageObjTableReportStructure = _
+        Reporting_Data.AssignTableReportStorage(ActiveWorkbook, False)
+    Set vStorageObjQueriesForSelectedReports = _
+        Reporting_Data.AssignPivotTableQueriesPerReport(ActiveWorkbook, False)
+        
     'Exit if no report metadata exists on active sheet
-    If vStorageObject Is Nothing Then
-        MsgBox ("No pivot report metadata exists on active sheet")
-        GoTo ExitPoint
+    If vStorageObjPowerPivotStructure Is Nothing And _
+        vStorageObjTableReportStructure Is Nothing Then
+            MsgBox ("No report metadata exists on active sheet")
+            GoTo ExitPoint
     End If
     
-    UserReportSelection = GetUserPivotReportSelection
-    
+    UserReportSelection = GetUserReportSelection
+    Set wkb = AssignReportWorkbook(ActiveWorkbook, UserReportSelection.SaveInNewWorkbook)
+
     With UserReportSelection
         If .SelectionMade = False Then GoTo ExitPoint
-        Select Case .PivotReportType
-            Case PowerPivotSource
-                For i = LBound(.ReportList) To UBound(.ReportList)
-                    sReportName = .ReportList(i)
-                    Set PvtReport = New PivotReport
-                    PvtReport.CreateEmptyPivotReport ActiveWorkbook, sReportName, DataModel
-                    DesignPivotReportBasedOnStoredData vStorageObject, PvtReport
-                Next i
-            Case ExcelTableOnly
-                'TODO Create Excel Table
-            Case ExcelTableSource
-                'TODO Create Excel Table and pivot
-        End Select
+        
+        For i = LBound(.ReportList) To UBound(.ReportList)
+            sReportName = .ReportList(i)
+            Select Case .ReportType
+                Case PowerPivotSource
+                    Set PwrPvtReport = New ReportingPowerPivot
+                    PwrPvtReport.CreateEmptyPowerPivotReport wkb, sReportName
+                    DesignPowerPivotReportBasedOnStoredData _
+                        vStorageObjPowerPivotStructure, PwrPvtReport
+                Case ExcelTableOnly
+                    sDaxTableQueryPath = ActiveWorkbook.Path & Application.PathSeparator & _
+                        csSubDirectory & Application.PathSeparator & sReportName & ".dax"
+                    Set TableReport = New ReportingTable
+                    TableReport.CreateEmptyReportingTable wkb, sReportName
+                    DesignPowerTableReportBasedOnStoredData vStorageObjTableReportStructure, _
+                        TableReport, sDaxTableQueryPath
+                Case ExcelTableSource
+                    'TODO Create Excel Table and pivot
+            End Select
+        Next i
+        
+        If .SaveInNewWorkbook Then
+            DeleteNonReportSheets wkb, .ReportList
+            DeleteUnusedDataModelTables vStorageObjQueriesForSelectedReports, wkb, .ReportList
+            wkb.Save
+        End If
+        
     End With
     
 ExitPoint:
     StandardExit
 
 End Sub
-
-
-'
-'Sub CreatePowerPivotReportFromMetaData()
-'
-'    Dim Report As PivotReport
-'    Dim vStorageObject As Variant
-'    Dim Records_PivotTableProperties() As TypePowerReportStorageRecord
-'    Dim Records_CubeFieldOrientationProperties() As TypePowerReportStorageRecord
-'    Dim Records_CubeFieldExOrientationProperties() As TypePowerReportStorageRecord
-'    Dim Records_PivotFieldSubtotalProperties() As TypePowerReportStorageRecord
-'    Dim Records_PivotFieldProperties() As TypePowerReportStorageRecord
-'    Dim iPivotFirstRowNumber As Integer
-'    Dim sSheetHeading As String
-'    Dim sSheetCategory As String
-'    Dim vFreezeDetails As Variant
-'    Dim vRowRangeColWidths As Variant
-'    Dim vDataBodyRangeColWidth As Variant
-'
-'    Dim v As Variant
-'    Dim item As Variant
-'    Dim uf As ufPivotReportGenerator
-'    Dim i As Integer
-'    Dim wkbReportSource As Workbook
-'    Dim wkbValues As Workbook
-'    Dim sSheetName As String
-'
-'
-'
-'    'Setup
-'    Application.ScreenUpdating = False
-'    Application.EnableEvents = False
-'    Application.Calculation = xlCalculationManual
-'    Application.DisplayAlerts = False
-'
-'    Set wkbReportSource = ActiveWorkbook
-'    Set vStorageObject = DataPivotReporting.AssignPivotReportStorage(ActiveWorkbook)
-'
-'    'Exit if no report metadata exists on active sheet
-'    If vStorageObject Is Nothing Then
-'        MsgBox ("No report metadata exists on active sheet")
-'        Exit Sub
-'    End If
-'
-'    Set uf = New ufPivotReportGenerator
-'
-'    uf.Show
-'
-'    If Not uf.bCancelled Then
-'        If uf.chkValueCopy.Value = True Then
-'            Set wkbValues = Workbooks.Add
-'        End If
-'        For i = 0 To uf.lbReports.ListCount - 1
-'            If uf.lbReports.Selected(i) Then
-'
-'                'Get required data to generate the report
-'                sSheetName = uf.lbReports.List(i)
-'                DataPivotReporting.PR_GetPivotTableProperties vStorageObject, sSheetName, _
-'                    Records_PivotTableProperties
-'                DataPivotReporting.PR_GetPivotCubeFieldDataOrientationSortedByCubeFieldPosition _
-'                    vStorageObject, sSheetName, Records_CubeFieldOrientationProperties
-'                DataPivotReporting.PR_GetPivotCubeFieldDataPropertiesExOrientation _
-'                    vStorageObject, sSheetName, Records_CubeFieldExOrientationProperties
-'                DataPivotReporting.PR_GetPivotFieldDataSubtotalProperty vStorageObject, _
-'                    sSheetName, Records_PivotFieldSubtotalProperties
-'                DataPivotReporting.PR_GetPivotFieldDataPropertiesExSubtotals vStorageObject, _
-'                    sSheetName, Records_PivotFieldProperties
-'                iPivotFirstRowNumber = DataPivotReporting.PR_GetFirstPivotRow(vStorageObject, _
-'                    sSheetName)
-'                sSheetHeading = DataPivotReporting.PR_GetHeadingBasedOnSheetName( _
-'                    vStorageObject, sSheetName)
-'                sSheetCategory = DataPivotReporting.PR_GetCategoryBasedOnSheetName( _
-'                    vStorageObject, sSheetName)
-'                vFreezeDetails = DataPivotReporting.PR_GetFreezePaneLocation(vStorageObject, _
-'                    sSheetName)
-'                vRowRangeColWidths = DataPivotReporting.PR_GetRowRangeColWidths(vStorageObject, _
-'                    sSheetName)
-'                vDataBodyRangeColWidth = DataPivotReporting.PR_GetDataBodyRowRangeColWidth _
-'                    (vStorageObject, sSheetName)
-'
-'                'Create Report
-'                Set Report = New PivotReport
-'
-'                Select Case True
-'
-'                    Case uf.obPowePivotSource.Value = True
-'                        Report.CreatePowerPivotReportFromData wkbReportSource, sSheetName, _
-'                            Records_PivotTableProperties, Records_CubeFieldOrientationProperties, _
-'                            Records_CubeFieldExOrientationProperties, Records_PivotFieldSubtotalProperties, _
-'                            Records_PivotFieldProperties, iPivotFirstRowNumber, sSheetHeading, _
-'                            sSheetCategory, vFreezeDetails, vRowRangeColWidths, vDataBodyRangeColWidth
-'                        'Copy Values if selected
-'                        If uf.chkValueCopy.Value = True Then
-'                            Report.CreateValueCopy wkbValues
-'                            If uf.chkRetainLiveReport = False Then
-'                                Report.Delete
-'                            End If
-'                        End If
-'
-'                    Case uf.obExcelTableOnly.Value = True
-'                        Report.CreateExcelBacking wkbReportSource, sSheetName, sSheetCategory
-'
-'
-'                End Select
-'
-'            End If
-'        Next i
-'    End If
-'
-'    Unload uf
-'    Set uf = Nothing
-'
-'    wkbValues.Saved = True
-'
-''ExitPoint:
-'    Application.ScreenUpdating = True
-'    Application.EnableEvents = True
-'    Application.Calculation = xlCalculationAutomatic
-'    Application.DisplayAlerts = True
-'
-'
-'End Sub
-
-

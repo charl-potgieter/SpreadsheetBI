@@ -13,32 +13,39 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'@Folder "Reporting"
+'@Folder "Storage.Reporting"
 Option Explicit
 
 
 Public bCancelled As Boolean
-Private vStorageObject As Variant
-Private vAllCategories As Variant
-Private vCategoriesWithReportsWithExcelBacking As Variant
+Private vStorageObjPowerPivotStructure As Variant
+Private vStorageObjTableReportStructure As Variant
+Private vAllPowerPivotCategories As Variant
+Private vAllTableCategories As Variant
 
 
 Private Sub UserForm_Initialize()
 'Populate the userform with report categories as well as an "All" category
     
-    Dim item As Variant
         
-    Set vStorageObject = DataPivotReporting.AssignPivotReportStructureStorage(ActiveWorkbook)
+    Set vStorageObjPowerPivotStructure = AssignPivotReportStructureStorage(ActiveWorkbook)
+    Set vStorageObjTableReportStructure = AssignTableReportStorage(ActiveWorkbook)
 
-    'Populate the unique report categories on the userform
-    vAllCategories = DataPivotReporting.ReadUniquePivotReportCategories(vStorageObject)
-    
-    Me.lbCategories.AddItem "All"
-    If Not IsNull(vAllCategories) Then
-        For Each item In vAllCategories
-            Me.lbCategories.AddItem item
-        Next item
+    If Not vStorageObjTableReportStructure Is Nothing Then
+        vAllTableCategories = ReadUniqueReportCategories(vStorageObjTableReportStructure)
+        Me.obExcelTableOnly.Value = True
+    Else
+        Me.obExcelTableOnly.Enabled = False
     End If
+    
+    If Not vStorageObjPowerPivotStructure Is Nothing Then
+        vAllPowerPivotCategories = ReadUniqueReportCategories(vStorageObjPowerPivotStructure)
+        Me.obPowerPivotSource = True
+    Else
+        Me.obPowerPivotSource.Enabled = False
+    End If
+
+    RefreshCategories
     
 End Sub
 
@@ -53,91 +60,93 @@ Private Sub cbOK_Click()
 End Sub
 
 
-Private Sub chkValueCopy_Click()
-
-    If Me.chkValueCopy.Value = False Then
-        Me.chkRetainLiveReport.Value = True
-        Me.chkRetainLiveReport.Enabled = False
-    Else
-        Me.chkRetainLiveReport.Enabled = True
-    End If
-
-End Sub
-
 Private Sub lbCategories_Click()
     RefreshReportListBox
 End Sub
 
-Private Sub obPowePivotSource_Click()
-
-    RefreshReportListBox
-    Me.chkValueCopy.Value = False
-    Me.chkRetainLiveReport.Value = True
-    Me.chkRetainLiveReport.Enabled = True
-    Me.chkValueCopy.Enabled = True
-    
+Private Sub obPowerPivotSource_Click()
+    RefreshCategories
 End Sub
-
 
 Private Sub obExcelTableSource_Click()
-
-    RefreshReportListBox
-    Me.chkValueCopy.Value = True
-    Me.chkRetainLiveReport.Value = False
-    Me.chkRetainLiveReport.Enabled = False
-    Me.chkValueCopy.Enabled = False
-    
-
+    RefreshCategories
 End Sub
-
 
 Private Sub obExcelTableOnly_Click()
-
-    RefreshReportListBox
-    Me.chkValueCopy.Value = True
-    Me.chkRetainLiveReport.Value = False
-    Me.chkRetainLiveReport.Enabled = False
-    Me.chkValueCopy.Enabled = False
-
+    RefreshCategories
 End Sub
+
 
 
 Private Sub UserForm_Terminate()
     bCancelled = True
-    Set vStorageObject = Nothing
+    Set vStorageObjPowerPivotStructure = Nothing
+    Set vStorageObjTableReportStructure = Nothing
 End Sub
 
+
+Private Sub RefreshCategories()
+    
+    Dim Item As Variant
+    
+    Me.lbCategories.Clear
+    Me.lbCategories.AddItem "All"
+    
+    Select Case True
+        Case obPowerPivotSource.Value = True And Not IsNull(vAllPowerPivotCategories)
+            For Each Item In vAllPowerPivotCategories
+                Me.lbCategories.AddItem Item
+            Next Item
+        Case obExcelTableOnly.Value = True And Not IsNull(vAllTableCategories)
+            For Each Item In vAllTableCategories
+                Me.lbCategories.AddItem Item
+            Next Item
+    End Select
+
+End Sub
 
 
 Private Sub RefreshReportListBox()
     
     Dim vArrayOfReportNames As Variant
     Dim ReportName As Variant
-    Dim bReportsHasExcelTableSource As Boolean
-
     
     Me.lbReports.Clear
-    If Me.lbCategories = "All" Then
-        vArrayOfReportNames = DataPivotReporting.ReadAllPivotReports(vStorageObject)
-    Else
-        vArrayOfReportNames = DataPivotReporting.ReadPivotReportsByCategory(vStorageObject, Me.lbCategories.Text)
-    End If
     
+    Select Case True
     
-    If Not IsNull(vArrayOfReportNames) Then
-        For Each ReportName In vArrayOfReportNames
-            bReportsHasExcelTableSource = DataPivotReporting. _
-                ReadPivotReportHasExcelTableSource(vStorageObject, ReportName)
-            
-            Select Case True
-                Case bReportsHasExcelTableSource
+        Case Me.obPowerPivotSource
+            If Me.lbCategories = "All" Then
+                vArrayOfReportNames = ReadAllReports(vStorageObjPowerPivotStructure)
+            Else
+                vArrayOfReportNames = ReadPivotReportsByCategory _
+                    (vStorageObjPowerPivotStructure, Me.lbCategories.Text)
+            End If
+            If Not IsNull(vArrayOfReportNames) Then
+                For Each ReportName In vArrayOfReportNames
                     Me.lbReports.AddItem ReportName
-                Case Not bReportsHasExcelTableSource And Me.obPowePivotSource
-                    Me.lbReports.AddItem ReportName
-            End Select
+                Next ReportName
+            End If
+    
+        Case Me.obExcelTableSource
+            'ToDo
             
-        Next ReportName
-    End If
+        Case Me.obExcelTableOnly
+            If Me.lbCategories = "All" Then
+                vArrayOfReportNames = ReadAllReports(vStorageObjTableReportStructure)
+            Else
+                vArrayOfReportNames = ReadPivotReportsByCategory _
+                    (vStorageObjTableReportStructure, Me.lbCategories.Text)
+            End If
+            If Not IsNull(vArrayOfReportNames) Then
+                For Each ReportName In vArrayOfReportNames
+                    Me.lbReports.AddItem ReportName
+                Next ReportName
+            End If
+        
+    End Select
+    
 
 End Sub
+
 

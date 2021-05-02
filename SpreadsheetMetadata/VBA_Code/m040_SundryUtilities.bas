@@ -2,6 +2,13 @@ Attribute VB_Name = "m040_SundryUtilities"
 Option Explicit
 Option Private Module
 
+'Below is utilisedto detect screen resolution
+'https://www.mrexcel.com/board/threads/vba-to-find-screen-size-in-64bit-environment.1018797/
+Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal Index As Long) As Long
+Private Const SM_CXSCREEN As Long = 0
+Private Const SM_CYSCREEN As Long = 1
+
+
 
 Function SheetLevelRangeNameExists(sht As Worksheet, ByRef sRangeName As String)
 'Returns TRUE if sheet level scoped range name exists
@@ -125,15 +132,15 @@ End Sub
 
 Function ValueIsInStringArray(ByVal aValueToTest As Variant, ByRef aArray() As String) As Boolean
 
-    Dim item As Variant
+    Dim Item As Variant
     
     ValueIsInStringArray = False
-    For Each item In aArray
-        If item = aValueToTest Then
+    For Each Item In aArray
+        If Item = aValueToTest Then
             ValueIsInStringArray = True
             Exit Function
         End If
-    Next item
+    Next Item
 
 End Function
 
@@ -167,4 +174,23 @@ Function UserFormListBoxSelectedArray(ByVal lb As MSForms.ListBox) As String()
     Next i
     UserFormListBoxSelectedArray = ReturnArray
 
+End Function
+
+
+
+Public Function ScreenDimensionWidth() As Long
+'https://www.mrexcel.com/board/threads/vba-to-find-screen-size-in-64bit-environment.1018797/
+   
+    'Note declaration function at top of module
+    ScreenDimensionWidth = GetSystemMetrics(SM_CXSCREEN)
+   
+End Function
+
+
+Public Function ScreenDimensionHeight() As Long
+'https://www.mrexcel.com/board/threads/vba-to-find-screen-size-in-64bit-environment.1018797/
+   
+    'Note declaration function at top of module
+    ScreenDimensionHeight = GetSystemMetrics(SM_CYSCREEN)
+   
 End Function

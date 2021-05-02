@@ -2,12 +2,12 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "PivotReport"
+Attribute VB_Name = "ReportingPowerPivot"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-'@Folder "Reporting"
+'@Folder "Storage.Reporting"
 Option Explicit
 
 '-----------------------------------------------------------------------------
@@ -17,18 +17,12 @@ Option Explicit
 'Use "This" declaration as an easy way to get intellisense to the classes private variables
 'https://rubberduckvba.wordpress.com/2020/02/27/vba-classes-gateway-to-solid/
 Private Type TypePowerReport
-    ReportName As String
+    Name As String
     pvt As PivotTable
     ReportSht As ReportingSheet
 End Type
     
 Private this As TypePowerReport
-Private Const csDaxSubFolder As String = "PivotReportDaxQueries"
-
-Public Enum EnumPivotDataSource
-    ExcelTable
-    DataModel
-End Enum
 
 
 Public Function AssignToExistingSheet(ByRef sht As Worksheet) As Boolean
@@ -54,18 +48,18 @@ Public Function AssignToExistingSheet(ByRef sht As Worksheet) As Boolean
             Set this.pvt = sht.PivotTables(1)
             Set this.ReportSht = New ReportingSheet
             this.ReportSht.AssignExistingSheet sht
-            this.ReportName = this.ReportSht.Heading
+            this.Name = this.ReportSht.Heading
     End Select
         
 End Function
 
-Public Property Get ReportName() As String
-    ReportName = this.ReportName
+Public Property Get Name() As String
+    Name = this.Name
 End Property
 
-Public Property Let ReportName(ByVal sReportName As String)
-    this.ReportName = sReportName
-    this.ReportSht.Heading = sReportName
+Public Property Let Name(ByVal sName As String)
+    this.Name = sName
+    this.ReportSht.Heading = sName
 End Property
 
 Public Property Get SheetProperties() As Dictionary
@@ -76,8 +70,7 @@ Public Property Get SheetProperties() As Dictionary
         .Add "SheetName", this.pvt.Parent.Name
         .Add "Category", this.ReportSht.Category
         .Add "Heading", this.ReportSht.Heading
-        .Add "HasExcelTableSource", DaxQueryFileExists
-        .Add "FreezePaneRow", this.ReportSht.FreezePaneCol
+        .Add "FreezePaneRow", this.ReportSht.FreezePaneRow
         .Add "FreezePaneCol", this.ReportSht.FreezePaneCol
     End With
     Set SheetProperties = ReturnDictionary
@@ -96,13 +89,13 @@ Public Property Let SheetProperties(ByVal Properties As Dictionary)
     Set this.ReportSht = New ReportingSheet
     With this.ReportSht
         .Create wkb
-        .Name = Properties.item("SheetName")
-        .Category = Properties.item("Category")
-        .Heading = Properties.item("Heading")
-        .FreezePaneRow = Properties.item("FreezePaneRow")
-        .FreezePaneCol = Properties.item("FreezePaneCol")
+        .Name = Properties.Item("SheetName")
+        .Category = Properties.Item("Category")
+        .Heading = Properties.Item("Heading")
+        .FreezePaneRow = Properties.Item("FreezePaneRow")
+        .FreezePaneCol = Properties.Item("FreezePaneCol")
         
-        sFirstCellAddress = Properties.item("FirstCellAddress")
+        sFirstCellAddress = Properties.Item("FirstCellAddress")
         this.pvt.TableRange2.Cut
         .Sheet.Paste .Sheet.Range(sFirstCellAddress)
         'if below step is ignored the this.pvt reference is deleted on cut and paste
@@ -149,7 +142,7 @@ Public Property Let PivotTableProperties(Properties As Dictionary)
 
     Dim Property As Variant
     For Each Property In Properties.Keys
-        CallByName this.pvt, Property, VbLet, Properties.item(Property)
+        CallByName this.pvt, Property, VbLet, Properties.Item(Property)
     Next Property
 
 End Property
@@ -237,7 +230,7 @@ Property Let CubeFieldProperties(PropertyDictionary As Dictionary)
     For Each CubePositionNameProperty In PropertyDictionary
         sCubeFieldName = Split(CubePositionNameProperty, "|")(1)
         sProperty = Split(CubePositionNameProperty, "|")(2)
-        sPropertyValue = PropertyDictionary.item(CubePositionNameProperty)
+        sPropertyValue = PropertyDictionary.Item(CubePositionNameProperty)
         If sProperty = "Orientation" Then
             CallByName this.pvt.CubeFields(sCubeFieldName), sProperty, _
                 VbLet, sPropertyValue
@@ -249,7 +242,7 @@ Property Let CubeFieldProperties(PropertyDictionary As Dictionary)
     For Each CubePositionNameProperty In PropertyDictionary
         sCubeFieldName = Split(CubePositionNameProperty, "|")(1)
         sProperty = Split(CubePositionNameProperty, "|")(2)
-        sPropertyValue = PropertyDictionary.item(CubePositionNameProperty)
+        sPropertyValue = PropertyDictionary.Item(CubePositionNameProperty)
         If sProperty <> "Orientation" Then
             CallByName this.pvt.CubeFields(sCubeFieldName), sProperty, _
                 VbLet, sPropertyValue
@@ -274,7 +267,8 @@ Public Property Get PivotFieldProperties() As Dictionary
                 'field level.  Other cases are set at cube field level
                     ReturnDictionary.Add pvtField.Name & "|Orientation", pvtField.Orientation
             Case pvtField.Orientation = xlDataField
-                ReturnDictionary.Add pvtField.Name & "|NumberFormat", pvtField.NumberFormat
+                'For some unknown reason pvtField.NumberFormat does yield correct results
+                ReturnDictionary.Add pvtField.Name & "|NumberFormat", this.pvt.PivotFields(pvtField.Name).NumberFormat
             Case (pvtField.Orientation = xlRowField) Or (pvtField.Orientation = xlColumnField)
                 ReturnDictionary.Add pvtField.Name & "|LayoutBlankLine", pvtField.LayoutBlankLine
                 ReturnDictionary.Add pvtField.Name & "|LayoutCompactRow", pvtField.LayoutCompactRow
@@ -306,7 +300,7 @@ Property Let PivotFieldProperties(PropertyDictionary As Dictionary)
     For Each FieldNameAndProperty In PropertyDictionary
         sPivotFieldName = Split(FieldNameAndProperty, "|")(0)
         sProperty = Split(FieldNameAndProperty, "|")(1)
-        sPropertyValue = PropertyDictionary.item(FieldNameAndProperty)
+        sPropertyValue = PropertyDictionary.Item(FieldNameAndProperty)
         If sProperty = "Subtotals" Then
             this.pvt.PivotFields(sPivotFieldName).Subtotals(1) = sPropertyValue
         End If
@@ -315,9 +309,8 @@ Property Let PivotFieldProperties(PropertyDictionary As Dictionary)
     For Each FieldNameAndProperty In PropertyDictionary
         sPivotFieldName = Split(FieldNameAndProperty, "|")(0)
         sProperty = Split(FieldNameAndProperty, "|")(1)
-        sPropertyValue = PropertyDictionary.item(FieldNameAndProperty)
+        sPropertyValue = PropertyDictionary.Item(FieldNameAndProperty)
         If sProperty <> "Subtotals" Then
-            Debug.Print (sPivotFieldName & " : " & sProperty)
             CallByName this.pvt.PivotFields(sPivotFieldName), sProperty, _
                 VbLet, sPropertyValue
             
@@ -336,7 +329,10 @@ Property Get ColumnWidths() As Dictionary
     Dim rng As Range
 
     'All data body col widths are set the same width
-    ReturnDictionary.Add "DataBodyRangeColWidth", this.pvt.DataBodyRange.Columns(1).ColumnWidth
+    If PivotTableHasDataBodyRange Then
+        ReturnDictionary.Add "DataBodyRangeColWidth", _
+            this.pvt.DataBodyRange.Columns(1).ColumnWidth
+    End If
     
     'Col widths of area to left of DataBodyRange ("RowRange") stored as pipe delimited string
     If PivotTableHasRowRange Then
@@ -354,6 +350,29 @@ Property Get ColumnWidths() As Dictionary
     Set ColumnWidths = ReturnDictionary
     
 End Property
+
+
+
+Property Let ColumnWidths(PropertyDictionary As Dictionary)
+
+    Dim aRowRangeColWidths() As String
+    Dim i As Long
+    
+    If PropertyDictionary.Exists("DataBodyRangeColWidth") Then
+        this.pvt.DataBodyRange.Columns.ColumnWidth = PropertyDictionary.Item("DataBodyRangeColWidth")
+    End If
+    
+    If PropertyDictionary.Exists("RowRangeColWidths") Then
+        aRowRangeColWidths = Split(PropertyDictionary.Item("RowRangeColWidths"), "|")
+        For i = LBound(aRowRangeColWidths) To UBound(aRowRangeColWidths)
+            this.pvt.TableRange2.Columns(i + 1).ColumnWidth = aRowRangeColWidths(i)
+        Next i
+    End If
+    
+
+End Property
+
+
 
 
 'Public Property Get Sundry() As Dictionary
@@ -380,23 +399,16 @@ End Property
 
 
 
-Public Sub CreateEmptyPivotReport(ByVal wkb As Workbook, ByVal sReportName As String, _
-    ByVal PvtSourceType As EnumPivotDataSource, Optional ByVal tblSource As ListObject)
+Public Sub CreateEmptyPowerPivotReport(ByVal wkb As Workbook, ByVal sReportName As String)
 
     Dim sht As Worksheet
     Const sInitialFirstCell As String = "A1"
 
-    Select Case PvtSourceType
-        Case DataModel
-            Set sht = wkb.Sheets.Add
-            Set this.pvt = wkb.PivotCaches.Create(SourceType:=xlExternal, SourceData:= _
-                wkb.Connections("ThisWorkbookDataModel"), Version:=6). _
-                CreatePivotTable(sht.Range(sInitialFirstCell))
-        Case ExcelTable
-            'TODO Create Pivot Table from Excel report
-    End Select
-    
-    this.ReportName = sReportName
+    Set sht = wkb.Sheets.Add
+    Set this.pvt = wkb.PivotCaches.Create(SourceType:=xlExternal, SourceData:= _
+        wkb.Connections("ThisWorkbookDataModel"), Version:=6). _
+        CreatePivotTable(sht.Range(sInitialFirstCell))
+    this.Name = sReportName
     
 End Sub
 
@@ -425,23 +437,32 @@ Private Function PivotTableHasRowRange() As Boolean
 End Function
 
 
-Private Function DaxQueryFileExists() As Boolean
-'Requires reference to Microsoft Scripting runtime
-'An alternative solution exists using the DIR function but this seems to result in memory leak and file is
-'not released by VBA
-
-    Dim fso As Scripting.FileSystemObject
-    Dim sFolderPath As String
-    
-    sFolderPath = ActiveWorkbook.Path & Application.PathSeparator & _
-        csDaxSubFolder & Application.PathSeparator & this.ReportSht.Name & ".dax"
-    
-    Set fso = New Scripting.FileSystemObject
-    
-    DaxQueryFileExists = fso.FileExists(sFolderPath)
-    Set fso = Nothing
-
+Private Function PivotTableHasDataBodyRange() As Boolean
+    Dim rng As Range
+    On Error Resume Next
+    Set rng = this.pvt.DataBodyRange
+    PivotTableHasDataBodyRange = (Err.Number = 0)
+    On Error GoTo 0
 End Function
+
+
+'Private Function DaxQueryFileExists() As Boolean
+''Requires reference to Microsoft Scripting runtime
+''An alternative solution exists using the DIR function but this seems to result in memory leak and file is
+''not released by VBA
+'
+'    Dim fso As Scripting.FileSystemObject
+'    Dim sFolderPath As String
+'
+'    sFolderPath = ActiveWorkbook.Path & Application.PathSeparator & _
+'        csDaxSubFolder & Application.PathSeparator & this.ReportSht.Name & ".dax"
+'
+'    Set fso = New Scripting.FileSystemObject
+'
+'    DaxQueryFileExists = fso.FileExists(sFolderPath)
+'    Set fso = Nothing
+'
+'End Function
 
 
 
@@ -574,7 +595,7 @@ End Function
 '    On Error GoTo 0
 '
 ''    'Optionally create backup data to report based on a saved DAX query
-''    vDaxBackingQuery = m001_DataPivotReporting.PR_GetBackingQuery(This.sht.Name)
+''    vDaxBackingQuery = m001_Reporting_Data.PR_GetBackingQuery(This.sht.Name)
 ''    If Not IsNull(vDaxBackingQuery) Then
 ''        CreateDummyPowerPivotTable csDummyQueryName
 ''        Set shtBacking = PR_CreateDataQueryBackingSheet
@@ -1219,3 +1240,4 @@ End Function
 'End Sub
 '
 '
+

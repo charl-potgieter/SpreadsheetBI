@@ -1,0 +1,1 @@
+EVALUATE SUMMARIZECOLUMNS(DimAccounts[Class],DimAccounts[Group],"Actual Amt", [Actual Amt])

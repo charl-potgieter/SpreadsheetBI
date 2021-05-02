@@ -7,69 +7,181 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-'@Folder "Reporting"
+    '@Folder "Storage.Reporting"
 Option Explicit
 
 Private Type TReportingTable
+    ReportName As String
     lo As ListObject
+    ReportSht As ReportingSheet
 End Type
 
 Private this As TReportingTable
 Private Const csEmptyDaxTableName As String = "EmptyTableForDaxQueries"
 
+
 Public Property Get Name() As String
-   Name = this.lo.Name
+   Name = this.ReportName
 End Property
+
 
 Public Property Let Name(sName As String)
     
-    Dim Counter As Long
-    Dim TryName As String
-    Counter = 0
-    
     If this.lo Is Nothing Then Exit Property
     
-    'Get first availabe sheet name add numeric prefix if name is taken
-    TryName = sName
     On Error Resume Next
-    Do While this.lo.Name <> TryName
-        If Counter <> 0 Then
-            TryName = sName & "_" & Counter
-        End If
-        this.lo.Name = TryName
-         Counter = Counter + 1
-    Loop
+    this.lo.Name = sName
+    If Err.Number <> 0 Then MsgBox ("Reporting table name already taken, name not updated")
     On Error GoTo 0
     
 End Property
 
 
-Public Sub CreateFromDaxQuery(ByVal TopLeftCell As Range, sDaxQuery As String)
+Public Property Get SheetProperties() As Dictionary
+    
+    Dim ReturnDictionary As Dictionary
+    
+    Set ReturnDictionary = New Dictionary
+    With ReturnDictionary
+        .Add "FirstCellAddress", this.lo.HeaderRowRange.Cells(1).Address
+        .Add "SheetName", this.lo.Parent.Name
+        .Add "Category", this.ReportSht.Category
+        .Add "Heading", this.ReportSht.Heading
+        .Add "FreezePaneRow", this.ReportSht.FreezePaneRow
+        .Add "FreezePaneCol", this.ReportSht.FreezePaneCol
+    End With
+    Set SheetProperties = ReturnDictionary
+    
+End Property
+
+
+Public Property Let SheetProperties(ByVal Properties As Dictionary)
+'Table is moved from original sheet to new sheet when sheet properties are set
+    
+    Dim shtOriginalSheet  As Worksheet
+    Dim wkb As Workbook
+    Dim sFirstCellAddress As String
+    
+    Set shtOriginalSheet = this.lo.Parent
+    Set wkb = shtOriginalSheet.Parent
+    Set this.ReportSht = New ReportingSheet
+    With this.ReportSht
+        .Create wkb
+        .Name = Properties.Item("SheetName")
+        .Category = Properties.Item("Category")
+        .Heading = Properties.Item("Heading")
+        .FreezePaneRow = Properties.Item("FreezePaneRow")
+        .FreezePaneCol = Properties.Item("FreezePaneCol")
+        
+        sFirstCellAddress = Properties.Item("FirstCellAddress")
+        this.lo.Range.Cut
+        .Sheet.Paste .Sheet.Range(sFirstCellAddress)
+        'if below step is ignored the this.lo reference is deleted on cut and paste
+        Set this.lo = .Sheet.Range(sFirstCellAddress).ListObject
+        shtOriginalSheet.Delete
+    End With
+    
+End Property
+
+
+Public Property Get Formulas() As Dictionary
+    
+    Dim ReturnDictionary As Dictionary
+    Dim LstCol As ListColumn
+    
+    Set ReturnDictionary = New Dictionary
+    
+    For Each LstCol In this.lo.ListColumns
+        If LstCol.DataBodyRange.Cells(1).HasFormula Then
+            ReturnDictionary.Add LstCol.Name, LstCol.DataBodyRange.Cells(1).Formula
+        End If
+    Next LstCol
+        
+    Set Formulas = ReturnDictionary
+    
+End Property
+
+
+Public Property Get NumberFormatting() As Dictionary
+    
+    Dim ReturnDictionary As Dictionary
+    Dim LstCol As ListColumn
+    
+    Set ReturnDictionary = New Dictionary
+    
+    For Each LstCol In this.lo.ListColumns
+        ReturnDictionary.Add LstCol.Name, LstCol.DataBodyRange.Cells(1).NumberFormat
+    Next LstCol
+        
+    Set NumberFormatting = ReturnDictionary
+    
+End Property
+
+
+
+
+Public Function AssignToExistingSheet(ByVal sht As Worksheet) As Boolean
+
+    Dim TestReportSht As ReportingSheet
+    Dim bTestReportSheetAssigned As Boolean
+    
+    Set TestReportSht = New ReportingSheet
+    bTestReportSheetAssigned = TestReportSht.AssignExistingSheet(sht)
+    
+    Select Case True
+        Case Not bTestReportSheetAssigned
+            AssignToExistingSheet = False 'Only allow ReportingTables to exist on ReportingSheets
+            Set TestReportSht = Nothing
+        Case sht.ListObjects.Count <> 1
+            AssignToExistingSheet = False
+        Case sht.ListObjects(1).SourceType <> xlSrcModel
+            AssignToExistingSheet = False
+        Case Else
+            AssignToExistingSheet = True
+            Set this.lo = sht.ListObjects(1)
+            Set this.ReportSht = New ReportingSheet
+            this.ReportSht.AssignExistingSheet sht
+            this.ReportName = this.ReportSht.Heading
+    End Select
+        
+End Function
+
+
+
+Public Sub CreateEmptyReportingTable(ByVal wkb As Workbook, ByVal sReportName As String)
     
     Dim sht As Worksheet
-    Dim wkb As Workbook
-    
-    Set sht = TopLeftCell.Parent
-    Set wkb = sht.Parent
-    
-    CreateEmptyPowerPivotTable wkb
-    
-    'If query is directly saved from DAX Studio it seems to save unicode format. Only
-    'issues are symbols at start hence the replace below.  ADO can be used if more
-    'issues arrise in the future.
-    'https://stackoverflow.com/questions/13851473/read-utf-8-text-file-in-vbscript/13855268#13855268
-    sDaxQuery = Replace(sDaxQuery, "﻿", "")
+    Const sInitialFirstCell As String = "A1"
 
+    CreateEmptyPowerPivotTable wkb
+    Set sht = wkb.Sheets.Add
+    this.ReportName = sReportName
     Set this.lo = sht.ListObjects.Add( _
         SourceType:=xlSrcModel, _
         Source:=wkb.Connections(csEmptyDaxTableName), _
-        Destination:=TopLeftCell.Cells(1))
-
+        Destination:=sht.Range(sInitialFirstCell))
     With this.lo.TableObject
         .PreserveFormatting = True
         .RefreshStyle = xlOverwriteCells
         .AdjustColumnWidth = True
     End With
+    FormatReportingTable
+    
+End Sub
+
+
+Public Property Get DaxQuery() As String
+    DaxQuery = this.lo.TableObject.WorkbookConnection.OLEDBConnection.CommandText
+End Property
+
+
+Public Property Let DaxQuery(ByVal sDaxQuery As String)
+
+    'If query is directly saved from DAX Studio it seems to save unicode format. Only
+    'issues are symbols at start hence the replace below.  ADO can be used if more
+    'issues arrise in the future.
+    'https://stackoverflow.com/questions/13851473/read-utf-8-text-file-in-vbscript/13855268#13855268
+    sDaxQuery = Replace(sDaxQuery, "﻿", "")
 
     With this.lo.TableObject.WorkbookConnection.OLEDBConnection
         .CommandText = Array(sDaxQuery)
@@ -77,9 +189,8 @@ Public Sub CreateFromDaxQuery(ByVal TopLeftCell As Range, sDaxQuery As String)
     End With
 
     this.lo.Refresh
-    FormatReportingTable
-    
-End Sub
+
+End Property
 
 
 Public Sub ConvertDaxQueryToValues()
@@ -139,10 +250,10 @@ Private Sub FormatReportingTable()
         .Interior.Color = RGB(68, 114, 196)
         .Font.Color = RGB(255, 255, 255)
         .Font.Bold = True
-        .Borders.item(xlEdgeTop).LineStyle = xlSolid
-        .Borders.item(xlEdgeTop).Weight = xlMedium
-        .Borders.item(xlEdgeBottom).LineStyle = xlSolid
-        .Borders.item(xlEdgeBottom).Weight = xlMedium
+        .Borders.Item(xlEdgeTop).LineStyle = xlSolid
+        .Borders.Item(xlEdgeTop).Weight = xlMedium
+        .Borders.Item(xlEdgeBottom).LineStyle = xlSolid
+        .Borders.Item(xlEdgeBottom).Weight = xlMedium
     End With
 
     'Set row stripe format
@@ -150,8 +261,8 @@ Private Sub FormatReportingTable()
     sty.TableStyleElements(xlRowStripe2).Interior.Color = RGB(255, 255, 255)
     
     'Set whole table bottom edge format
-    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).LineStyle = xlSolid
-    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).Weight = xlMedium
+    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).LineStyle = xlSolid
+    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).Weight = xlMedium
 
     
     'Apply custom style and set other attributes
@@ -215,4 +326,5 @@ Private Sub CreateEmptyPowerPivotTable(ByVal wkb As Workbook)
     End If
 
 End Sub
+
 
