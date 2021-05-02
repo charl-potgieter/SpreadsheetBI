@@ -1,37 +1,28 @@
 TODO
 -------    
-  - Look at 
-   * NumberFormatting
-   * Freeze Panes
-   * Column Widths
+Continue to work on Table Reports
+ - Cerate a column width property for table object
+ - Work on userform to change categories and reports depending on the report type
+ - Need to handle scenario where only one report type exists in spreadsheet for exampl
+  either power pivot or table
+ -  Create TableReport from metadata - need to create the property get(set?) for sheets, formulas and formats
+
+Save the table formulas in the TableReport storage tab, not in a seperate formula storage tab
+
+Also save in the same tab
+ - Table report categories
+ - field formatting
  
- - If above is successful remove name colum from the ListStorage sheet
 
-Create pivot table on a temp sheet until sheet properties are set? 
+Consider creating an (optional) index page (using the existing old-ish code) when more than one report is generated to a new workbook
 
-Is it possible to programmatically create dax query based on pivot table data?  I think that a measure can be defined in an evaluate statement.  Won't work as time intelligence measures a d measures depending on measures will be very difficult to get working. 
 
-Continue to work on PowerPivotReport.CreateStandardPivotReportFromData
- - Maybe first create a PowerPivot.CreateExcelTable function  (which can now be directly called from the menu)
- - at the same time expand EntryPoints.CreatePowerPivotReportFromMetaData to include 
-   the option to create a standard pivot table report
+ - Consider generating just one version of each report, either power pivot backed or Excel table backed - avoiding possible risk of inconsistencies
 
-Listobject class (and calling subs) --> need to protect against errors generated with bull data, 
+ - Create the option to have the reports paramaterised, potentially via a parameter table
+
+Listobject class (and calling subs) --> need to protect against errors generated with null data, 
 including in transpose functions
-
- - How about having one PowerReport class but have options to 
-  - create live PowerPivot report
-  - Create values Power Pivot Report (in seperate workbook)
-  - Create excel data backing and drillable standard Excel pivot table (which includes Excel formulas rather than measures)
-
- - PowerReportDaxQueries could be automatically obtained by checking for DAX files in a specific subfolder, where files are named as sheetname.DAX
- --> This can be populated in the read Pivot table metadata sub
- --> Maybe save in current storage in sheet properties
-
- - Userform --> allow for possibility that all reports may not have an Excel table equivalent
-  --> when I report is selected in userform check if a dax query file exists in the list storage
-     and if not grey out the Excel Table source option button
-
 
  - Attempt to create data query as basis for P&L pviot before attempting below
  * In some ways it is nicer to have table formulas in Excel - more transparent
