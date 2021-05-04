@@ -102,6 +102,49 @@ Public Property Get Formulas() As Dictionary
 End Property
 
 
+Property Let Formulas(Properties As Dictionary)
+
+    Dim Property As Variant
+    Dim lc As ListColumn
+    
+    For Each Property In Properties.Keys
+        With this.lo.ListColumns.Add
+            .Name = Property
+            .DataBodyRange.Formula2 = Properties(Property)
+        End With
+    Next Property
+    
+End Property
+
+
+Public Property Get ColumnWidths() As Dictionary
+    
+    Dim ReturnDictionary As Dictionary
+    Dim LstCol As ListColumn
+    
+    Set ReturnDictionary = New Dictionary
+    
+    For Each LstCol In this.lo.ListColumns
+        ReturnDictionary.Add LstCol.Name, LstCol.DataBodyRange.EntireColumn.ColumnWidth
+    Next LstCol
+        
+    Set ColumnWidths = ReturnDictionary
+    
+End Property
+
+
+Property Let ColumnWidths(Properties As Dictionary)
+
+    Dim Property As Variant
+    Dim lc As ListColumn
+    
+    For Each Property In Properties.Keys
+        this.lo.ListColumns(Property).DataBodyRange.EntireColumn.ColumnWidth = _
+            Properties(Property)
+    Next Property
+    
+End Property
+
 Public Property Get NumberFormatting() As Dictionary
     
     Dim ReturnDictionary As Dictionary
@@ -118,6 +161,17 @@ Public Property Get NumberFormatting() As Dictionary
 End Property
 
 
+Property Let NumberFormatting(Properties As Dictionary)
+
+    Dim Property As Variant
+    Dim lc As ListColumn
+    
+    For Each Property In Properties.Keys
+        this.lo.ListColumns(Property).DataBodyRange.NumberFormat = Properties(Property)
+        
+    Next Property
+    
+End Property
 
 
 Public Function AssignToExistingSheet(ByVal sht As Worksheet) As Boolean
@@ -189,6 +243,7 @@ Public Property Let DaxQuery(ByVal sDaxQuery As String)
     End With
 
     this.lo.Refresh
+    
 
 End Property
 
@@ -216,7 +271,6 @@ Public Function AddCalculatedField(ByVal sFieldName As String, ByVal sFormula As
     With listCol
         .Name = sFieldName
         .DataBodyRange.Formula = sFormula
-        .DataBodyRange.Font.Color = RGB(0, 0, 0)
     End With
     AddCalculatedField = True
 
@@ -231,6 +285,23 @@ Public Function FormatTableField(sFieldName As String, sFormat As String)
     On Error GoTo 0
 
 End Function
+
+Public Sub ApplyColourFormatting()
+'Formats DAX query text as blue, formulas as black
+    
+    Dim lc As ListColumn
+    
+    For Each lc In this.lo.ListColumns
+        With lc.DataBodyRange
+            If .Cells(1).HasFormula Then
+                .Font.Color = RGB(0, 0, 0)
+            Else
+                .Font.Color = RGB(0, 112, 192)
+            End If
+        End With
+    Next lc
+
+End Sub
 
 
 Private Sub FormatReportingTable()

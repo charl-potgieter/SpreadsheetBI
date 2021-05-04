@@ -21,8 +21,6 @@ Function GetUserReportSelection() As TypeReportUserSelection
             Select Case True
                 Case uf.obPowerPivotSource.Value = True
                     .ReportType = PowerPivotSource
-                Case uf.obExcelTableSource.Value = True
-                    .ReportType = ExcelTableSource
                 Case uf.obExcelTableOnly.Value = True
                     .ReportType = ExcelTableOnly
             End Select
@@ -65,6 +63,7 @@ Public Sub SaveSingleTableReportDataToStorage(ByVal vStorageObject As Variant, _
     WriteReportData vStorageObject, sReportName, "Sheet", RptTable.SheetProperties
     WriteReportData vStorageObject, sReportName, "Formulas", RptTable.Formulas
     WriteReportData vStorageObject, sReportName, "NumberFormats", RptTable.NumberFormatting
+    WriteReportData vStorageObject, sReportName, "ColumnWidths", RptTable.ColumnWidths
 
  End Sub
 
@@ -96,12 +95,15 @@ Public Sub DesignPowerTableReportBasedOnStoredData(ByVal vStorageObject As Varia
 
     Dim sDaxQuery As String
 
-    'TODO set other properties here.
-    TableReport.SheetProperties = ReadReportProperties(vStorageObject, _
-        TableReport.Name, "Sheet")
-    sDaxQuery = m030_FileUtilities.ReadTextFileIntoString(sDaxTableQueryPath)
-    TableReport.DaxQuery = sDaxQuery
-
+    sDaxQuery = ReadTextFileIntoString(sDaxTableQueryPath)
+    With TableReport
+        .SheetProperties = ReadReportProperties(vStorageObject, .Name, "Sheet")
+        .DaxQuery = sDaxQuery
+        .Formulas = ReadReportProperties(vStorageObject, .Name, "Formulas")
+        .NumberFormatting = ReadReportProperties(vStorageObject, .Name, "NumberFormats")
+        .ColumnWidths = ReadReportProperties(vStorageObject, .Name, "ColumnWidths")
+    End With
+    
 End Sub
 
 
@@ -196,6 +198,11 @@ Sub DeleteUnusedDataModelTables(ByVal vStorageObject As Variant, _
     Dim sTableName
     
     sQueriesRequired = ReadQueriesForReportList(vStorageObject, sReportNames)
+    
+    'Do not delete any tables if none are listed as being required (default to retain all)
+    If IsNull(sQueriesRequired) Then
+        Exit Sub
+    End If
 
     For Each con In wkb.Connections
         bDeleteQuery = True

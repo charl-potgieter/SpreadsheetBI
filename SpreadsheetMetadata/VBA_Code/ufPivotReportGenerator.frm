@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} ufPivotReportGenerator 
    Caption         =   "Pivot Reports"
-   ClientHeight    =   8910.001
+   ClientHeight    =   8500.001
    ClientLeft      =   110
    ClientTop       =   450
    ClientWidth     =   9990.001
@@ -28,8 +28,8 @@ Private Sub UserForm_Initialize()
 'Populate the userform with report categories as well as an "All" category
     
         
-    Set vStorageObjPowerPivotStructure = AssignPivotReportStructureStorage(ActiveWorkbook)
-    Set vStorageObjTableReportStructure = AssignTableReportStorage(ActiveWorkbook)
+    Set vStorageObjPowerPivotStructure = AssignPivotReportStructureStorage(ActiveWorkbook, False)
+    Set vStorageObjTableReportStructure = AssignTableReportStorage(ActiveWorkbook, False)
 
     If Not vStorageObjTableReportStructure Is Nothing Then
         vAllTableCategories = ReadUniqueReportCategories(vStorageObjTableReportStructure)
@@ -128,9 +128,6 @@ Private Sub RefreshReportListBox()
                 Next ReportName
             End If
     
-        Case Me.obExcelTableSource
-            'ToDo
-            
         Case Me.obExcelTableOnly
             If Me.lbCategories = "All" Then
                 vArrayOfReportNames = ReadAllReports(vStorageObjTableReportStructure)

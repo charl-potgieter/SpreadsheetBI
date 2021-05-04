@@ -45,7 +45,6 @@ End Type
 
 Public Enum EnumPivotReportType
     PowerPivotSource
-    ExcelTableSource
     ExcelTableOnly
 End Enum
 
@@ -925,7 +924,8 @@ Sub CreateReportFromMetadata()
     Dim PwrPvtReport As ReportingPowerPivot
     Dim TableReport As ReportingTable
     Dim sReportName As String
-    Dim wkb As Workbook
+    Dim wkbSource As Workbook
+    Dim wkbTarget As Workbook
     Dim sDaxTableQueryPath As String
     Const csSubDirectory As String = "DaxTableQueries"
 
@@ -945,7 +945,8 @@ Sub CreateReportFromMetadata()
     End If
     
     UserReportSelection = GetUserReportSelection
-    Set wkb = AssignReportWorkbook(ActiveWorkbook, UserReportSelection.SaveInNewWorkbook)
+    Set wkbSource = ActiveWorkbook
+    Set wkbTarget = AssignReportWorkbook(wkbSource, UserReportSelection.SaveInNewWorkbook)
 
     With UserReportSelection
         If .SelectionMade = False Then GoTo ExitPoint
@@ -955,25 +956,26 @@ Sub CreateReportFromMetadata()
             Select Case .ReportType
                 Case PowerPivotSource
                     Set PwrPvtReport = New ReportingPowerPivot
-                    PwrPvtReport.CreateEmptyPowerPivotReport wkb, sReportName
+                    PwrPvtReport.CreateEmptyPowerPivotReport wkbTarget, sReportName
                     DesignPowerPivotReportBasedOnStoredData _
                         vStorageObjPowerPivotStructure, PwrPvtReport
                 Case ExcelTableOnly
-                    sDaxTableQueryPath = ActiveWorkbook.Path & Application.PathSeparator & _
+                    sDaxTableQueryPath = wkbSource.Path & Application.PathSeparator & _
                         csSubDirectory & Application.PathSeparator & sReportName & ".dax"
                     Set TableReport = New ReportingTable
-                    TableReport.CreateEmptyReportingTable wkb, sReportName
+                    TableReport.CreateEmptyReportingTable wkbTarget, sReportName
                     DesignPowerTableReportBasedOnStoredData vStorageObjTableReportStructure, _
                         TableReport, sDaxTableQueryPath
-                Case ExcelTableSource
-                    'TODO Create Excel Table and pivot
+                    TableReport.ApplyColourFormatting
             End Select
         Next i
         
         If .SaveInNewWorkbook Then
-            DeleteNonReportSheets wkb, .ReportList
-            DeleteUnusedDataModelTables vStorageObjQueriesForSelectedReports, wkb, .ReportList
-            wkb.Save
+            DeleteNonReportSheets wkbTarget, .ReportList
+            If Not vStorageObjQueriesForSelectedReports Is Nothing Then
+                DeleteUnusedDataModelTables vStorageObjQueriesForSelectedReports, wkbTarget, .ReportList
+            End If
+            wkbTarget.Save
         End If
         
     End With

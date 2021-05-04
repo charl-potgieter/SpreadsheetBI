@@ -1,74 +1,13 @@
 TODO
 -------    
-Continue to work on Table Reports
- - Cerate a column width property for table object
- - Work on userform to change categories and reports depending on the report type
- - Need to handle scenario where only one report type exists in spreadsheet for exampl
-  either power pivot or table
- -  Create TableReport from metadata - need to create the property get(set?) for sheets, formulas and formats
-
-Save the table formulas in the TableReport storage tab, not in a seperate formula storage tab
-
-Also save in the same tab
- - Table report categories
- - field formatting
- 
+Break down EntryPoints.CreateReportFromMetadata into smaller components
 
 Consider creating an (optional) index page (using the existing old-ish code) when more than one report is generated to a new workbook
 
-
- - Consider generating just one version of each report, either power pivot backed or Excel table backed - avoiding possible risk of inconsistencies
-
- - Create the option to have the reports paramaterised, potentially via a parameter table
-
-Listobject class (and calling subs) --> need to protect against errors generated with null data, 
-including in transpose functions
-
- - Attempt to create data query as basis for P&L pviot before attempting below
- * In some ways it is nicer to have table formulas in Excel - more transparent
+Listobject class (and calling subs) --> need to protect against errors generated with null data including in transpose functions
 
 
-  Maybe also have option to create the pivot report from the dataquery (As values) that way one can drill to underlying pivot details as per normal Excel functionality.  Queries could be structured with unions something like the below do seperate YTD, MTD etc (in below case this is done for actual vs forecast)
-      /* START QUERY BUILDER */
-
-      DEFINE
-        VAR _ActTable = SUMMARIZECOLUMNS(
-          FactFinanceData[Fiscal Month],
-          FactFinanceData[Profit Center],
-          "Type", "Actual",
-          "Amt", [Actual Amt]
-      )
-
-        VAR _FcstTable = SUMMARIZECOLUMNS(
-          FactFinanceData[Fiscal Month],
-          FactFinanceData[Profit Center],
-          "Type", "Fcst",
-          "Amt", [Forecast Amt]
-      )
-
-
-      EVALUATE
-        UNION(_ActTable, _FcstTable)
-      /* END QUERY BUILDER */
-
-
-
- - CreatePivotReportFromMetaData call subs in DataAccess module to get all required data to create pivot reports.
-  - Pass this data as paramaters to PowerReport.CreateFromData
-
-
-  - Allow multiple value reports to be generated at the same time
-   - Create an ALL category which allows selection of allow
-   - Allow for:
-      * Multiple value reports having same backing that is not duplicated on generation
-      * Multiple value reports with different backing data
-
-
- - I may need to consider pivotstyles when creating pivot tables from metadata.   Do I want to go as far as saving pivot style attributes or just apply styles that exist in the workbook?
-
- - Include DAX table queries when generating spreadsheet metadata
-
-  - Remove TableLooper from SpreadsheetBI?   Process is better in seperate spreadsheet "Spreadsheet_Iterative_Model"
+ - Remove TableLooper from SpreadsheetBI?   Process is better in seperate spreadsheet "Spreadsheet_Iterative_Model"
  
  - Power Query changing to quotestyleCSV seems to preserve line breaks if there are in quotes.  All fields need to be in quotes
 
@@ -81,16 +20,7 @@ including in transpose functions
   - Create a readme
    
     - For each power query is it possible to save down whether it is loaded to the data model
- 
-   - Is it worthwhile considering list.accumulate in power query rather than a VBA solution
-    * This will also allow easier to transition to power BI
-  
-- Work on the VBA or power query looper solution depending outcome of above
-
- 
-  
- 
- - Create a flat pivot style (and apply when flatten pivot table macro is run)
+   
  
   In the date table - is there an issue with using list.dates - see comment from Ken Puls here
   https://blog.crossjoin.co.uk/2016/06/03/creating-tables-in-power-bipower-query-m-code-using-table/
