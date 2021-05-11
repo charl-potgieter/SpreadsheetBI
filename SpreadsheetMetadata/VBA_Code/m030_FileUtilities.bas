@@ -233,7 +233,7 @@ End Function
 
 
 
-Function GetSelectedfiles(Optional sDefaultFolder As String) As String()
+Function GetSelectedfiles(Optional sDefaultFolder As String = "") As String()
 'Returns selected file paths from users as an array of strings
     
     Dim ArrSelectedValues() As String
@@ -242,7 +242,7 @@ Function GetSelectedfiles(Optional sDefaultFolder As String) As String()
     With Application.FileDialog(msoFileDialogOpen)
         .AllowMultiSelect = True
         .Show
-        If IsMissing(sDefaultFolder) Then
+        If sDefaultFolder <> "" Then
             .InitialFileName = sDefaultFolder
         End If
         

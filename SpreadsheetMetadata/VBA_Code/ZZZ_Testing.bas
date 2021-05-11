@@ -245,13 +245,13 @@ End Sub
 Sub TestArray()
     
     Dim v() As Variant
-    Dim Item As Variant
+    Dim item As Variant
     
     v = Array(1, 2, 3)
     
-    For Each Item In v
-        Debug.Print Item
-    Next Item
+    For Each item In v
+        Debug.Print item
+    Next item
 
 
 
@@ -467,12 +467,12 @@ End Sub
 
 Sub TestFilters2()
 
-    Dim Item As Variant
+    Dim item As Variant
     
     
-    For Each Item In ActiveSheet.PivotTables("PivotTable1").PivotFields("[DimAccounts].[Account].[Account]").HiddenItemsList
-        Debug.Print Item
-    Next Item
+    For Each item In ActiveSheet.PivotTables("PivotTable1").PivotFields("[DimAccounts].[Account].[Account]").HiddenItemsList
+        Debug.Print item
+    Next item
 
 End Sub
 
@@ -494,7 +494,7 @@ Sub TestActiveWorkbookChange()
 
     Dim ls As ListStorage
     Dim v As Variant
-    Dim Item As Variant
+    Dim item As Variant
     Dim d As Dictionary
     
     Set ls = New ListStorage
@@ -544,4 +544,30 @@ Sub TestConnection()
 End Sub
 
 
+Sub TestArrayLoop()
 
+    Dim a(2) As Long
+    Dim item As Variant
+    
+    a(1) = 1
+    a(2) = 2
+    
+    For Each item In a
+        Debug.Print (item)
+    Next item
+
+End Sub
+
+
+
+
+Sub testA()
+    
+    Dim a(2) As Integer
+
+    a(0) = 0
+    a(1) = 1
+    a(2) = 2
+    
+
+End Sub

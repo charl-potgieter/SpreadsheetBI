@@ -78,10 +78,10 @@ Sub FormatTable(lo As ListObject)
         .Interior.Color = RGB(68, 114, 196)
         .Font.Color = RGB(255, 255, 255)
         .Font.Bold = True
-        .Borders.Item(xlEdgeTop).LineStyle = xlSolid
-        .Borders.Item(xlEdgeTop).Weight = xlMedium
-        .Borders.Item(xlEdgeBottom).LineStyle = xlSolid
-        .Borders.Item(xlEdgeBottom).Weight = xlMedium
+        .Borders.item(xlEdgeTop).LineStyle = xlSolid
+        .Borders.item(xlEdgeTop).Weight = xlMedium
+        .Borders.item(xlEdgeBottom).LineStyle = xlSolid
+        .Borders.item(xlEdgeBottom).Weight = xlMedium
     End With
 
     'Set row stripe format
@@ -89,8 +89,8 @@ Sub FormatTable(lo As ListObject)
     sty.TableStyleElements(xlRowStripe2).Interior.Color = RGB(255, 255, 255)
     
     'Set whole table bottom edge format
-    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).LineStyle = xlSolid
-    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).Weight = xlMedium
+    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).LineStyle = xlSolid
+    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).Weight = xlMedium
 
     
     'Apply custom style and set other attributes

@@ -132,15 +132,15 @@ End Sub
 
 Function ValueIsInStringArray(ByVal aValueToTest As Variant, ByRef aArray() As String) As Boolean
 
-    Dim Item As Variant
+    Dim item As Variant
     
     ValueIsInStringArray = False
-    For Each Item In aArray
-        If Item = aValueToTest Then
+    For Each item In aArray
+        If item = aValueToTest Then
             ValueIsInStringArray = True
             Exit Function
         End If
-    Next Item
+    Next item
 
 End Function
 
@@ -154,28 +154,6 @@ Function UserFormListBoxHasSelectedItems(ByRef lb As MSForms.ListBox) As Boolean
         i = i + 1
     Loop
 End Function
-
-
-Function UserFormListBoxSelectedArray(ByVal lb As MSForms.ListBox) As String()
-
-    Dim ReturnArray() As String
-    Dim i As Long
-    Dim j As Long
-
-    'Leave array empty if nothing selected
-    If Not UserFormListBoxHasSelectedItems(lb) Then Exit Function
-    j = 0
-    For i = 0 To lb.ListCount - 1
-        If lb.Selected(i) = True Then
-            ReDim Preserve ReturnArray(j)
-            ReturnArray(j) = lb.List(i)
-            j = j + 1
-        End If
-    Next i
-    UserFormListBoxSelectedArray = ReturnArray
-
-End Function
-
 
 
 Public Function ScreenDimensionWidth() As Long

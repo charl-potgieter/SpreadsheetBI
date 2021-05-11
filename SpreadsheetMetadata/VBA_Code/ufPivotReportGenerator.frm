@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} ufPivotReportGenerator 
    Caption         =   "Pivot Reports"
-   ClientHeight    =   8500.001
+   ClientHeight    =   8780.001
    ClientLeft      =   110
    ClientTop       =   450
    ClientWidth     =   9990.001
@@ -18,35 +18,49 @@ Option Explicit
 
 
 Public bCancelled As Boolean
-Private vStorageObjPowerPivotStructure As Variant
-Private vStorageObjTableReportStructure As Variant
+Private vStorageObjReportStructure As Variant
+Private vAllCategories As Variant
 Private vAllPowerPivotCategories As Variant
 Private vAllTableCategories As Variant
 
 
+Private Sub chkSaveInNewSpreadsheet_Click()
+    If Me.chkSaveInNewSpreadsheet.Value = True Then
+        Me.chkGenerateIndex.Enabled = True
+        Me.ComboReportNumber.Enabled = True
+    Else
+        Me.chkGenerateIndex.Enabled = False
+        Me.ComboReportNumber.Enabled = False
+
+    End If
+End Sub
+
+
 Private Sub UserForm_Initialize()
 'Populate the userform with report categories as well as an "All" category
-    
-        
-    Set vStorageObjPowerPivotStructure = AssignPivotReportStructureStorage(ActiveWorkbook, False)
-    Set vStorageObjTableReportStructure = AssignTableReportStorage(ActiveWorkbook, False)
 
-    If Not vStorageObjTableReportStructure Is Nothing Then
-        vAllTableCategories = ReadUniqueReportCategories(vStorageObjTableReportStructure)
-        Me.obExcelTableOnly.Value = True
-    Else
-        Me.obExcelTableOnly.Enabled = False
-    End If
-    
-    If Not vStorageObjPowerPivotStructure Is Nothing Then
-        vAllPowerPivotCategories = ReadUniqueReportCategories(vStorageObjPowerPivotStructure)
-        Me.obPowerPivotSource = True
-    Else
-        Me.obPowerPivotSource.Enabled = False
-    End If
+    Dim i As Integer
+    Const iThresholdForIndexGeneration As Integer = 5
+    Const iMaxThresholdForReportComboBox As Integer = 20
+
+
+    Set vStorageObjReportStructure = AssignReportStructureStorage(ActiveWorkbook, False)
+
+    Me.obAll.Value = True
+    vAllCategories = ReadUniqueSortedReportCategories(vStorageObjReportStructure)
+    vAllPowerPivotCategories = ReadUniqueSortedReportCategories _
+        (vStorageObjReportStructure, "Pivot")
+    vAllTableCategories = ReadUniqueSortedReportCategories _
+        (vStorageObjReportStructure, "Table")
+
+    For i = 1 To iMaxThresholdForReportComboBox
+        Me.ComboReportNumber.AddItem (i)
+    Next i
+    Me.ComboReportNumber.ListIndex = iThresholdForIndexGeneration - 1
 
     RefreshCategories
-    
+    RefreshReportListBox
+
 End Sub
 
 
@@ -77,72 +91,92 @@ Private Sub obExcelTableOnly_Click()
 End Sub
 
 
-
 Private Sub UserForm_Terminate()
     bCancelled = True
-    Set vStorageObjPowerPivotStructure = Nothing
-    Set vStorageObjTableReportStructure = Nothing
+    Set vStorageObjReportStructure = Nothing
 End Sub
 
 
 Private Sub RefreshCategories()
+
+    Dim item As Variant
+
+
+    With Me.lbCategories
+        
+        .Clear
+        .AddItem "All"
     
-    Dim Item As Variant
+        Select Case True
+            Case obAll.Value = True
+                For Each item In vAllCategories
+                    .AddItem item
+                Next item
+            Case obPowerPivotSource.Value = True
+                For Each item In vAllPowerPivotCategories
+                    .AddItem item
+                Next item
+            Case obExcelTableOnly.Value = True
+                For Each item In vAllTableCategories
+                    .AddItem item
+                Next item
+        End Select
     
-    Me.lbCategories.Clear
-    Me.lbCategories.AddItem "All"
-    
-    Select Case True
-        Case obPowerPivotSource.Value = True And Not IsNull(vAllPowerPivotCategories)
-            For Each Item In vAllPowerPivotCategories
-                Me.lbCategories.AddItem Item
-            Next Item
-        Case obExcelTableOnly.Value = True And Not IsNull(vAllTableCategories)
-            For Each Item In vAllTableCategories
-                Me.lbCategories.AddItem Item
-            Next Item
-    End Select
+    End With
+
+    Me.lbCategories.ListIndex = 0
+    RefreshReportListBox
 
 End Sub
 
 
 Private Sub RefreshReportListBox()
-    
+
     Dim vArrayOfReportNames As Variant
     Dim ReportName As Variant
-    
+    Dim i As Long
+
     Me.lbReports.Clear
+    Me.lbReports.ColumnCount = 2
+   
     
     Select Case True
     
-        Case Me.obPowerPivotSource
-            If Me.lbCategories = "All" Then
-                vArrayOfReportNames = ReadAllReports(vStorageObjPowerPivotStructure)
-            Else
-                vArrayOfReportNames = ReadPivotReportsByCategory _
-                    (vStorageObjPowerPivotStructure, Me.lbCategories.Text)
-            End If
-            If Not IsNull(vArrayOfReportNames) Then
-                For Each ReportName In vArrayOfReportNames
-                    Me.lbReports.AddItem ReportName
-                Next ReportName
-            End If
-    
-        Case Me.obExcelTableOnly
-            If Me.lbCategories = "All" Then
-                vArrayOfReportNames = ReadAllReports(vStorageObjTableReportStructure)
-            Else
-                vArrayOfReportNames = ReadPivotReportsByCategory _
-                    (vStorageObjTableReportStructure, Me.lbCategories.Text)
-            End If
-            If Not IsNull(vArrayOfReportNames) Then
-                For Each ReportName In vArrayOfReportNames
-                    Me.lbReports.AddItem ReportName
-                Next ReportName
-            End If
+        Case Me.obAll.Value And Me.lbCategories.Text = "All"
+            vArrayOfReportNames = ReadReportNames(vStorageObjReportStructure)
+            
+        Case Me.obAll.Value And Me.lbCategories.Text <> "All"
+            vArrayOfReportNames = ReadReportNames(vStorageObjReportStructure, , _
+                Me.lbCategories.Text)
+            
+        Case Me.obPowerPivotSource.Value And Me.lbCategories.Text = "All"
+            vArrayOfReportNames = ReadReportNames(vStorageObjReportStructure, "Pivot")
         
+        Case Me.obPowerPivotSource.Value And Me.lbCategories.Text <> "All"
+            vArrayOfReportNames = ReadReportNames(vStorageObjReportStructure, "Pivot", _
+                Me.lbCategories.Text)
+        
+        Case Me.obExcelTableOnly.Value And Me.lbCategories.Text = "All"
+            vArrayOfReportNames = ReadReportNames(vStorageObjReportStructure, "Table")
+        
+        Case Me.obExcelTableOnly.Value And Me.lbCategories.Text <> "All"
+            vArrayOfReportNames = ReadReportNames(vStorageObjReportStructure, "Table", _
+                Me.lbCategories.Text)
+    
     End Select
     
+    
+    i = 0
+    If Not IsNull(vArrayOfReportNames) Then
+        For Each ReportName In vArrayOfReportNames
+            Me.lbReports.AddItem
+            Me.lbReports.List(i, 0) = ReportName
+            Me.lbReports.List(i, 1) = 1
+            i = i + 1
+        Next ReportName
+    End If
+    
+
 
 End Sub
 

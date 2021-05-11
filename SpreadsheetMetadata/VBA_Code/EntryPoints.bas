@@ -43,20 +43,30 @@ Public Type TypePowerReportStorageRecord
 End Type
 
 
-Public Enum EnumPivotReportType
+Public Enum EnumReportType
     PowerPivotSource
     ExcelTableOnly
 End Enum
 
+Public Type TypeReportRecord
+    ReportName As String
+    ReportType As EnumReportType
+End Type
+
+
 Public Type TypeReportUserSelection
     SelectionMade As Boolean
-    ReportList() As String
-    ReportType As EnumPivotReportType
+    ReportList() As TypeReportRecord
+    NumberOfSelectedReports As Long
     SaveInNewWorkbook As Boolean
+    GenerateIndex As Boolean
+    NumberOfReportsForIndexGeneration As Integer
 End Type
 
 Public Const MaxInt As Integer = 32767
 Public Const cPR_MaxStorageRecords As Long = 1000000  'PR  = PowerReport
+Public Const csReportTypePivot As String = "Pivot"
+Public Const csReportTypeTable As String = "Table"
 
 
 Sub DisplayPopUpMenu()
@@ -118,7 +128,7 @@ Sub FormatDashboardIconStyle()
         "[Red] " & ChrW(&H25BC) & "_);" & _
         "[Color 46] " & ChrW(&H2666) & " ;" & _
         "[Blue] * " & ChrW(&H25BA) & "_ "
-    
+
 End Sub
 
 
@@ -138,7 +148,7 @@ Sub FormatZeroDecimalAndArrows()
         "[Red] (#,##0) " & ChrW(&H25BC) & "_);" & _
         "-????;" & _
         "General"
-    
+
 End Sub
 
 Sub FormatOneDecimalAndArrow()
@@ -157,7 +167,7 @@ Sub FormatOneDecimalAndArrow()
         "[Red] (#,##0.0) " & ChrW(&H25BC) & "_);" & _
         "-????;" & _
         "General"
-    
+
 End Sub
 
 Sub FormatTwoDecimalsAndArrow()
@@ -176,7 +186,7 @@ Sub FormatTwoDecimalsAndArrow()
         "[Red] (#,##0.00) " & ChrW(&H25BC) & "_);" & _
         "-????;" & _
         "General"
-    
+
 End Sub
 
 Sub FormatZeroDigitPercentageAndArrow()
@@ -195,7 +205,7 @@ Sub FormatZeroDigitPercentageAndArrow()
         "[Red] -0% " & ChrW(&H25BC) & "_);" & _
         "0%??;" & _
         "General"
-    
+
 End Sub
 
 Sub FormatTwoDigitPercentageAndArrow()
@@ -214,7 +224,7 @@ Sub FormatTwoDigitPercentageAndArrow()
         "[Red] -0.00% " & ChrW(&H25BC) & "_);" & _
         "0.00%??;" & _
         "General"
-    
+
 End Sub
 
 Sub FormatFourDigitPercentageAndArrow()
@@ -233,7 +243,7 @@ Sub FormatFourDigitPercentageAndArrow()
         "[Red] -0.0000% " & ChrW(&H25BC) & "_);" & _
         "0.0000%??;" & _
         "General"
-    
+
 End Sub
 
 Sub FormatOkError()
@@ -270,7 +280,7 @@ End Sub
 Sub FormatHeadings()
 
     StandardEntry
-    
+
     'Remove all current borders
     Selection.Borders(xlDiagonalDown).LineStyle = xlNone
     Selection.Borders(xlDiagonalUp).LineStyle = xlNone
@@ -280,47 +290,47 @@ Sub FormatHeadings()
     Selection.Borders(xlEdgeRight).LineStyle = xlNone
     Selection.Borders(xlInsideVertical).LineStyle = xlNone
     Selection.Borders(xlInsideHorizontal).LineStyle = xlNone
-    
+
     'Set new borders
     With Selection.Borders(xlEdgeLeft)
         .LineStyle = xlContinuous
         .Weight = xlThin
         .ColorIndex = xlAutomatic
     End With
-    
+
     With Selection.Borders(xlEdgeRight)
         .LineStyle = xlContinuous
         .Weight = xlThin
         .ColorIndex = xlAutomatic
     End With
-    
+
     With Selection.Borders(xlEdgeTop)
         .LineStyle = xlContinuous
         .Weight = xlThin
         .ColorIndex = xlAutomatic
     End With
-    
+
     With Selection.Borders(xlEdgeBottom)
         .LineStyle = xlContinuous
         .Weight = xlThin
         .ColorIndex = xlAutomatic
     End With
-    
+
     'Set header colour
     With Selection.Interior
         .Color = RGB(217, 225, 242)
         .Pattern = xlSolid
     End With
-    
+
     Selection.Font.Bold = True
-    
+
     'Set Text allignment
     With Selection
         .HorizontalAlignment = xlCenter
         .VerticalAlignment = xlTop
         .WrapText = True
     End With
-    
+
     StandardExit
 
 End Sub
@@ -330,13 +340,13 @@ End Sub
 Sub ExportPowerQueriesInActiveWorkbookToFiles()
 
     Dim sFolderSelected As String
-    
+
     sFolderSelected = GetFolder
     If NumberOfFilesInFolder(sFolderSelected) <> 0 Then
         MsgBox ("Please select an empty folder...exiting")
         Exit Sub
     End If
-    
+
     ExportPowerQueriesToFiles sFolderSelected, ActiveWorkbook
     MsgBox ("Queries Exported")
 
@@ -347,13 +357,13 @@ Sub ExportNonStandardPowerQueriesInActiveWorkbookToFiles()
 'Exports power queries without fn_std or template_std prefix
 
     Dim sFolderSelected As String
-    
+
     sFolderSelected = GetFolder
     If NumberOfFilesInFolder(sFolderSelected) <> 0 Then
         MsgBox ("Please select an empty folder...exiting")
         Exit Sub
     End If
-    
+
     ExportNonStandardPowerQueriesToFiles sFolderSelected, ActiveWorkbook
     MsgBox ("Queries Exported")
 
@@ -363,11 +373,11 @@ End Sub
 Sub ImportPowerQueriesFromSelectedFolderNonRecursive()
 
     Dim sFolderSelected As String
-    
+
     sFolderSelected = GetFolder
     ImportOrRefreshPowerQueriesInFolder sFolderSelected, False
     MsgBox ("Queries imported")
-    
+
 End Sub
 
 
@@ -375,11 +385,11 @@ End Sub
 Sub ImportPowerQueriesFromSelectedFolderRecursive()
 
     Dim sFolderSelected As String
-    
+
     sFolderSelected = GetFolder
     ImportOrRefreshPowerQueriesInFolder sFolderSelected, True
     MsgBox ("Queries imported")
-    
+
 End Sub
 
 
@@ -392,9 +402,9 @@ Sub ImportSelectedPowerQueries()
     Dim fDialog As FileDialog
     Dim fso As FileSystemObject
     Dim i As Integer
-    
+
     Set fDialog = Application.FileDialog(msoFileDialogFilePicker)
-    
+
     With fDialog
         .AllowMultiSelect = True
         .Title = "Select power query / queries"
@@ -402,7 +412,7 @@ Sub ImportSelectedPowerQueries()
         .Filters.Clear
         .Filters.Add "m Power Query Files", "*.m"
     End With
-    
+
     'fDialog.Show value of -1 below means success
     If fDialog.Show = -1 Then
         For i = 1 To fDialog.SelectedItems.Count
@@ -412,7 +422,7 @@ Sub ImportSelectedPowerQueries()
             ImportOrRefreshSinglePowerQuery sPowerQueryFilePath, sPowerQueryName, ActiveWorkbook
         Next i
     End If
-    
+
     MsgBox ("Queries imported")
 
 End Sub
@@ -431,34 +441,34 @@ Sub FormatPivotTableFlatten()
     Dim pvt As PivotTable
     Dim pvtField As PivotField
     Dim b_mu As Boolean
-    
+
     StandardEntry
     On Error Resume Next
     Set pvt = ActiveCell.PivotTable
     On Error GoTo 0
-    
+
     If Not pvt Is Nothing Then
         With pvt
             'Get update status and suspend updates
             b_mu = .ManualUpdate
             .ManualUpdate = True
-            
+
             .RowAxisLayout xlTabularRow
             .ColumnGrand = True
             .RowGrand = True
             .HasAutoFormat = False
             .ShowDrillIndicators = False
-            
+
             For Each pvtField In pvt.PivotFields
                 If pvtField.Orientation = xlRowField Then
                     pvtField.RepeatLabels = True
                     pvtField.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
                 End If
             Next pvtField
-            
+
             'Restore update status
             .ManualUpdate = b_mu
-            
+
         End With
     End If
 
@@ -469,7 +479,7 @@ End Sub
 Sub FormatActiveTable()
 
     FormatTable ActiveCell.ListObject
-    
+
 End Sub
 
 
@@ -489,7 +499,7 @@ Sub CreateDataModelRelationships()
     Dim sForeignKeyCol As String
     Dim sPrimaryKeyTable As String
     Dim sPrimaryKeyCol As String
-    
+
     StandardEntry
     Set mdl = ActiveWorkbook.Model
     Set lo = ActiveWorkbook.Sheets("Model_Relationships").ListObjects(1)
@@ -544,11 +554,11 @@ Sub TableLooper()
     Dim sSheetHeading As String
     Dim sSheetCategory As String
     Dim loCalc As ListObject
-    
+
     Const iStartTableRow As Integer = 5
     Const iStartTableCol As Integer = 2
-    
-    
+
+
     StandardEntry
     sActiveSheetName = ActiveSheet.Name
     sActiveRangeAddress = Selection.Address
@@ -561,8 +571,8 @@ Sub TableLooper()
     sAfterSheet = LooperValue("Target Sheet Inserted After")
     sSheetHeading = LooperValue("Target Sheet Heading")
     sSheetCategory = LooperValue("Target Sheet Category")
-    
-    
+
+
     'Create sheet for consolidated output of calculations
     If SheetExists(ActiveWorkbook, sTargetSheetName) Then
         ActiveWorkbook.Sheets(sTargetSheetName).Delete
@@ -572,7 +582,7 @@ Sub TableLooper()
     sht.Name = sTargetSheetName
     sht.Range("SheetHeading") = sSheetHeading
     sht.Range("A1") = sSheetCategory
-    
+
     loCalc.HeaderRowRange.Copy
     sht.Cells(iStartTableRow, iStartTableCol).PasteSpecial xlPasteValues
 
@@ -587,14 +597,14 @@ Sub TableLooper()
 
     Set loOutput = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Cells(iStartTableRow, iStartTableCol).CurrentRegion, XlListObjectHasHeaders:=xlYes)
     loOutput.Name = "tbl_" & sTargetSheetName
-    
+
     FormatTable loOutput
     sht.Select
     Rows("6:6").Select
     ActiveWindow.FreezePanes = True
-    
+
     InsertIndexPageActiveWorkbook
-    
+
     Worksheets(sActiveSheetName).Activate
     Range(sActiveRangeAddress).Select
     StandardExit
@@ -608,11 +618,11 @@ Sub WriteModelInfoToSheets()
 '   Model Measures
 '   Model columns
 '   Measure Relationships
-    
+
     Dim iMsgBoxResponse As Integer
-    
+
     StandardEntry
-        
+
     If SheetExists(ActiveWorkbook, "ModelMeasures") Or SheetExists(ActiveWorkbook, "ModelCalcColumns") Or _
     SheetExists(ActiveWorkbook, "ModelColumns") Or SheetExists(ActiveWorkbook, "ModelRelationships") Then
             iMsgBoxResponse = MsgBox("Sheets already exists, delete?", vbQuestion + vbYesNo + vbDefaultButton2)
@@ -620,12 +630,12 @@ Sub WriteModelInfoToSheets()
                 Exit Sub
             End If
     End If
-    
+
     WriteModelMeasuresToSheet
     WriteModelCalcColsToSheet
     WriteModelColsToSheet
     WriteModelRelationshipsToSheet
-    
+
     StandardExit
 End Sub
 
@@ -650,7 +660,7 @@ Sub CreatePowerQueryGeneratorSheet()
             ActiveWorkbook.Sheets("PqTableGenerator").Delete
         End If
     End If
-        
+
     CreateTableGeneratorSheet ActiveWorkbook
     StandardExit
 End Sub
@@ -666,7 +676,7 @@ Sub GeneratePowerQueryTable()
     Dim i As Integer
     Dim j As Integer
     Dim lo As ListObject
-    
+
     StandardEntry
     sQueryName = ActiveWorkbook.Sheets("PqTableGenerator").Range("TableName")
 
@@ -674,13 +684,13 @@ Sub GeneratePowerQueryTable()
         MsgBox ("Query with the same name already exists.  New query not generated")
         Exit Sub
     End If
-    
+
     Set lo = ActiveWorkbook.Sheets("PqTableGenerator").ListObjects("tbl_PqTableGenerator")
-    
-        
+
+
     sQueryText = "let" & vbCrLf & vbCrLf & _
         "    tbl = Table.FromRecords({" & vbCrLf
-        
+
     'Table from records portion of power query
     For i = 1 To lo.DataBodyRange.Rows.Count
         For j = 1 To lo.HeaderRowRange.Cells.Count
@@ -701,8 +711,8 @@ Sub GeneratePowerQueryTable()
             sQueryText = sQueryText & "        }), " & vbCrLf & vbCrLf
         End If
     Next i
-        
-        
+
+
     'Changed Type portion of power query
     sQueryText = sQueryText & "    ChangedType = Table.TransformColumnTypes(" & vbCrLf & _
         "       tbl, " & vbCrLf & "        {" & vbCrLf
@@ -719,7 +729,7 @@ Sub GeneratePowerQueryTable()
         "in" & vbCrLf & "    ChangedType"
 
     ActiveWorkbook.Queries.Add sQueryName, sQueryText
-    
+
     MsgBox ("Query Generated")
     StandardExit
 
@@ -765,20 +775,20 @@ Sub GenerateSpreadsheetMetaData()
     sPowerQueriesPath = sMetaDataRootPath & Application.PathSeparator & "PowerQueries"
     sVbaCodePath = sMetaDataRootPath & Application.PathSeparator & "VBA_Code"
     sDataModelPath = sMetaDataRootPath & Application.PathSeparator & "DataModel"
-    
+
     'Rather ask user to manually delete rather than have risky folder deletions in VBA code
     If FolderExists(sMetaDataRootPath) Then
         MsgBox ("Manually delete " & sMetaDataRootPath & " before continuing.  Exiting")
         Exit Sub
     End If
-    
+
     'Create folders for storing metadata
     CreateFolder sMetaDataRootPath
     CreateFolder sWorksheetStructurePath
     CreateFolder sPowerQueriesPath
     CreateFolder sVbaCodePath
     CreateFolder sDataModelPath
-    
+
     'Generate Worksheet structure metadata text files
     GenerateMetadataFileWorksheets ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "MetadataWorksheets.txt"
     GenerateMetadataFileListObjectFields ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "ListObjectFields.txt"
@@ -800,7 +810,7 @@ Sub GenerateSpreadsheetMetaData()
 
     MsgBox ("Metadata created")
     StandardExit
-    
+
 
 End Sub
 
@@ -808,7 +818,7 @@ End Sub
 Sub CopyPowerQueriesFromWorkbook()
 'Copies power queries from selected workbook into active workbook
 
-    
+
     Dim fDialog As FileDialog, Result As Integer
     Dim sFilePathAndName As String
     Dim bWorkbookIsOpen As Boolean
@@ -819,32 +829,32 @@ Sub CopyPowerQueriesFromWorkbook()
     Dim qry As WorkbookQuery
 
     StandardEntry
-    
+
     Set wkbTarget = ActiveWorkbook
     Set fDialog = Application.FileDialog(msoFileDialogFilePicker)
-        
+
     'Get file from file picker
     fDialog.AllowMultiSelect = False
     fDialog.InitialFileName = ActiveWorkbook.Path
     fDialog.Filters.Clear
     fDialog.Filters.Add "Excel files", "*.xlsx, *.xlsm"
     fDialog.Filters.Add "All files", "*.*"
-     
+
     'Exit sub  if no file is selected
     If fDialog.Show <> -1 Then
        GoTo ExitPoint
     End If
-     
+
     sFilePathAndName = fDialog.SelectedItems(1)
     sWorkbookName = fso.GetFileName(sFilePathAndName)
-    
-    
+
+
     If sWorkbookName = ActiveWorkbook.Name Then
         MsgBox ("Cannot copy between 2 workbooks with the same name, exiting...")
         GoTo ExitPoint
     End If
-    
-    
+
+
     'Open source workbook if not open
     If WorkbookIsOpen(sWorkbookName) Then
         bWorkbookIsOpen = True
@@ -853,7 +863,7 @@ Sub CopyPowerQueriesFromWorkbook()
         bWorkbookIsOpen = False
         Set wkbSource = Application.Workbooks.Open(sFilePathAndName)
     End If
-    
+
     'Copy queries from source to active workbook
     For Each qry In wkbSource.Queries
         If QueryExists(qry.Name, wkbTarget) Then
@@ -862,12 +872,12 @@ Sub CopyPowerQueriesFromWorkbook()
             wkbTarget.Queries.Add qry.Name, qry.Formula
         End If
     Next qry
-    
+
     'Close source workbook if it was not open before this sub was run
     If Not bWorkbookIsOpen Then
         wkbSource.Close
     End If
-    
+
     wkbTarget.Activate
     MsgBox ("Power Queries copied")
 
@@ -881,7 +891,7 @@ Sub TempDeleteAllPQ()
 'Deletes all power queries in active workbook
 
     Dim qry As WorkbookQuery
-    
+
     StandardEntry
     For Each qry In ThisWorkbook.Queries
         qry.Delete
@@ -905,7 +915,7 @@ End Sub
 
 Sub SaveReportMetadataInActiveWorkbook()
 'Reads all report metadata from reports in active workbook and saves
-    
+
     StandardEntry
     SaveReportingPowerPivotMetaData ActiveWorkbook
     SaveReportingTableMetadata ActiveWorkbook
@@ -916,8 +926,7 @@ End Sub
 
 Sub CreateReportFromMetadata()
 
-    Dim vStorageObjPowerPivotStructure As Variant
-    Dim vStorageObjTableReportStructure As Variant
+    Dim vStorageObjReportStructure As Variant
     Dim vStorageObjQueriesForSelectedReports As Variant
     Dim UserReportSelection As TypeReportUserSelection
     Dim i As Long
@@ -930,56 +939,58 @@ Sub CreateReportFromMetadata()
     Const csSubDirectory As String = "DaxTableQueries"
 
     StandardEntry
-    Set vStorageObjPowerPivotStructure = _
-        Reporting_Data.AssignPivotReportStructureStorage(ActiveWorkbook, False)
-    Set vStorageObjTableReportStructure = _
-        Reporting_Data.AssignTableReportStorage(ActiveWorkbook, False)
-    Set vStorageObjQueriesForSelectedReports = _
-        Reporting_Data.AssignPivotTableQueriesPerReport(ActiveWorkbook, False)
-        
+
+    Set vStorageObjReportStructure = AssignReportStructureStorage(ActiveWorkbook, False)
+    Set vStorageObjQueriesForSelectedReports = AssignPivotTableQueriesPerReport(ActiveWorkbook, False)
+
     'Exit if no report metadata exists on active sheet
-    If vStorageObjPowerPivotStructure Is Nothing And _
-        vStorageObjTableReportStructure Is Nothing Then
-            MsgBox ("No report metadata exists on active sheet")
-            GoTo ExitPoint
+    If vStorageObjReportStructure Is Nothing Then
+        MsgBox ("No report metadata exists on active sheet")
+        GoTo ExitPoint
     End If
-    
+
     UserReportSelection = GetUserReportSelection
     Set wkbSource = ActiveWorkbook
     Set wkbTarget = AssignReportWorkbook(wkbSource, UserReportSelection.SaveInNewWorkbook)
 
     With UserReportSelection
-        If .SelectionMade = False Then GoTo ExitPoint
         
+        If .SelectionMade = False Then GoTo ExitPoint
+
         For i = LBound(.ReportList) To UBound(.ReportList)
-            sReportName = .ReportList(i)
-            Select Case .ReportType
+            sReportName = .ReportList(i).ReportName
+            Select Case .ReportList(i).ReportType
                 Case PowerPivotSource
                     Set PwrPvtReport = New ReportingPowerPivot
                     PwrPvtReport.CreateEmptyPowerPivotReport wkbTarget, sReportName
                     DesignPowerPivotReportBasedOnStoredData _
-                        vStorageObjPowerPivotStructure, PwrPvtReport
+                        vStorageObjReportStructure, PwrPvtReport
                 Case ExcelTableOnly
                     sDaxTableQueryPath = wkbSource.Path & Application.PathSeparator & _
                         csSubDirectory & Application.PathSeparator & sReportName & ".dax"
                     Set TableReport = New ReportingTable
                     TableReport.CreateEmptyReportingTable wkbTarget, sReportName
-                    DesignPowerTableReportBasedOnStoredData vStorageObjTableReportStructure, _
+                    DesignPowerTableReportBasedOnStoredData vStorageObjReportStructure, _
                         TableReport, sDaxTableQueryPath
                     TableReport.ApplyColourFormatting
             End Select
         Next i
-        
+
         If .SaveInNewWorkbook Then
             DeleteNonReportSheets wkbTarget, .ReportList
             If Not vStorageObjQueriesForSelectedReports Is Nothing Then
                 DeleteUnusedDataModelTables vStorageObjQueriesForSelectedReports, wkbTarget, .ReportList
             End If
+            If .GenerateIndex And (UBound(.ReportList) - LBound(.ReportList) + 1) _
+                >= .NumberOfReportsForIndexGeneration Then
+                    InsertIndexPage wkbTarget
+            End If
+
             wkbTarget.Save
         End If
-        
+
     End With
-    
+
 ExitPoint:
     StandardExit
 

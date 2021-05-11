@@ -31,7 +31,7 @@ Public Sub TestSheet2()
     NewFormattedSheet.FreezePaneCol = 3
     
     Set SecondReportingSheet = New ReportingSheet
-    bSheetImported = NewFormattedSheet.CreateFromExistingSheet(ActiveWorkbook.Sheets.Item(1))
+    bSheetImported = NewFormattedSheet.CreateFromExistingSheet(ActiveWorkbook.Sheets.item(1))
     
     
 End Sub
@@ -204,5 +204,22 @@ Public Sub TestReportingTable()
     rt.AssignToExistingSheet ActiveSheet
     'Set d = New Dictionary
     Set d = rt.NumberFormatting
+
+End Sub
+
+
+Sub TestConn()
+    
+    Dim i As Long
+    Dim con As WorkbookConnection
+    Dim sTableName
+    
+
+    For Each con In ActiveWorkbook.Connections
+        If con.Type = xlConnectionTypeOLEDB And con.InModel Then
+            Debug.Print con.Name
+        End If
+    Next con
+            
 
 End Sub

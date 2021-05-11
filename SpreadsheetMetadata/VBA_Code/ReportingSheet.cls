@@ -222,11 +222,11 @@ Private Sub InsertReportingSheet(ByVal wkb As Workbook, _
     
     If lSheetPosition <> 0 Then
         Set this.shtReport = wkb.Sheets.Add _
-            (After:=wkb.Worksheets.Item(lSheetPosition))
+            (After:=wkb.Worksheets.item(lSheetPosition))
     Else
         NumberOfSheetsInWorkbook = wkb.Sheets.Count
         Set this.shtReport = wkb.Sheets.Add _
-            (After:=wkb.Worksheets.Item(NumberOfSheetsInWorkbook))
+            (After:=wkb.Worksheets.item(NumberOfSheetsInWorkbook))
     End If
         
 End Sub
@@ -261,7 +261,7 @@ Private Sub FormatReportingSheet()
         .Cells.Font.Name = "Calibri"
         .Cells.Font.Size = 11
         .DisplayPageBreaks = False
-        .Columns.Item("A:A").ColumnWidth = 4
+        .Columns.item("A:A").ColumnWidth = 4
         .Range(csHeadingAddress).Font.Bold = True
         .Range(csHeadingAddress).Font.Size = 16
         .Range(csCategoryAddress).Font.Color = RGB(170, 170, 170)

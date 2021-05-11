@@ -7,7 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-    '@Folder "Storage.Reporting"
+'@Folder "Storage.Reporting"
 Option Explicit
 
 Private Type TReportingTable
@@ -67,13 +67,13 @@ Public Property Let SheetProperties(ByVal Properties As Dictionary)
     Set this.ReportSht = New ReportingSheet
     With this.ReportSht
         .Create wkb
-        .Name = Properties.Item("SheetName")
-        .Category = Properties.Item("Category")
-        .Heading = Properties.Item("Heading")
-        .FreezePaneRow = Properties.Item("FreezePaneRow")
-        .FreezePaneCol = Properties.Item("FreezePaneCol")
+        .Name = Properties.item("SheetName")
+        .Category = Properties.item("Category")
+        .Heading = Properties.item("Heading")
+        .FreezePaneRow = Properties.item("FreezePaneRow")
+        .FreezePaneCol = Properties.item("FreezePaneCol")
         
-        sFirstCellAddress = Properties.Item("FirstCellAddress")
+        sFirstCellAddress = Properties.item("FirstCellAddress")
         this.lo.Range.Cut
         .Sheet.Paste .Sheet.Range(sFirstCellAddress)
         'if below step is ignored the this.lo reference is deleted on cut and paste
@@ -321,10 +321,10 @@ Private Sub FormatReportingTable()
         .Interior.Color = RGB(68, 114, 196)
         .Font.Color = RGB(255, 255, 255)
         .Font.Bold = True
-        .Borders.Item(xlEdgeTop).LineStyle = xlSolid
-        .Borders.Item(xlEdgeTop).Weight = xlMedium
-        .Borders.Item(xlEdgeBottom).LineStyle = xlSolid
-        .Borders.Item(xlEdgeBottom).Weight = xlMedium
+        .Borders.item(xlEdgeTop).LineStyle = xlSolid
+        .Borders.item(xlEdgeTop).Weight = xlMedium
+        .Borders.item(xlEdgeBottom).LineStyle = xlSolid
+        .Borders.item(xlEdgeBottom).Weight = xlMedium
     End With
 
     'Set row stripe format
@@ -332,8 +332,8 @@ Private Sub FormatReportingTable()
     sty.TableStyleElements(xlRowStripe2).Interior.Color = RGB(255, 255, 255)
     
     'Set whole table bottom edge format
-    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).LineStyle = xlSolid
-    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).Weight = xlMedium
+    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).LineStyle = xlSolid
+    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).Weight = xlMedium
 
     
     'Apply custom style and set other attributes

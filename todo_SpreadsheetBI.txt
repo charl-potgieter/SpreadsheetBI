@@ -1,11 +1,21 @@
 TODO
--------    
-Break down EntryPoints.CreateReportFromMetadata into smaller components
+------- 
+Update the filter functionality of liststorage
+ - create functionality to return entire table (filtered or not = default) as a variant
+  - Don't create the filtered listobject until the filter function is called
+  - Add an  optional paramarry to the filter function to specify which columns will be returned
 
-Consider creating an (optional) index page (using the existing old-ish code) when more than one report is generated to a new workbook
+
+
+ufPivotReportGenerator.RefreshListBox --> how do I get the ReportType for each item to be displayed in ReportList - almost may need to add extra functionality to Listobject class
+ - Below works to filter columns - why?
+    * =FILTER(tbl_ReportProperties_Filtered, tbl_ReportProperties_Filtered[#Headers]="DataType")
+    * Look at filter function definition
+    * See step above
+
+Add an All option in reports listbox so that all reports can be run for a specific category
 
 Listobject class (and calling subs) --> need to protect against errors generated with null data including in transpose functions
-
 
  - Remove TableLooper from SpreadsheetBI?   Process is better in seperate spreadsheet "Spreadsheet_Iterative_Model"
  

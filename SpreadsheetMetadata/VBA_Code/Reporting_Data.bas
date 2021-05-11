@@ -5,8 +5,7 @@ Attribute VB_Description = "Acts as a point of contact between working modules a
 Option Explicit
 Option Private Module
 
-Const csPivotReportMetaDataStorageName As String = "PowerPivotReportProperties"
-Const csTableReport As String = "TableReportProperties"
+Const csReportMetaDataStorageName As String = "ReportProperties"
 Const csPivotReportQueriesPerReport As String = "PivotReportingQueriesPerReport"
 
 
@@ -15,28 +14,29 @@ Const csPivotReportQueriesPerReport As String = "PivotReportingQueriesPerReport"
 '                               Assign Storage
 '---------------------------------------------------------------------------------------
 
-Public Function AssignPivotReportStructureStorage(ByRef wkb As Workbook, _
+Public Function AssignReportStructureStorage(ByRef wkb As Workbook, _
     Optional bCreateIfNoneExists As Boolean = True) As ListStorage
 
     Dim ls As ListStorage
     Dim bStorageIsAssigned As Boolean
-    Dim sHeaders(5) As String
+    Dim sHeaders(4) As String
     
     Set ls = New ListStorage
-    bStorageIsAssigned = ls.AssignStorage(wkb, csPivotReportMetaDataStorageName)
+    bStorageIsAssigned = ls.AssignStorage(wkb, csReportMetaDataStorageName)
 
     Select Case True
         Case bStorageIsAssigned
-            Set AssignPivotReportStructureStorage = ls
+            Set AssignReportStructureStorage = ls
         Case Not bStorageIsAssigned And bCreateIfNoneExists
-            sHeaders(0) = "ReportName"
-            sHeaders(1) = "DataType"
-            sHeaders(2) = "Property"
-            sHeaders(3) = "Value"
-            ls.CreateStorage wkb, csPivotReportMetaDataStorageName, sHeaders
-            Set AssignPivotReportStructureStorage = ls
+            sHeaders(0) = "ReportType"
+            sHeaders(1) = "ReportName"
+            sHeaders(2) = "DataType"
+            sHeaders(3) = "Property"
+            sHeaders(4) = "Value"
+            ls.CreateStorage wkb, csReportMetaDataStorageName, sHeaders
+            Set AssignReportStructureStorage = ls
         Case Else
-            Set AssignPivotReportStructureStorage = Nothing
+            Set AssignReportStructureStorage = Nothing
     End Select
 
 End Function
@@ -68,41 +68,13 @@ End Function
 
 
 
-Public Function AssignTableReportStorage(ByVal wkb As Workbook, _
-    Optional bCreateIfNoneExists As Boolean = True) As ListStorage
-
-    Dim ls As ListStorage
-    Dim bStorageIsAssigned As Boolean
-    Dim sHeaders(4) As String
-
-    Set ls = New ListStorage
-    bStorageIsAssigned = ls.AssignStorage(wkb, csTableReport)
-
-    Select Case True
-        Case bStorageIsAssigned
-            Set AssignTableReportStorage = ls
-        Case Not bStorageIsAssigned And bCreateIfNoneExists
-            sHeaders(0) = "ReportName"
-            sHeaders(1) = "DataType"
-            sHeaders(2) = "Property"
-            sHeaders(3) = "Value"
-            ls.CreateStorage wkb, csTableReport, sHeaders
-            Set AssignTableReportStorage = ls
-        Case Else
-            Set AssignTableReportStorage = Nothing
-    End Select
-
-
-End Function
-
-
 '---------------------------------------------------------------------------------------
 '                               Write Data
 '---------------------------------------------------------------------------------------
 
 
 Public Sub DeleteExistingReportData(ByRef vStorageObject As Variant, _
-    ByVal sReportName As String)
+    ByVal sReportType As String, ByVal sReportName As String)
 'If there is any existing data in Listorage with same sReportName as report then this is deleted
 
     Dim sFilterString As String
@@ -110,16 +82,21 @@ Public Sub DeleteExistingReportData(ByRef vStorageObject As Variant, _
 
     Set ls = vStorageObject
 
-    'Create Filter excluding Report name and then replace data with filter
-    sFilterString = "[ReportName] <> """ & sReportName & """"
+    'Filter with different report type or same report type and different name
+    sFilterString = "([ReportType] <> ""<ReportType>"")"
+    sFilterString = sFilterString & _
+          " + (([ReportType] = ""<ReportType>"") * ([ReportName] <> ""<ReportName>""))"
+          
+    sFilterString = Replace(sFilterString, "<ReportType>", sReportType)
+    sFilterString = Replace(sFilterString, "<ReportName>", sReportName)
     ls.Filter sFilterString
     ls.ReplaceDataWithFilteredData
 
 End Sub
 
 
-Public Sub WriteReportData(ByRef vStorageObject As Variant, ByVal sReportName As String, _
-    ByVal sDataType As String, ByVal DataDictionary As Dictionary)
+Public Sub WriteReportData(ByRef vStorageObject As Variant, sReportType As String, _
+    ByVal sReportName As String, ByVal sDataType As String, ByVal DataDictionary As Dictionary)
     
     Dim DataRow As Dictionary
     Dim key As Variant
@@ -128,6 +105,7 @@ Public Sub WriteReportData(ByRef vStorageObject As Variant, ByVal sReportName As
     Set ls = vStorageObject
     For Each key In DataDictionary.Keys
         Set DataRow = New Dictionary
+        DataRow.Add "ReportType", sReportType
         DataRow.Add "ReportName", sReportName
         DataRow.Add "DataType", sDataType
         DataRow.Add "Property", key
@@ -145,15 +123,24 @@ End Sub
 '                               Read Data
 '---------------------------------------------------------------------------------------
 
-Public Function ReadUniqueReportCategories(ByRef vStorageObject As Variant) As Variant
+Public Function ReadUniqueSortedReportCategories(ByRef vStorageObject As Variant, _
+    Optional ByVal sReportType As String = "") As Variant
 'Returns a variant array of unique report categories
 
     Dim ls As ListStorage
+    Dim sFilterStr As String
 
     Set ls = vStorageObject
-    ls.Filter "([DataType] = ""Sheet"") * ([Property] = ""Category"")"
+    If sReportType = "" Then
+        sFilterStr = "([DataType] = ""Sheet"") * ([Property] = ""Category"")"
+    Else
+        sFilterStr = "([DataType] = ""Sheet"") * ([Property] = ""Category"")" & _
+            " * ([ReportType] = """ & sReportType & """)"
+    End If
+    
+    ls.Filter sFilterStr
 
-    ReadUniqueReportCategories = ls.ItemsInField( _
+    ReadUniqueSortedReportCategories = ls.ItemsInField( _
         sFieldName:="Value", _
         bUnique:=True, _
         bSorted:=True, _
@@ -163,38 +150,30 @@ Public Function ReadUniqueReportCategories(ByRef vStorageObject As Variant) As V
 End Function
 
 
-
-Public Function ReadAllReports(ByRef vStorageObject As Variant) As Variant
-'Returns a variant array of all PowerrReports
-
-    Dim ls As ListStorage
-
-    Set ls = vStorageObject
-
-    ReadAllReports = ls.ItemsInField( _
-        sFieldName:="ReportName", _
-        bUnique:=True, _
-        bSorted:=True, _
-        SortOrder:=lsAsc, _
-        bFiltered:=False)
-
-End Function
-
-
-
-Public Function ReadPivotReportsByCategory(ByRef vStorageObject, sReportCategory As String) As Variant
-'Returns a variant array of PowerReports based sReportCategory
+Public Function ReadReportNames(ByRef vStorageObject As Variant, _
+    Optional ByVal sReportType As String = "", _
+    Optional ByVal sCategory As String = "") As Variant
+'Returns a variant array of all Reports, optionally filtered by ReportType
 
     Dim ls As ListStorage
     Dim sFilterStr As String
 
     Set ls = vStorageObject
+    'Create a filter string which includes fill population
+    sFilterStr = "([ReportName]=[ReportName])"
+    
+    If sReportType <> "" Then
+        sFilterStr = sFilterStr & " * ([ReportType] = """ & sReportType & """)"
+    End If
 
-    sFilterStr = "([DataType] = ""Sheet"") * ([Property] = ""Category"") * " & _
-        "([Value] = """ & sReportCategory & """)"
+    If sCategory <> "" Then
+        sFilterStr = sFilterStr & "([DataType] = ""Sheet"") * ([Property] = ""Category"") * " & _
+            "([Value] = """ & sCategory & """)"
+    End If
+
     ls.Filter sFilterStr
-
-    ReadPivotReportsByCategory = ls.ItemsInField( _
+    
+    ReadReportNames = ls.ItemsInField( _
         sFieldName:="ReportName", _
         bUnique:=True, _
         bSorted:=True, _
@@ -204,9 +183,9 @@ Public Function ReadPivotReportsByCategory(ByRef vStorageObject, sReportCategory
 End Function
 
 
-
 Public Function ReadReportProperties(ByVal vStorageObject As Variant, _
-    ByVal sReportName As String, ByVal sDataType As String) As Dictionary
+    ByVal sReportType As String, ByVal sReportName As String, _
+    ByVal sDataType As String) As Dictionary
 
     Dim sFilterStr As String
     Dim ls As ListStorage
@@ -218,7 +197,8 @@ Public Function ReadReportProperties(ByVal vStorageObject As Variant, _
     
     Set ReturnDictionary = New Dictionary
     Set ls = vStorageObject
-    sFilterStr = "([ReportName]=""" & sReportName & """) * " & _
+    sFilterStr = "([ReportType]=""" & sReportType & """) * " & _
+        "([ReportName]=""" & sReportName & """) * " & _
         "([DataType] = """ & sDataType & """)"
     'Sort by Property (which contains field position) to ensure fields are added in correct order
     ls.Filter sFilterString:=sFilterStr, bSorted:=True, sSortField:="Property", _
@@ -236,8 +216,8 @@ End Function
 
 
 Public Function ReadQueriesForReportList(ByRef vStorageObject, _
-    ByRef sReportNames() As String) As Variant
-'Returns the queries to be retained in order to generate sReportNames as a
+    ByRef ReportList() As TypeReportRecord) As Variant
+'Returns the queries to be retained in order to generate ReportList as a
 'one dimensional variant array
 
     Dim ls As ListStorage
@@ -249,11 +229,11 @@ Public Function ReadQueriesForReportList(ByRef vStorageObject, _
     
     'Compile string "{"ReportName1", "ReportName2", etc}"
     sReportListStr = "{"
-    For i = LBound(sReportNames) To UBound(sReportNames)
-        If i = LBound(sReportNames) Then
-            sReportListStr = sReportListStr & """" & sReportNames(i) & """"
+    For i = LBound(ReportList) To UBound(ReportList)
+        If i = LBound(ReportList) Then
+            sReportListStr = sReportListStr & """" & ReportList(i).ReportName & """"
         Else
-            sReportListStr = sReportListStr & ",""" & sReportNames(i) & """"
+            sReportListStr = sReportListStr & ",""" & ReportList(i).ReportName & """"
         End If
     Next i
     sReportListStr = sReportListStr & "}"
