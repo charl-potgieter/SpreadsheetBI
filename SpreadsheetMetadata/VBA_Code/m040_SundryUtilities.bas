@@ -206,3 +206,19 @@ Function GetCellColour(rng As Range, Optional formatType As Integer = 0) As Vari
             GetCellColour = colorVal
     End Select
 End Function
+
+
+Sub WaitForCalc()
+'Scope is an application object e.g. sheet. workkook range
+'Note below link how a calculate can be applied to a single workbook / worksheet etc
+'https://docs.microsoft.com/en-us/office/vba/api/excel.application.calculate
+'https://stackoverflow.com/questions/11277034/wait-until-application-calculate-has-finished
+'https://docs.microsoft.com/en-us/office/vba/api/excel.application.calculatefullrebuild
+
+
+    Application.Calculate
+    Do Until Application.CalculationState <> xlCalculating
+    Loop
+
+End Sub
+

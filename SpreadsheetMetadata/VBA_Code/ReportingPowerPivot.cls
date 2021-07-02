@@ -337,7 +337,7 @@ Property Get ColumnWidths() As Dictionary
     'Col widths of area to left of DataBodyRange ("RowRange") stored as pipe delimited string
     If PivotTableHasRowRange Then
         sRowRangeColWidthsStr = ""
-        For Each rng In this.pvt.RowRange.Rows(1).Cells
+        For Each rng In this.pvt.RowRange.rows(1).Cells
             If sRowRangeColWidthsStr = "" Then
                 sRowRangeColWidthsStr = CStr(rng.ColumnWidth)
             Else

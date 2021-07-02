@@ -503,7 +503,7 @@ Sub CreateDataModelRelationships()
     StandardEntry
     Set mdl = ActiveWorkbook.Model
     Set lo = ActiveWorkbook.Sheets("Model_Relationships").ListObjects(1)
-    For i = 1 To lo.DataBodyRange.Rows.Count
+    For i = 1 To lo.DataBodyRange.rows.Count
         sForeignKeyTable = lo.ListColumns("Foreign Key Table").DataBodyRange.Cells(i)
         sForeignKeyCol = lo.ListColumns("Foreign Key Column").DataBodyRange.Cells(i)
         sPrimaryKeyTable = lo.ListColumns("Primary Key Table").DataBodyRange.Cells(i)
@@ -516,97 +516,32 @@ Sub CreateDataModelRelationships()
 End Sub
 
 
+Sub RunTableLooperOnActiveSheet()
 
-Sub TableLooper()
-
-'Implements a looping mechanism:
-' - that loops over various keys
-' - populates a calculation table utilising each of the above keys
-' - copies to a consolidated output sheet
-'
-'Precondition
-'-------------
-'Listobject tbl_LoopController exists on sheet LoopController
-'The listobject has the below fields
-' - item
-' - value
-' - notes
-'The below values appear in the item field
-' - Index range
-' - Input key
-' - Input calculation table
-' - Target sheet name
-' - Target sheet inserted after
-' - target sheet heading
-' - target sheet category
-
-
-    Dim Arr
-    Dim i As Integer
-    Dim sht As Worksheet
-    Dim dblRowToPaste As Double
-    Dim loOutput As ListObject
-    Dim sActiveSheetName As String
-    Dim sActiveRangeAddress As String
-    Dim rngTableInputKey As Range
-    Dim sTargetSheetName As String
-    Dim sAfterSheet As String
-    Dim sSheetHeading As String
-    Dim sSheetCategory As String
-    Dim loCalc As ListObject
-
-    Const iStartTableRow As Integer = 5
-    Const iStartTableCol As Integer = 2
-
-
+    Dim ReportSheetSource As ReportingSheet
+    Dim ReportSheetConsol As ReportingSheet
+    Dim bReportSheetAssigned As Boolean
+    
     StandardEntry
-    sActiveSheetName = ActiveSheet.Name
-    sActiveRangeAddress = Selection.Address
-
-    'Read inputs for looping function
-    Arr = WorksheetFunction.Transpose(Range(LooperValue("Index Range")))
-    Set rngTableInputKey = Range(LooperValue("Input Key"))
-    Set loCalc = Range(LooperValue("Input Calculation Table")).ListObject
-    sTargetSheetName = LooperValue("Target Sheet Name")
-    sAfterSheet = LooperValue("Target Sheet Inserted After")
-    sSheetHeading = LooperValue("Target Sheet Heading")
-    sSheetCategory = LooperValue("Target Sheet Category")
-
-
-    'Create sheet for consolidated output of calculations
-    If SheetExists(ActiveWorkbook, sTargetSheetName) Then
-        ActiveWorkbook.Sheets(sTargetSheetName).Delete
+    Set ReportSheetSource = New ReportingSheet
+    bReportSheetAssigned = ReportSheetSource.AssignExistingSheet(ActiveSheet)
+    
+    If Not bReportSheetAssigned Then
+        MsgBox ("Not a valid sheet for table looping")
+        GoTo ExitPoint
     End If
-    Set sht = ActiveWorkbook.Sheets.Add(After:=Worksheets(sAfterSheet))
-    FormatSheet sht
-    sht.Name = sTargetSheetName
-    sht.Range("SheetHeading") = sSheetHeading
-    sht.Range("A1") = sSheetCategory
+    
+    If Not IsTableLooperSheet(ReportSheetSource.Sheet) Then
+        MsgBox ("Not a valid sheet for table looping")
+        GoTo ExitPoint
+    End If
+    
+    Set ReportSheetConsol = InsertConsolLooperSheet(ReportSheetSource)
+    LoopSourceAndCopyToConsolSheet ReportSheetSource, ReportSheetConsol
+    FilterOutExcludedItems ReportSheetConsol
+    SetLoopTableAndSheetFormat ReportSheetSource, ReportSheetConsol
 
-    loCalc.HeaderRowRange.Copy
-    sht.Cells(iStartTableRow, iStartTableCol).PasteSpecial xlPasteValues
-
-    For i = LBound(Arr) To UBound(Arr)
-        rngTableInputKey = Arr(i)
-        Application.CalculateFull
-        Application.Wait Now + #12:00:01 AM#
-        loCalc.DataBodyRange.Copy
-        dblRowToPaste = iStartTableRow + sht.Cells(iStartTableRow, iStartTableCol).CurrentRegion.Rows.Count
-        sht.Cells(dblRowToPaste, iStartTableCol).PasteSpecial xlPasteValues
-    Next i
-
-    Set loOutput = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Cells(iStartTableRow, iStartTableCol).CurrentRegion, XlListObjectHasHeaders:=xlYes)
-    loOutput.Name = "tbl_" & sTargetSheetName
-
-    FormatTable loOutput
-    sht.Select
-    Rows("6:6").Select
-    ActiveWindow.FreezePanes = True
-
-    InsertIndexPageActiveWorkbook
-
-    Worksheets(sActiveSheetName).Activate
-    Range(sActiveRangeAddress).Select
+ExitPoint:
     StandardExit
 
 End Sub
@@ -692,7 +627,7 @@ Sub GeneratePowerQueryTable()
         "    tbl = Table.FromRecords({" & vbCrLf
 
     'Table from records portion of power query
-    For i = 1 To lo.DataBodyRange.Rows.Count
+    For i = 1 To lo.DataBodyRange.rows.Count
         For j = 1 To lo.HeaderRowRange.Cells.Count
             If j = 1 Then
                 sQueryText = sQueryText & "        ["
@@ -701,13 +636,13 @@ Sub GeneratePowerQueryTable()
                 lo.HeaderRowRange.Cells(j) & " = """ & lo.ListColumns(j).DataBodyRange.Cells(i) & """"
             If j <> lo.HeaderRowRange.Cells.Count Then
                 sQueryText = sQueryText & ", "
-            ElseIf i <> lo.DataBodyRange.Rows.Count Then
+            ElseIf i <> lo.DataBodyRange.rows.Count Then
                 sQueryText = sQueryText & "], " & vbCrLf
             Else
                 sQueryText = sQueryText & "]" & vbCrLf
             End If
         Next j
-        If i = lo.DataBodyRange.Rows.Count Then
+        If i = lo.DataBodyRange.rows.Count Then
             sQueryText = sQueryText & "        }), " & vbCrLf & vbCrLf
         End If
     Next i

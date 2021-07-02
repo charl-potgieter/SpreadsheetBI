@@ -1,9 +1,95 @@
 TODO
 ------- 
+Consider automatign the creation of an error check tab
+ - picks up error checks from individual sheets
+ - Displays error message on each sheet
+
+Any way I can refresh lambda functions in spreadsheet from github?
+
+Revisit name manger - can filter by Lambda functions?
+
+TableLooper should be ready for implementation - test out with PowerBI roll forward
+It may be time for a restructure or the Roll forward
+ - seperate data and reporting sheets
+
+
+Lots of the below apply to the pivot report creation which is now sort of abandoned (maybe?) --> rather following approach of having different workbooks picking up shared power quwery text files
+------------------------------------------------------------------------------------------
+
+
+How about:
+ - All pivots are excel based
+ - All sources are dax queries in central file
+- queries have text that can be replaced (acting as parameters)
+- queries are stored in client workbook and copied to central workbook for refresh.  Data is then copied into client workbook
+
+
+Reduce VBA adn get rid of userform - drive report creation from a worksheet?
+
+
+Need an easier ways to produce boolean filter arrays, maybe some sort of replace function
+ - Function that converts something like below
+ <<Array>> = <MyText>
+
+
+TableArray class --> move something like this into the column property get.  Note the zero in rowindex paramater
+WorksheetFunction.Transpose(WorksheetFunction.Index(this.data, 0, 4))
+--> tih successfully produces a one dimenstional array (rather than an n by 1 dimensional array)
+
+Continue updating ReportingData.ReadUniqueSortedReportCategories
+
+
+Sub testArrayMath()
+
+Dim a, b, rv
+
+ 
+ a = Array(True, True, True, True, True)
+ b = Array(False, True, False, True, True)
+ rv = Evaluate("{" & Join(a, ";") & "}*{" & Join(b, ";") & "}")
+
+End Sub
+
+
+Join does not work with variant arrays read from range as they have 2 dimensions although 2nd dimension is 1?
+Does this help?
+https://stackoverflow.com/questions/22766184/assign-1d-array-from-2d-array-in-vba/22769603
+
+
+
+May be worth considering splitting out a "DataArray" class seperate to ListStorage.  The latter is used for raw storage only, while the former for in memory data table 
+
+
+Can consider keeping the dataArray really simple  with just properties to return  table and headers item in col etc.  All lookups etc can simply be handled in main code body. 
+
 Update the filter functionality of liststorage
  - create functionality to return entire table (filtered or not = default) as a variant
   - Don't create the filtered listobject until the filter function is called
   - Add an  optional paramarry to the filter function to specify which columns will be returned
+   - Do I really need the filtered list of listobject to be represented on the grid or can it reside in memory.
+   --> if I maintain in memory how can I perform functions such as xlookup?
+    - If progressing with the above should I shift the entire workings of liststorage (including the unfiltered components) to in-memory?
+
+This works!
+          Sub TestVariantArray()
+
+              Dim wkb As Workbook
+              Dim rng As Range
+              Dim v As Variant
+              Dim colProperty As Variant
+              Dim colValue As Variant
+              Dim unq As Variant
+              Dim rv As Variant
+              
+              Set wkb = Application.Workbooks("PivotReportExample.xlsm")
+              Set rng = wkb.Sheets("ReportPRoperties").ListObjects("tbl_ReportProperties").DataBodyRange
+              v = rng
+              colProperty = rng.Columns(4)
+              colValue = rng.Columns(5)
+              
+              rv = WorksheetFunction.Xlookup("Category", colProperty, colValue)
+
+          End Sub
 
 
 
@@ -13,7 +99,15 @@ ufPivotReportGenerator.RefreshListBox --> how do I get the ReportType for each i
     * Look at filter function definition
     * See step above
 
+
 Add an All option in reports listbox so that all reports can be run for a specific category
+
+Look at this (see also reference to Lambda editor)
+https://techcommunity.microsoft.com/t5/excel/ways-of-performing-accumulation-with-dynamic-arrays/m-p/2329035
+
+Read this
+https://techcommunity.microsoft.com/t5/excel-blog/announcing-lambda-turn-excel-formulas-into-custom-functions/ba-p/1925546
+
 
 Listobject class (and calling subs) --> need to protect against errors generated with null data including in transpose functions
 
@@ -25,6 +119,11 @@ Listobject class (and calling subs) --> need to protect against errors generated
      Maybe best option is to remove newlines before writing to the text file
      The Human readable DAX measure file is fine
      The same issue occures in teh listobject metadata exports (both formulas and values) when there is an Alt-enter newline in the cell
+
+Look into the new-ish Excel data types (creatable via power query)
+https://techcommunity.microsoft.com/t5/excel-blog/announcing-power-query-data-types/ba-p/1782903
+
+Look into Lambda function when available --> Maybe move to insiders build
 
 
   - Create a readme
@@ -43,3 +142,16 @@ Website  / Twitter
   
  - Consider below theme, used by https://xxlbi.com/ as per code inspector
  https://wordpress.org/themes/twentysixteen/   maybe rather TwentyTwenty or something in between
+ 
+ 
+ 
+ Resources to revisit
+ -------------------
+ 
+ * Excel meets Lambda (Andy Gordon)
+ https://www.youtube.com/watch?v=7tFq-9Zvk3M&t=720s
+  - Any news on Excel Lambda playground release - around 34 minutes
+  - Also around 52 minutes re discussion on broader availability
+   - Comments re adding to list for lambda playground
+  
+  

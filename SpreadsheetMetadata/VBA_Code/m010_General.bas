@@ -16,6 +16,7 @@ Sub StandardExit()
     Application.ScreenUpdating = True
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic
+    Application.CutCopyMode = False
     Application.DisplayAlerts = True
 End Sub
 
@@ -236,7 +237,7 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
         .Range("C2") = "Index"
         .Range("D5").Font.Bold = True
         .Columns("D:D").ColumnWidth = 100
-        .Rows("4:4").Select
+        .rows("4:4").Select
         ActiveWindow.FreezePanes = True
         
         Set rngSheetNameCol = .Columns("A")
@@ -286,7 +287,46 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
         
     End With
 
-
 End Sub
 
+
+
+Function GetDataValidationFromRangeReference(ByVal rngSingleCell As Range) As Variant
+'Returns a variant array of data validation items for rngSingleCell
+'rngSingleCell must contain a list validation
+    
+    Dim bValidationListIsRange
+    Dim rngValidationReference
+    Dim sValidationFormula As String
+    Dim SplitStringArray As Variant
+    Dim ReturnValue() As Variant
+    Dim i As Long
+    
+    On Error Resume Next
+    sValidationFormula = rngSingleCell.Validation.Formula1
+    If Err.Number <> 0 Then
+        GetDataValidationFromRangeReference = Nothing
+        Exit Function
+    End If
+    
+    Set rngValidationReference = Range(Replace(sValidationFormula, "=", ""))
+    bValidationListIsRange = (Err.Number = 0)
+    On Error GoTo 0
+
+    If bValidationListIsRange Then
+        ReDim ReturnValue(0 To (rngValidationReference.Cells.Count - 1))
+        For i = LBound(ReturnValue) To UBound(ReturnValue)
+            ReturnValue(i) = rngValidationReference.Cells(i + 1)
+        Next i
+    Else
+        SplitStringArray = Split(sValidationFormula, ",")
+        ReDim ReturnValue(LBound(SplitStringArray) To UBound(SplitStringArray))
+        For i = LBound(SplitStringArray) To UBound(SplitStringArray)
+            ReturnValue(i) = SplitStringArray(i)
+        Next i
+    End If
+    
+    GetDataValidationFromRangeReference = ReturnValue
+
+End Function
 

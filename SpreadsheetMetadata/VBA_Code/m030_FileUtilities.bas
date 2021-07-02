@@ -282,7 +282,7 @@ Sub ExportWorksheetSheetToPipeDelimtedText(ByRef sht As Worksheet, ByVal sFilePa
     
     Open sFilePathAndName For Output As #iFileNo
     
-    dblNumberOfRows = ActiveSheet.UsedRange.Rows.Count
+    dblNumberOfRows = ActiveSheet.UsedRange.rows.Count
     dblNumberOfCols = ActiveSheet.UsedRange.Columns.Count
     
     
@@ -328,7 +328,7 @@ Sub ExportListObjectToPipeDelimtedText(ByRef lo As ListObject, ByVal sFilePathAn
     
     Open sFilePathAndName For Output As #iFileNo
     
-    dblNumberOfRows = lo.Range.Rows.Count
+    dblNumberOfRows = lo.Range.rows.Count
     dblNumberOfCols = lo.Range.Columns.Count
     
     

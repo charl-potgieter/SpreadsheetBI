@@ -217,7 +217,7 @@ Sub CreatePopUpMenu()
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Run looper"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "TableLooper"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "RunTableLooperOnActiveSheet"
     
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)

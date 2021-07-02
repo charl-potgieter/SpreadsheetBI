@@ -33,7 +33,7 @@ Public Sub CreatePowerPivotDmvInventory()
     ' Call function by passing the DMV name
     iRowNum = 1
     With lo
-        For i = 1 To .DataBodyRange.Rows.Count
+        For i = 1 To .DataBodyRange.rows.Count
             WriteDmvContent .ListColumns("DMV Name").DataBodyRange.Cells(i), conn, sht, iRowNum
             'Application.Wait Now + #12:00:01 AM#
        Next i

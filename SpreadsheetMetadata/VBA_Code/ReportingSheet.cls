@@ -201,6 +201,7 @@ Public Function CreateFromExistingSheet(ByVal sht As Worksheet) As Boolean
     CreateFromExistingSheet = (this.shtReport Is Nothing)
 
     If CreateFromExistingSheet Then
+        Set this.shtReport = sht
         SetReportingSheetRangeNames
         FormatReportingSheet
         If Me.Category = "" Then Me.Category = "Category"
