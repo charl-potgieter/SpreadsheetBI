@@ -218,6 +218,9 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
     Dim rngReportCol As Range
     Dim rngSheetNameCol As Range
     Dim rngShowRange As Range
+    Dim rngErrorCol As Range
+    Dim sSheetErrorStatusCellAddress As String
+    Dim ErrorCheckFormatCondition As FormatCondition
     
     'Delete any previous index sheet and create a new one
     On Error Resume Next
@@ -236,13 +239,19 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
         .Range("A:A").EntireColumn.Hidden = True
         .Range("C2") = "Index"
         .Range("D5").Font.Bold = True
+        .Range("E3") = "Errors OK?"
+        .Names.Add Name:="ErrorChecks", RefersTo:="=$E:$E"
+        .Range("E3").Font.Bold = True
+        .Columns("E:E").ColumnWidth = 13
         .Columns("D:D").ColumnWidth = 100
+        .Columns("E:E").ColumnWidth = 13
         .rows("4:4").Select
         ActiveWindow.FreezePanes = True
         
         Set rngSheetNameCol = .Columns("A")
         Set rngCategoryCol = .Columns("C")
         Set rngReportCol = .Columns("D")
+        Set rngErrorCol = .Columns("E")
        
         sPreviousReportCategory = ""
         i = 2
@@ -273,11 +282,27 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
                 i = i + 2
                 rngReportCol.Cells(i) = sReportName
                 rngSheetNameCol.Cells(i) = sht.Name
-                
                 ActiveSheet.Hyperlinks.Add _
                     Anchor:=rngReportCol.Cells(i), _
                     Address:="", _
                     SubAddress:="'" & sht.Name & "'" & "!B$4"
+                
+                'Set link to each sheets error check range (which could be empty)
+                sSheetErrorStatusCellAddress = sht.Name & "!SheetErrorStatus"
+                rngErrorCol.Cells(i).Formula = _
+                    "=IF(" & sSheetErrorStatusCellAddress & "="""", TRUE," _
+                    & sSheetErrorStatusCellAddress & ")"
+                rngErrorCol.Cells(i).Font.Color = RGB(170, 170, 170)
+                
+                Set ErrorCheckFormatCondition = rngErrorCol.Cells(i).FormatConditions.Add( _
+                    Type:=xlCellValue, Operator:=xlEqual, Formula1:="=FALSE")
+                With ErrorCheckFormatCondition.Font
+                    .Bold = True
+                    .Italic = False
+                    .Color = RGB(255, 0, 0)
+                    .TintAndShade = 0
+                End With
+                
                     
             End If
             

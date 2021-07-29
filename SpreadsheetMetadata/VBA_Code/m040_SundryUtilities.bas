@@ -2,6 +2,10 @@ Attribute VB_Name = "m040_SundryUtilities"
 Option Explicit
 Option Private Module
 
+'------------------------------------------------------------------------------
+'    Requires reference to Microsoft Forms 2.0 object library
+'------------------------------------------------------------------------------
+
 'Below is utilisedto detect screen resolution
 'https://www.mrexcel.com/board/threads/vba-to-find-screen-size-in-64bit-environment.1018797/
 Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal Index As Long) As Long

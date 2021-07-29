@@ -2,8 +2,10 @@ Attribute VB_Name = "m020_ImportExportVBACode"
 Option Explicit
 
 '------------------------------------------------------------------------------------------------------------------------
-'   Code inspired by Ron De Bruin:
+'   Code inspired by Ron De Bruin and Chip Pearson:
 '   https://www.rondebruin.nl/win/s9/win002.htm
+'   http://www.cpearson.com/excel/vbe.aspx
+'
 '
 '   Requires references
 '    - Microsoft Visual Basic For Applications Extensibility 5.3

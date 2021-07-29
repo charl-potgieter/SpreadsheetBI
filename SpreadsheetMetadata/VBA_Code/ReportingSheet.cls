@@ -17,6 +17,8 @@ End Type
 Private this As TReportingSheet
 Private Const csHeadingAddress As String = "=$B$2"
 Private Const csCategoryAddress As String = "=$A$1"
+Private Const csSheetErrorStatus As String = "=$D$1"
+Private Const csWorkbookErrorStatus As String = "=$E$1"
 
 
 Public Property Get Heading() As String
@@ -41,6 +43,34 @@ End Property
 Public Property Let Category(ByVal sCategory As String)
     this.shtReport.Range("Category").Value = sCategory
 End Property
+
+
+Public Property Get SheetErrorStatus() As String
+    On Error Resume Next
+    SheetErrorStatus = this.shtReport.Names("SheetErrorStatus").RefersToRange.Value
+    If Err.Number <> 0 Then Category = ""
+End Property
+
+
+Public Property Let SheetErrorStatus(ByVal sErrorStatus As String)
+    this.shtReport.Range("SheetErrorStatus").Value = sErrorStatus
+End Property
+
+
+Public Property Get WorkbooksErrorStatus() As String
+    On Error Resume Next
+    SheetErrorStatus = this.shtReport.Names("WorkbookErrorStatus").RefersToRange.Value
+    If Err.Number <> 0 Then Category = ""
+End Property
+
+
+Public Property Let WorkbookErrorStatus(ByVal sErrorStatus As String)
+    this.shtReport.Range("WorkbookErrorStatus").Value = sErrorStatus
+End Property
+
+
+
+
 
 
 Public Property Get FreezePaneRow() As Long
@@ -172,6 +202,7 @@ Public Sub Create(ByVal wkb As Workbook, _
     FormatReportingSheet
     Me.Category = "Category"
     Me.Heading = "Heading"
+    this.shtReport.Range("WorkbookErrorStatus").Formula = WorkbookErrorCheckFormula
     
 End Sub
 
@@ -185,6 +216,8 @@ Public Function AssignExistingSheet(ByVal sht As Worksheet) As Boolean
     On Error Resume Next
     test = sht.Range("Category").Value
     test = sht.Range("Heading").Value
+    test = sht.Range("SheetErrorStatus").Value
+    test = sht.Range("WorkbookErrorStatus").Value
     bValidSheet = (Err.Number = 0)
     On Error GoTo 0
     
@@ -206,6 +239,7 @@ Public Function CreateFromExistingSheet(ByVal sht As Worksheet) As Boolean
         FormatReportingSheet
         If Me.Category = "" Then Me.Category = "Category"
         If Me.Heading = "" Then Me.Heading = "Heading"
+        sht.Range("WorkbookErrorStatus").Formula = WorkbookErrorCheckFormula
     End If
 
 End Function
@@ -239,9 +273,13 @@ Private Sub SetReportingSheetRangeNames()
         On Error Resume Next
         .Names("Heading").Delete
         .Names("Category").Delete
+        .Names("SheetErrorStatus").Delete
+        .Names("WorkbookErrorStatus").Delete
         On Error GoTo 0
         .Names.Add Name:="Heading", RefersTo:=csHeadingAddress
         .Names.Add Name:="Category", RefersTo:=csCategoryAddress
+        .Names.Add Name:="SheetErrorStatus", RefersTo:=csSheetErrorStatus
+        .Names.Add Name:="WorkbookErrorStatus", RefersTo:=csWorkbookErrorStatus
     End With
     
 End Sub
@@ -263,13 +301,21 @@ Private Sub FormatReportingSheet()
         .Cells.Font.Size = 11
         .DisplayPageBreaks = False
         .Columns.item("A:A").ColumnWidth = 4
+        
         .Range(csHeadingAddress).Font.Bold = True
         .Range(csHeadingAddress).Font.Size = 16
+        
         .Range(csCategoryAddress).Font.Color = RGB(170, 170, 170)
         .Range(csCategoryAddress).Font.Size = 8
+        
+        .Range(csSheetErrorStatus).Font.Color = RGB(170, 170, 170)
+        .Range(csWorkbookErrorStatus).Font.Color = RGB(170, 170, 170)
+        
         ActiveWindow.DisplayGridlines = False
         ActiveWindow.Zoom = 80
     End With
+    
+    SetWorkbookErrorCellConditionalFormatting
     
     'Reactivate the original active workbook
     wkbActivePriorToSub.Activate
@@ -308,4 +354,55 @@ Private Sub FreezeActiveWindowPanes(ByVal lFreezeRow As Long, ByVal lFreezeColum
 
 End Sub
 
+
+Private Function WorkbookErrorCheckFormula() As String
+
+    WorkbookErrorCheckFormula = "=IFERROR(" & Chr(10) & _
+    "      IF(" & Chr(10) & _
+    "              COUNTIFS(INDIRECT(""Index!ErrorChecks""), FALSE)=0," & Chr(10) & _
+    "              ""OK""," & Chr(10) & _
+    "              ""Workbook error - see index tab""" & Chr(10) & _
+    "           )," & Chr(10) & _
+    "      ""Error checking not set""" & Chr(10) & _
+    ")"
+
+End Function
+
+
+Private Sub SetWorkbookErrorCellConditionalFormatting()
+
+
+    Dim rng As Range
+    Dim i As Integer
+    Dim ErrorFormatCondition As FormatCondition
+    Dim ErrorCheckFormatConditionIsError As FormatCondition
+    Dim ErrorCheckFormatConditionNotSet As FormatCondition
+    
+    Set rng = this.shtReport.Range("WorkbookErrorStatus")
+    
+    'Delete existing conditional formatting - needs to be done
+    'in reverse order to prevent errors
+    For i = rng.FormatConditions.Count To 1 Step -1
+        rng.FormatConditions(i).Delete
+    Next i
+    
+    Set ErrorCheckFormatConditionNotSet = rng.FormatConditions.Add( _
+        Type:=xlCellValue, Operator:=xlEqual, Formula1:="=""Error checking not set""")
+    With ErrorCheckFormatConditionNotSet.Font
+        .Bold = True
+        .Italic = False
+        .Color = RGB(255, 122, 0)
+        .TintAndShade = 0
+    End With
+
+    Set ErrorCheckFormatConditionIsError = rng.FormatConditions.Add( _
+        Type:=xlCellValue, Operator:=xlEqual, Formula1:="=""Workbook error - see index tab""")
+    With ErrorCheckFormatConditionIsError.Font
+        .Bold = True
+        .Italic = False
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+    End With
+
+End Sub
 

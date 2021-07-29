@@ -1,6 +1,28 @@
 TODO
 ------- 
-Consider automatign the creation of an error check tab
+Rebadge as XL Utilities and convert to an add in
+
+Replace various subs with my standard VBA library from gitub
+ - Note that some of the subs in SpreadsheetBI\General are now included in zLIB_SundryUtilities
+
+Create code that pulls standard vba modules and class modules from github into the active workbook.
+ - Use this in the Lamba Manager code especially ListStorage
+
+Remove the VBA code import and Export from SpreadsheetBI - move to CodeManager add in
+
+Add an additional menu items that runs looper and also adds (updates) the index page
+
+Sharing and maintaining lambdas
+ - below link can read txt from raw github files 
+ https://www.devhut.net/2013/09/20/vba-read-a-file-from-a-webserver-or-internet-website/
+ - Sheets in excel lambda creator file have cells containing lambdas, lambda categories and comments for name manager
+ - Lambdas can be refreshed in target sheet with spreadsheetBI, maybe with a listbox of lambda selections so that all lambdas do not clutter up spreadsheet
+ - Delimitting between comments and lambda is difficult - can I store a table in a readme somehow?  --> can I store in HTML table format in github
+    https://www.w3schools.com/html/html_tables.asp
+ - Maybe create an add-in with a combined roll of generator of table as well as refresher of defined names
+
+
+Consider automating the creation of an error check tab
  - picks up error checks from individual sheets
  - Displays error message on each sheet
 
@@ -11,6 +33,11 @@ Revisit name manger - can filter by Lambda functions?
 TableLooper should be ready for implementation - test out with PowerBI roll forward
 It may be time for a restructure or the Roll forward
  - seperate data and reporting sheets
+
+Create sub to create error checker sheet
+
+Update insert index page to include a reference to error checker sheet if it exists
+
 
 
 Lots of the below apply to the pivot report creation which is now sort of abandoned (maybe?) --> rather following approach of having different workbooks picking up shared power quwery text files
