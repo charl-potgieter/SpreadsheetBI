@@ -209,17 +209,19 @@ End Function
 Sub InsertIndexPage(ByRef wkb As Workbook)
 
     Dim sht As Worksheet
+    Dim ReportSheet As ReportingSheet
+    Dim bReportSheetAssigned As Boolean
     Dim shtIndex As Worksheet
     Dim i As Double
-    Dim sPreviousReportCategory As String
-    Dim sReportCategory As String
-    Dim sReportName As String
+    Dim sLastCapturedReportCategory As String
     Dim rngCategoryCol As Range
     Dim rngReportCol As Range
     Dim rngSheetNameCol As Range
     Dim rngShowRange As Range
     Dim rngErrorCol As Range
-    Dim sSheetErrorStatusCellAddress As String
+    Dim sSheetErrorCheckColumnsRangeName As String
+    Dim sSheetErrorCheckRowsRangeName As String
+    Dim sIndexPageErrorCheckFormula As String
     Dim ErrorCheckFormatCondition As FormatCondition
     
     'Delete any previous index sheet and create a new one
@@ -253,45 +255,53 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
         Set rngReportCol = .Columns("D")
         Set rngErrorCol = .Columns("E")
        
-        sPreviousReportCategory = ""
         i = 2
+        sLastCapturedReportCategory = ""
         
         
         For Each sht In wkb.Worksheets
         
-            sReportCategory = sht.Range("A1")
-            sReportName = sht.Range("B2")
+            Set ReportSheet = New ReportingSheet
             
-            If (sReportCategory <> "" And sReportName <> "") And (sht.Name <> "Index") And (sht.Visible = xlSheetVisible) Then
+            bReportSheetAssigned = ReportSheet.AssignExistingSheet(sht)
+            
+            If bReportSheetAssigned And (sht.Visible = xlSheetVisible) Then
             
                 'Create return to Index links
                 sht.Hyperlinks.Add _
-                    Anchor:=sht.Range("B3"), _
+                    Anchor:=sht.Range("F11"), _
                     Address:="", _
                     SubAddress:="Index!A1", _
                     TextToDisplay:="<Return to Index>"
                     
                 'Write the report category headers
-                If sReportCategory <> sPreviousReportCategory Then
+                If ReportSheet.Category <> sLastCapturedReportCategory Then
                     i = i + 3
-                    rngCategoryCol.Cells(i) = sReportCategory
+                    sLastCapturedReportCategory = ReportSheet.Category
+                    rngCategoryCol.Cells(i) = ReportSheet.Category
                     rngCategoryCol.Cells(i).Font.Bold = True
-                    sPreviousReportCategory = sReportCategory
                 End If
     
                 i = i + 2
-                rngReportCol.Cells(i) = sReportName
+                rngReportCol.Cells(i) = ReportSheet.Name
                 rngSheetNameCol.Cells(i) = sht.Name
                 ActiveSheet.Hyperlinks.Add _
                     Anchor:=rngReportCol.Cells(i), _
                     Address:="", _
-                    SubAddress:="'" & sht.Name & "'" & "!B$4"
+                    SubAddress:="'" & sht.Name & "'" & "!$F$12"
                 
                 'Set link to each sheets error check range (which could be empty)
-                sSheetErrorStatusCellAddress = sht.Name & "!SheetErrorStatus"
-                rngErrorCol.Cells(i).Formula = _
-                    "=IF(" & sSheetErrorStatusCellAddress & "="""", TRUE," _
-                    & sSheetErrorStatusCellAddress & ")"
+                sSheetErrorCheckColumnsRangeName = sht.Name & "!ErrorCheckColumns"
+                sSheetErrorCheckRowsRangeName = sht.Name & "!ErrorCheckRows"
+                sIndexPageErrorCheckFormula = _
+                    "=(COUNTIFS(<ColErrCheckRange>, FALSE) + COUNTIFS(<RowErrCheckRange>, FALSE)) = 0"
+                sIndexPageErrorCheckFormula = Replace(sIndexPageErrorCheckFormula, _
+                    "<ColErrCheckRange>", sSheetErrorCheckColumnsRangeName)
+                sIndexPageErrorCheckFormula = Replace(sIndexPageErrorCheckFormula, _
+                    "<RowErrCheckRange>", sSheetErrorCheckRowsRangeName)
+                
+                rngErrorCol.Cells(i).Formula = sIndexPageErrorCheckFormula
+
                 rngErrorCol.Cells(i).Font.Color = RGB(170, 170, 170)
                 
                 Set ErrorCheckFormatCondition = rngErrorCol.Cells(i).FormatConditions.Add( _

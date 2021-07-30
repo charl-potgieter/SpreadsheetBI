@@ -15,10 +15,11 @@ Private Type TReportingSheet
 End Type
 
 Private this As TReportingSheet
-Private Const csHeadingAddress As String = "=$B$2"
-Private Const csCategoryAddress As String = "=$A$1"
-Private Const csSheetErrorStatus As String = "=$D$1"
-Private Const csWorkbookErrorStatus As String = "=$E$1"
+Private Const csHeadingAddress As String = "=$F$10"
+Private Const csCategoryAddress As String = "=$E$9"
+Private Const csErrorCheckRows As String = "=$A:$D"
+Private Const csErrorCheckColumns As String = "=$1:$8"
+Private Const csWorkbookErrorStatus As String = "=$I$9"
 
 
 Public Property Get Heading() As String
@@ -45,21 +46,9 @@ Public Property Let Category(ByVal sCategory As String)
 End Property
 
 
-Public Property Get SheetErrorStatus() As String
-    On Error Resume Next
-    SheetErrorStatus = this.shtReport.Names("SheetErrorStatus").RefersToRange.Value
-    If Err.Number <> 0 Then Category = ""
-End Property
-
-
-Public Property Let SheetErrorStatus(ByVal sErrorStatus As String)
-    this.shtReport.Range("SheetErrorStatus").Value = sErrorStatus
-End Property
-
-
 Public Property Get WorkbooksErrorStatus() As String
     On Error Resume Next
-    SheetErrorStatus = this.shtReport.Names("WorkbookErrorStatus").RefersToRange.Value
+    WorkbookErrorStatus = this.shtReport.Names("WorkbookErrorStatus").RefersToRange.Value
     If Err.Number <> 0 Then Category = ""
 End Property
 
@@ -214,10 +203,11 @@ Public Function AssignExistingSheet(ByVal sht As Worksheet) As Boolean
     Dim test As Variant
     
     On Error Resume Next
-    test = sht.Range("Category").Value
-    test = sht.Range("Heading").Value
-    test = sht.Range("SheetErrorStatus").Value
-    test = sht.Range("WorkbookErrorStatus").Value
+    test = sht.Range("Category").Address
+    test = sht.Range("Heading").Address
+    test = sht.Range("WorkbookErrorStatus").Address
+    test = sht.Range("ErrorCheckColumns").Address
+    test = sht.Range("ErrorCheckRows").Address
     bValidSheet = (Err.Number = 0)
     On Error GoTo 0
     
@@ -273,12 +263,12 @@ Private Sub SetReportingSheetRangeNames()
         On Error Resume Next
         .Names("Heading").Delete
         .Names("Category").Delete
-        .Names("SheetErrorStatus").Delete
         .Names("WorkbookErrorStatus").Delete
         On Error GoTo 0
         .Names.Add Name:="Heading", RefersTo:=csHeadingAddress
         .Names.Add Name:="Category", RefersTo:=csCategoryAddress
-        .Names.Add Name:="SheetErrorStatus", RefersTo:=csSheetErrorStatus
+        .Names.Add Name:="ErrorCheckColumns", RefersTo:=csErrorCheckColumns
+        .Names.Add Name:="ErrorCheckRows", RefersTo:=csErrorCheckRows
         .Names.Add Name:="WorkbookErrorStatus", RefersTo:=csWorkbookErrorStatus
     End With
     
@@ -308,8 +298,21 @@ Private Sub FormatReportingSheet()
         .Range(csCategoryAddress).Font.Color = RGB(170, 170, 170)
         .Range(csCategoryAddress).Font.Size = 8
         
-        .Range(csSheetErrorStatus).Font.Color = RGB(170, 170, 170)
         .Range(csWorkbookErrorStatus).Font.Color = RGB(170, 170, 170)
+        
+        'Set error check formatting
+        .Range("A1").Value = "Error check workings in red gridlines"
+        .Range("A1").Font.Bold = True
+        FormatRedDotBorders .Range(csErrorCheckColumns)
+        FormatRedDotBorders .Range(csErrorCheckRows)
+        
+        'Group the error checking range
+        .Range(csErrorCheckColumns).EntireRow.Group
+        'ActiveSheet.Outline.ShowLevels RowLevels:=1
+        .Range(csErrorCheckRows).EntireColumn.Group
+        ActiveSheet.Outline.ShowLevels RowLevels:=1, ColumnLevels:=1
+
+        
         
         ActiveWindow.DisplayGridlines = False
         ActiveWindow.Zoom = 80
@@ -321,6 +324,50 @@ Private Sub FormatReportingSheet()
     wkbActivePriorToSub.Activate
     
 End Sub
+
+
+Private Sub FormatRedDotBorders(ByVal rng As Range)
+
+    With rng.Borders(xlEdgeLeft)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With rng.Borders(xlEdgeTop)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With rng.Borders(xlEdgeBottom)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With rng.Borders(xlEdgeRight)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With rng.Borders(xlInsideVertical)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With rng.Borders(xlInsideHorizontal)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    
+
+End Sub
+
 
 
 

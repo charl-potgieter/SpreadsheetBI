@@ -138,3 +138,54 @@ Sub TestConditionalFormatting()
 
 
 End Sub
+
+
+
+
+
+Sub TempSetBorders()
+'
+' Macro1 Macro
+'
+
+    With Selection.Borders(xlEdgeLeft)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeTop)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeBottom)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlInsideVertical)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlInsideHorizontal)
+        .LineStyle = xlDot
+        .Color = RGB(255, 0, 0)
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    
+    
+    
+End Sub
+
