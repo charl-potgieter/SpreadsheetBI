@@ -2,6 +2,8 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
+Keep the <CTRL><SHIFT><M> shortcut popup menu un this utilities add  in only.  Dont need these types of keyboard shortcuts in developer
+
 Replace various subs with my standard VBA library from gitub
  - Note that some of the subs in SpreadsheetBI\General are now included in zLIB_SundryUtilities
 
@@ -33,10 +35,6 @@ Revisit name manger - can filter by Lambda functions?
 TableLooper should be ready for implementation - test out with PowerBI roll forward
 It may be time for a restructure or the Roll forward
  - seperate data and reporting sheets
-
-Create sub to create error checker sheet
-
-Update insert index page to include a reference to error checker sheet if it exists
 
 
 
