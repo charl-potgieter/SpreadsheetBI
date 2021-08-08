@@ -2,6 +2,8 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
+Programmatically create a single query of records of data access queries
+
 Keep the <CTRL><SHIFT><M> shortcut popup menu un this utilities add  in only.  Dont need these types of keyboard shortcuts in developer
 
 Replace various subs with my standard VBA library from gitub
@@ -19,7 +21,7 @@ Sharing and maintaining lambdas
  https://www.devhut.net/2013/09/20/vba-read-a-file-from-a-webserver-or-internet-website/
  - Sheets in excel lambda creator file have cells containing lambdas, lambda categories and comments for name manager
  - Lambdas can be refreshed in target sheet with spreadsheetBI, maybe with a listbox of lambda selections so that all lambdas do not clutter up spreadsheet
- - Delimitting between comments and lambda is difficult - can I store a table in a readme somehow?  --> can I store in HTML table format in github
+ - Delimiting between comments and lambda is difficult - can I store a table in a readme somehow?  --> can I store in HTML table format in github
     https://www.w3schools.com/html/html_tables.asp
  - Maybe create an add-in with a combined roll of generator of table as well as refresher of defined names
 
