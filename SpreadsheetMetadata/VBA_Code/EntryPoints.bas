@@ -353,6 +353,15 @@ Sub ExportPowerQueriesInActiveWorkbookToFiles()
 End Sub
 
 
+Sub ExportPowerQueriesInActiveWorkbookToConsolidatedFile()
+
+    ExportPowerQueriesToConsolidatedFile ActiveWorkbook
+    
+    MsgBox ("Queries Exported")
+
+End Sub
+
+
 Sub ExportNonStandardPowerQueriesInActiveWorkbookToFiles()
 'Exports power queries without fn_std or template_std prefix
 

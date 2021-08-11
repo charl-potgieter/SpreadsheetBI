@@ -27,6 +27,35 @@ Sub ExportNonStandardPowerQueriesToFiles(ByVal sFolderPath As String, wkb As Wor
 End Sub
 
 
+Sub ExportPowerQueriesToConsolidatedFile(ByVal wkb As Workbook)
+
+    Dim qry As WorkbookQuery
+    Dim ExportFileNameAndPath As String
+    Dim QueryString As String
+    Dim isFirstQuery As Boolean
+    
+    ExportFileNameAndPath = wkb.Path & Application.PathSeparator & "ConsolidatedPowerQueries.m"
+    isFirstQuery = True
+    
+    QueryString = "[" & vbCr
+    For Each qry In wkb.Queries
+        If isFirstQuery Then
+            QueryString = QueryString & vbCr & vbCr & qry.Name & " = " & vbCr
+        Else
+            QueryString = QueryString & "," & vbCr & vbCr & qry.Name & " = " & vbCr
+        End If
+        QueryString = QueryString & qry.Formula
+        isFirstQuery = False
+    Next qry
+    QueryString = QueryString & "]"
+
+    WriteStringToTextFile QueryString, ExportFileNameAndPath
+
+End Sub
+
+
+
+
 Sub ImportOrRefreshSinglePowerQuery(ByVal sQueryPath As String, ByVal sQueryName As String, Optional wkb As Workbook)
 
     Dim sQueryText As String
