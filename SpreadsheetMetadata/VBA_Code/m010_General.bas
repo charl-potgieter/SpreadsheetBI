@@ -291,8 +291,8 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
                     SubAddress:="'" & sht.Name & "'" & "!$F$12"
                 
                 'Set link to each sheets error check range (which could be empty)
-                sSheetErrorCheckColumnsRangeName = sht.Name & "!ErrorCheckColumns"
-                sSheetErrorCheckRowsRangeName = sht.Name & "!ErrorCheckRows"
+                sSheetErrorCheckColumnsRangeName = "'" & sht.Name & "'!ErrorCheckColumns"
+                sSheetErrorCheckRowsRangeName = "'" & sht.Name & "'!ErrorCheckRows"
                 
                 sIndexPageErrorCheckFormula = "=AND(" & Chr(10) & _
                  "   COUNTIFS(<ColErrCheckRange>, FALSE) = 0," & Chr(10) & _
