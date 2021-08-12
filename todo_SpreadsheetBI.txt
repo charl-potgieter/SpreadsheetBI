@@ -2,6 +2,8 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
+Consider hiding rather than grouping the reportingsheet error range.  Ther group outline symbols are a bit messy
+
 Programmatically create a single query of records of data access queries
 
 Keep the <CTRL><SHIFT><M> shortcut popup menu un this utilities add  in only.  Dont need these types of keyboard shortcuts in developer

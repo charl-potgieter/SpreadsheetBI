@@ -942,7 +942,7 @@ End Sub
 
 
 Sub ToggleErrorCheckRangeVisbility()
-Attribute ToggleErrorCheckRangeVisbility.VB_ProcData.VB_Invoke_Func = "C\n14"
+Attribute ToggleErrorCheckRangeVisbility.VB_ProcData.VB_Invoke_Func = "E\n14"
 
     Dim ReportSheet As ReportingSheet
     Dim ReportIsAssigned As Boolean

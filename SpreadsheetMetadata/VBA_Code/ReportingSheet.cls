@@ -277,10 +277,12 @@ Public Sub ToggleErrorCheckRangeVisbility()
     With this.shtReport
 
     If .Range("ErrorCheckRows").EntireColumn.Hidden Then
-        .Outline.ShowLevels RowLevels:=2, ColumnLevels:=2
+        .Range("ErrorCheckRows").EntireColumn.Hidden = False
+        .Range("ErrorCheckColumns").EntireRow.Hidden = False
         .Range("A1").Select
     Else
-        .Outline.ShowLevels RowLevels:=1, ColumnLevels:=1
+        .Range("ErrorCheckRows").EntireColumn.Hidden = True
+        .Range("ErrorCheckColumns").EntireRow.Hidden = True
         .Range("Heading").Offset(2, 0).Select
     End If
     
@@ -322,12 +324,9 @@ Private Sub FormatReportingSheet()
         FormatRedDotBorders .Range(csErrorCheckRows)
         
         'Group the error checking range
-        .Range(csErrorCheckColumns).EntireRow.Group
+        .Range(csErrorCheckColumns).EntireRow.Hidden = True
         'ActiveSheet.Outline.ShowLevels RowLevels:=1
-        .Range(csErrorCheckRows).EntireColumn.Group
-        ActiveSheet.Outline.ShowLevels RowLevels:=1, ColumnLevels:=1
-
-        
+        .Range(csErrorCheckRows).EntireColumn.Hidden = True
         
         ActiveWindow.DisplayGridlines = False
         ActiveWindow.Zoom = 80
