@@ -59,9 +59,6 @@ End Property
 
 
 
-
-
-
 Public Property Get FreezePaneRow() As Long
     
     Dim WorkbookSelectedBeforeSub As Workbook
@@ -273,6 +270,24 @@ Private Sub SetReportingSheetRangeNames()
     End With
     
 End Sub
+
+
+Public Sub ToggleErrorCheckRangeVisbility()
+
+    With this.shtReport
+
+    If .Range("ErrorCheckRows").EntireColumn.Hidden Then
+        .Outline.ShowLevels RowLevels:=2, ColumnLevels:=2
+        .Range("A1").Select
+    Else
+        .Outline.ShowLevels RowLevels:=1, ColumnLevels:=1
+        .Range("Heading").Offset(2, 0).Select
+    End If
+    
+    End With
+    
+End Sub
+
 
 
 Private Sub FormatReportingSheet()

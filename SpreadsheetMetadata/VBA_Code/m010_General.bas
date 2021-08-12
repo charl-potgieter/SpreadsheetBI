@@ -293,8 +293,14 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
                 'Set link to each sheets error check range (which could be empty)
                 sSheetErrorCheckColumnsRangeName = sht.Name & "!ErrorCheckColumns"
                 sSheetErrorCheckRowsRangeName = sht.Name & "!ErrorCheckRows"
-                sIndexPageErrorCheckFormula = _
-                    "=(COUNTIFS(<ColErrCheckRange>, FALSE) + COUNTIFS(<RowErrCheckRange>, FALSE)) = 0"
+                
+                sIndexPageErrorCheckFormula = "=AND(" & Chr(10) & _
+                 "   COUNTIFS(<ColErrCheckRange>, FALSE) = 0," & Chr(10) & _
+                 "   COUNTIFS(<RowErrCheckRange>, FALSE) = 0," & Chr(10) & _
+                 "   SUMPRODUCT(--ISERROR(<ColErrCheckRange>))=0," & Chr(10) & _
+                 "   SUMPRODUCT(--ISERROR(<RowErrCheckRange>))=0" & Chr(10) & _
+                ")"
+                    
                 sIndexPageErrorCheckFormula = Replace(sIndexPageErrorCheckFormula, _
                     "<ColErrCheckRange>", sSheetErrorCheckColumnsRangeName)
                 sIndexPageErrorCheckFormula = Replace(sIndexPageErrorCheckFormula, _

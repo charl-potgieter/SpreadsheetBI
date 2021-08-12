@@ -939,3 +939,18 @@ ExitPoint:
     StandardExit
 
 End Sub
+
+
+Sub ToggleErrorCheckRangeVisbility()
+Attribute ToggleErrorCheckRangeVisbility.VB_ProcData.VB_Invoke_Func = "C\n14"
+
+    Dim ReportSheet As ReportingSheet
+    Dim ReportIsAssigned As Boolean
+    
+    Set ReportSheet = New ReportingSheet
+    ReportIsAssigned = ReportSheet.AssignExistingSheet(ActiveSheet)
+    If ReportIsAssigned Then
+        ReportSheet.ToggleErrorCheckRangeVisbility
+    End If
+    
+End Sub
