@@ -4,12 +4,6 @@ Rebadge as XL Utilities and convert to an add in
 
 The CreateIndex sub is too big!   Split up
 
-Blue Colour for hidden workings fill = 242, 247, 252
-
-Should I consider protecting the reportingsheets?
-
-Change index sheet to refer to sheet heading rather than tab name
-
 - update the error formula on index tab to start with an iferror test to 
   return false if there is an error - eg sheet is deleted
 
@@ -18,6 +12,13 @@ Ensuring completeness of error checks
   -  check for duplicate heading names when index tab is generated and throw error?
   - create check that each sheet header appears on index
   - auto generate index on reportsheet create or format?
+
+
+Should I consider protecting the reportingsheets?
+
+Change index sheet to refer to sheet heading rather than tab name?
+
+
 
 
 Consider hiding rather than grouping the reportingsheet error range.  Ther group outline symbols are a bit messy

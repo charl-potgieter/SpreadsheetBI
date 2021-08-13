@@ -927,8 +927,8 @@ Sub CreateTableGeneratorSheet(ByRef wkb As Workbook)
     sht.Range("B7") = "Query Name"
     sht.Range("C7") = "TestTable"
     sht.Range("B7").Font.Bold = True
-    sht.Range("C7,B9:F9").Interior.Color = RGB(242, 242, 242)
-    sht.Range("C7,B9:F9").Font.Color = RGB(0, 112, 192)
+    sht.Range("C7,B9:F9").Interior.Color = rgb(242, 242, 242)
+    sht.Range("C7,B9:F9").Font.Color = rgb(0, 112, 192)
     sht.Range("B9:F9").HorizontalAlignment = xlCenter
     sht.Range("B9:F9") = "type text"
     

@@ -31,7 +31,7 @@ Sub FormatSheet(ByRef sht As Worksheet)
     sht.Cells.Font.Name = "Calibri"
     sht.Cells.Font.Size = 11
 
-    sht.Range("A1").Font.Color = RGB(170, 170, 170)
+    sht.Range("A1").Font.Color = rgb(170, 170, 170)
     sht.Range("A1").Font.Size = 8
 
     ActiveWindow.DisplayGridlines = False
@@ -76,8 +76,8 @@ Sub FormatTable(lo As ListObject)
     
     'Set Header Format
     With sty.TableStyleElements(xlHeaderRow)
-        .Interior.Color = RGB(68, 114, 196)
-        .Font.Color = RGB(255, 255, 255)
+        .Interior.Color = rgb(68, 114, 196)
+        .Font.Color = rgb(255, 255, 255)
         .Font.Bold = True
         .Borders.item(xlEdgeTop).LineStyle = xlSolid
         .Borders.item(xlEdgeTop).Weight = xlMedium
@@ -86,8 +86,8 @@ Sub FormatTable(lo As ListObject)
     End With
 
     'Set row stripe format
-    sty.TableStyleElements(xlRowStripe1).Interior.Color = RGB(217, 217, 217)
-    sty.TableStyleElements(xlRowStripe2).Interior.Color = RGB(255, 255, 255)
+    sty.TableStyleElements(xlRowStripe1).Interior.Color = rgb(217, 217, 217)
+    sty.TableStyleElements(xlRowStripe2).Interior.Color = rgb(255, 255, 255)
     
     'Set whole table bottom edge format
     sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).LineStyle = xlSolid
@@ -223,10 +223,14 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
     Dim sSheetErrorCheckRowsRangeName As String
     Dim sIndexPageErrorCheckFormula As String
     Dim ErrorCheckFormatCondition As FormatCondition
+    Dim FirstSheet As Worksheet
+    Dim LastSheet As Worksheet
     
     'Delete any previous index sheet and create a new one
     On Error Resume Next
     wkb.Sheets("Index").Delete
+    wkb.Sheets("FirstSheet").Delete
+    wkb.Sheets("LastSheet").Delete
     On Error GoTo 0
     Set shtIndex = wkb.Sheets.Add(Before:=ActiveWorkbook.Sheets(1))
     FormatSheet shtIndex
@@ -269,7 +273,7 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
             
                 'Create return to Index links
                 sht.Hyperlinks.Add _
-                    Anchor:=sht.Range("F11"), _
+                    Anchor:=sht.Range("ReturnToIndex"), _
                     Address:="", _
                     SubAddress:="Index!A1", _
                     TextToDisplay:="<Return to Index>"
@@ -308,14 +312,14 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
                 
                 rngErrorCol.Cells(i).Formula = sIndexPageErrorCheckFormula
 
-                rngErrorCol.Cells(i).Font.Color = RGB(170, 170, 170)
+                rngErrorCol.Cells(i).Font.Color = rgb(170, 170, 170)
                 
                 Set ErrorCheckFormatCondition = rngErrorCol.Cells(i).FormatConditions.Add( _
                     Type:=xlCellValue, Operator:=xlEqual, Formula1:="=FALSE")
                 With ErrorCheckFormatCondition.Font
                     .Bold = True
                     .Italic = False
-                    .Color = RGB(255, 0, 0)
+                    .Color = rgb(255, 0, 0)
                     .TintAndShade = 0
                 End With
                 
@@ -327,6 +331,17 @@ Sub InsertIndexPage(ByRef wkb As Workbook)
         .Range("C3").Select
         
     End With
+
+    'Create an empty hidden first and last sheet as anchor points for 3d sum range
+    'for storing sheet hashes to check completeness of index page
+    Set FirstSheet = wkb.Sheets.Add(Before:=wkb.Sheets(1))
+    Set LastSheet = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    FirstSheet.Name = "FirstSheet"
+    LastSheet.Name = "LastSheet"
+    FirstSheet.Visible = xlSheetHidden
+    LastSheet.Visible = xlSheetHidden
+    wkb.Names.Add Name:="SumOfSheetHashes", RefersTo:="=SUM(FirstSheet:LastSheet!$D$1)"
+
 
 End Sub
 

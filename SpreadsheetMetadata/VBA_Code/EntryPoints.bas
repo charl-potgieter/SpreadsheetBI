@@ -262,8 +262,15 @@ End Sub
 
 Function InsertFormattedSheetIntoActiveWorkbook()
     Dim ReportSht As ReportingSheet
+    
+    StandardEntry
     Set ReportSht = New ReportingSheet
     ReportSht.Create ActiveWorkbook, ActiveSheet.Index
+    InsertIndexPage ActiveWorkbook
+    ReportSht.Sheet.Activate
+    ReportSht.DefaultCursorLocation.Select
+    StandardExit
+    
 End Function
 
 
@@ -318,7 +325,7 @@ Sub FormatHeadings()
 
     'Set header colour
     With Selection.Interior
-        .Color = RGB(217, 225, 242)
+        .Color = rgb(217, 225, 242)
         .Pattern = xlSolid
     End With
 

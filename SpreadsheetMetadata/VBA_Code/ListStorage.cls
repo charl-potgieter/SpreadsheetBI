@@ -383,7 +383,7 @@ Private Sub FormatListStorageSheet(ByRef sht As Worksheet)
     
     With sht.Range("SheetCategory")
         .Value = "List Storage"
-        .Font.Color = RGB(170, 170, 170)
+        .Font.Color = rgb(170, 170, 170)
         .Font.Size = 8
     End With
     
@@ -470,8 +470,8 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
     
     'Set Header Format
     With sty.TableStyleElements(xlHeaderRow)
-        .Interior.Color = RGB(68, 114, 196)
-        .Font.Color = RGB(255, 255, 255)
+        .Interior.Color = rgb(68, 114, 196)
+        .Font.Color = rgb(255, 255, 255)
         .Font.Bold = True
         .Borders.item(xlEdgeTop).LineStyle = xlSolid
         .Borders.item(xlEdgeTop).Weight = xlMedium
@@ -480,8 +480,8 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
     End With
 
     'Set row stripe format
-    sty.TableStyleElements(xlRowStripe1).Interior.Color = RGB(217, 217, 217)
-    sty.TableStyleElements(xlRowStripe2).Interior.Color = RGB(255, 255, 255)
+    sty.TableStyleElements(xlRowStripe1).Interior.Color = rgb(217, 217, 217)
+    sty.TableStyleElements(xlRowStripe2).Interior.Color = rgb(255, 255, 255)
     
     'Set whole table bottom edge format
     sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).LineStyle = xlSolid

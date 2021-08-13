@@ -10,16 +10,16 @@ Attribute VB_Exposed = False
 '@Folder "Storage.Reporting"
 Option Explicit
 
-Private Type TReportingSheet
+Private Type TypeReportingSheet
     shtReport As Worksheet
 End Type
 
-Private this As TReportingSheet
-Private Const csHeadingAddress As String = "=$F$10"
-Private Const csCategoryAddress As String = "=$E$9"
-Private Const csErrorCheckRows As String = "=$A:$D"
-Private Const csErrorCheckColumns As String = "=$1:$8"
-Private Const csWorkbookErrorStatus As String = "=$I$9"
+Private this As TypeReportingSheet
+
+Private Const NumberOfHiddenWorkingRows As Integer = 4
+Private Const NumberOfHiddenWorkingColumns As Integer = 4
+Private Const NumberOfErrorCheckRows As Integer = 4
+Private Const NumberOfErrorCheckColumns As Integer = 4
 
 
 Public Property Get Heading() As String
@@ -32,6 +32,11 @@ End Property
 Public Property Let Heading(ByVal sHeading As String)
     this.shtReport.Range("Heading").Value = sHeading
 End Property
+
+Public Property Get DefaultCursorLocation() As Range
+    Set DefaultCursorLocation = this.shtReport.Range("DefaultCursorLocation")
+End Property
+
 
 
 Public Property Get Category() As String
@@ -200,11 +205,15 @@ Public Function AssignExistingSheet(ByVal sht As Worksheet) As Boolean
     Dim test As Variant
     
     On Error Resume Next
-    test = sht.Range("Category").Address
-    test = sht.Range("Heading").Address
-    test = sht.Range("WorkbookErrorStatus").Address
+    test = sht.Range("HiddenWorkingRows").Address
+    test = sht.Range("HiddenWorkingColumns").Address
     test = sht.Range("ErrorCheckColumns").Address
     test = sht.Range("ErrorCheckRows").Address
+    test = sht.Range("WorkbookErrorStatus").Address
+    test = sht.Range("Category").Address
+    test = sht.Range("Heading").Address
+    test = sht.Range("ReturnToIndex").Address
+    test = sht.Range("DefaultCursorLocation").Address
     bValidSheet = (Err.Number = 0)
     On Error GoTo 0
     
@@ -255,18 +264,56 @@ End Sub
 
 
 Private Sub SetReportingSheetRangeNames()
+
+    Dim rng As Range
+
     
     With this.shtReport
+        
         On Error Resume Next
-        .Names("Heading").Delete
+        .Names("HiddenWorkingRows").Delete
+        .Names("HiddenWorkingColumns").Delete
+        .Names("ErrorCheckRows").Delete
+        .Names("ErrorCheckColumns").Delete
         .Names("Category").Delete
+        .Names("Heading").Delete
         .Names("WorkbookErrorStatus").Delete
+        .Names("ReturnToIndex").Delete
+        .Names("DefaultCursorLocation").Delete
         On Error GoTo 0
-        .Names.Add Name:="Heading", RefersTo:=csHeadingAddress
-        .Names.Add Name:="Category", RefersTo:=csCategoryAddress
-        .Names.Add Name:="ErrorCheckColumns", RefersTo:=csErrorCheckColumns
-        .Names.Add Name:="ErrorCheckRows", RefersTo:=csErrorCheckRows
-        .Names.Add Name:="WorkbookErrorStatus", RefersTo:=csWorkbookErrorStatus
+        
+        .Names.Add Name:="HiddenWorkingRows", RefersTo:="=$1:$" & NumberOfHiddenWorkingRows
+        .Names.Add Name:="HiddenWorkingColumns", RefersTo:="=" & _
+            .Range(Columns(1), Columns(NumberOfHiddenWorkingColumns)).Address
+            
+        'Set ErrorCheckRowRange
+        Set rng = Range(NumberOfHiddenWorkingRows + 1 & ":" & _
+            NumberOfHiddenWorkingRows + NumberOfErrorCheckRows)
+        Set rng = rng.Resize(rng.rows.Count, rng.Columns.Count - NumberOfHiddenWorkingColumns). _
+            Offset(0, NumberOfHiddenWorkingColumns)
+        .Names.Add Name:="ErrorCheckRows", RefersTo:="=" & rng.Address
+        
+        'Set ErrorCheckColumnRange
+        Set rng = .Range(Columns(NumberOfHiddenWorkingColumns + 1), _
+            Columns(NumberOfHiddenWorkingColumns + NumberOfErrorCheckColumns))
+        Set rng = rng.Resize(rng.rows.Count - NumberOfHiddenWorkingRows, rng.Columns.Count). _
+            Offset(NumberOfHiddenWorkingRows, 0)
+        .Names.Add Name:="ErrorCheckColumns", RefersTo:="=" & rng.Address
+            
+            
+        .Names.Add Name:="Category", RefersTo:="=" & .Cells( _
+            NumberOfHiddenWorkingRows + NumberOfErrorCheckRows + 1, _
+            NumberOfHiddenWorkingColumns + NumberOfErrorCheckColumns + 1).Address
+        
+        .Names.Add Name:="Heading", RefersTo:="=" & _
+            .Range("Category").Offset(1, 1).Address
+        .Names.Add Name:="WorkbookErrorStatus", RefersTo:="=" & _
+            .Range("Category").Offset(0, 4).Address
+        .Names.Add Name:="ReturnToIndex", RefersTo:="=" & _
+            .Range("Heading").Offset(1, 0).Address
+        .Names.Add Name:="DefaultCursorLocation", RefersTo:="=" & _
+            .Range("ReturnToIndex").Offset(1, 0).Address
+        
     End With
     
 End Sub
@@ -276,14 +323,18 @@ Public Sub ToggleErrorCheckRangeVisbility()
 
     With this.shtReport
 
-    If .Range("ErrorCheckRows").EntireColumn.Hidden Then
-        .Range("ErrorCheckRows").EntireColumn.Hidden = False
-        .Range("ErrorCheckColumns").EntireRow.Hidden = False
+    If .Range("HiddenWorkingRows").EntireRow.Hidden Then
+        .Range("HiddenWorkingRows").EntireRow.Hidden = False
+        .Range("HiddenWorkingColumns").EntireColumn.Hidden = False
+        .Range("ErrorCheckRows").EntireRow.Hidden = False
+        .Range("ErrorCheckColumns").EntireColumn.Hidden = False
         .Range("A1").Select
     Else
-        .Range("ErrorCheckRows").EntireColumn.Hidden = True
-        .Range("ErrorCheckColumns").EntireRow.Hidden = True
-        .Range("Heading").Offset(2, 0).Select
+        .Range("HiddenWorkingRows").EntireRow.Hidden = True
+        .Range("HiddenWorkingColumns").EntireColumn.Hidden = True
+        .Range("ErrorCheckRows").EntireRow.Hidden = True
+        .Range("ErrorCheckColumns").EntireColumn.Hidden = True
+        .Range("DefaultCursorLocation").Select
     End If
     
     End With
@@ -307,74 +358,83 @@ Private Sub FormatReportingSheet()
         .Cells.Font.Name = "Calibri"
         .Cells.Font.Size = 11
         .DisplayPageBreaks = False
-        .Columns.item("A:A").ColumnWidth = 4
-        
-        .Range(csHeadingAddress).Font.Bold = True
-        .Range(csHeadingAddress).Font.Size = 16
-        
-        .Range(csCategoryAddress).Font.Color = RGB(170, 170, 170)
-        .Range(csCategoryAddress).Font.Size = 8
-        
-        .Range(csWorkbookErrorStatus).Font.Color = RGB(170, 170, 170)
-        
-        'Set error check formatting
-        .Range("A1").Value = "Error check workings in red gridlines"
-        .Range("A1").Font.Bold = True
-        FormatRedDotBorders .Range(csErrorCheckColumns)
-        FormatRedDotBorders .Range(csErrorCheckRows)
-        
-        'Group the error checking range
-        .Range(csErrorCheckColumns).EntireRow.Hidden = True
-        'ActiveSheet.Outline.ShowLevels RowLevels:=1
-        .Range(csErrorCheckRows).EntireColumn.Hidden = True
-        
+        .Columns(NumberOfHiddenWorkingColumns + NumberOfErrorCheckColumns + 1).ColumnWidth = 4
+
+        .Range("Heading").Font.Bold = True
+        .Range("Heading").Font.Size = 16
+
+        .Range("Category").Font.Color = rgb(170, 170, 170)
+        .Range("Category").Font.Size = 8
+
+        .Range("WorkbookErrorStatus").Font.Color = rgb(170, 170, 170)
+
+        'Set error check formatting (set on entire row and column as it is a
+        'lot quicker)
+        .Range("ErrorCheckRows").Cells(1).Value = "Error check workings in red gridlines"
+        .Range("ErrorCheckRows").Cells(1).Font.Bold = True
+        FormatDotBorders .Range("ErrorCheckRows").EntireRow, rgb(255, 0, 0)
+        FormatDotBorders .Range("ErrorCheckColumns").EntireColumn, rgb(255, 0, 0)
+
+        .Range("HiddenWorkingRows").Cells(1).Value = "Hidden workings in blue gridlines"
+        .Range("HiddenWorkingRows").Cells(1).Font.Bold = True
+        FormatDotBorders .Range("HiddenWorkingRows").EntireRow, rgb(0, 0, 255)
+        FormatDotBorders .Range("HiddenWorkingColumns").EntireColumn, rgb(0, 0, 255)
+        .Range("HiddenWorkingRows").Interior.Color = rgb(242, 247, 252)
+        .Range("HiddenWorkingColumns").Interior.Color = rgb(242, 247, 252)
+
+
+        .Range("ErrorCheckRows").EntireRow.Hidden = True
+        .Range("ErrorCheckColumns").EntireColumn.Hidden = True
+        .Range("HiddenWorkingRows").EntireRow.Hidden = True
+        .Range("HiddenWorkingColumns").EntireColumn.Hidden = True
+
         ActiveWindow.DisplayGridlines = False
         ActiveWindow.Zoom = 80
     End With
-    
+
     SetWorkbookErrorCellConditionalFormatting
-    
+
     'Reactivate the original active workbook
     wkbActivePriorToSub.Activate
     
 End Sub
 
 
-Private Sub FormatRedDotBorders(ByVal rng As Range)
+Private Sub FormatDotBorders(ByVal rng As Range, BorderRgb As Long)
 
     With rng.Borders(xlEdgeLeft)
         .LineStyle = xlDot
-        .Color = RGB(255, 0, 0)
+        .Color = BorderRgb
         .TintAndShade = 0
         .Weight = xlThin
     End With
     With rng.Borders(xlEdgeTop)
         .LineStyle = xlDot
-        .Color = RGB(255, 0, 0)
+        .Color = BorderRgb
         .TintAndShade = 0
         .Weight = xlThin
     End With
     With rng.Borders(xlEdgeBottom)
         .LineStyle = xlDot
-        .Color = RGB(255, 0, 0)
+        .Color = BorderRgb
         .TintAndShade = 0
         .Weight = xlThin
     End With
     With rng.Borders(xlEdgeRight)
         .LineStyle = xlDot
-        .Color = RGB(255, 0, 0)
+        .Color = BorderRgb
         .TintAndShade = 0
         .Weight = xlThin
     End With
     With rng.Borders(xlInsideVertical)
         .LineStyle = xlDot
-        .Color = RGB(255, 0, 0)
+        .Color = BorderRgb
         .TintAndShade = 0
         .Weight = xlThin
     End With
     With rng.Borders(xlInsideHorizontal)
         .LineStyle = xlDot
-        .Color = RGB(255, 0, 0)
+        .Color = BorderRgb
         .TintAndShade = 0
         .Weight = xlThin
     End With
@@ -452,7 +512,7 @@ Private Sub SetWorkbookErrorCellConditionalFormatting()
     With ErrorCheckFormatConditionNotSet.Font
         .Bold = True
         .Italic = False
-        .Color = RGB(255, 122, 0)
+        .Color = rgb(255, 122, 0)
         .TintAndShade = 0
     End With
 
@@ -461,7 +521,7 @@ Private Sub SetWorkbookErrorCellConditionalFormatting()
     With ErrorCheckFormatConditionIsError.Font
         .Bold = True
         .Italic = False
-        .Color = RGB(255, 0, 0)
+        .Color = rgb(255, 0, 0)
         .TintAndShade = 0
     End With
 

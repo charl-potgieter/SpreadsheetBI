@@ -294,9 +294,9 @@ Public Sub ApplyColourFormatting()
     For Each lc In this.lo.ListColumns
         With lc.DataBodyRange
             If .Cells(1).HasFormula Then
-                .Font.Color = RGB(0, 0, 0)
+                .Font.Color = rgb(0, 0, 0)
             Else
-                .Font.Color = RGB(0, 112, 192)
+                .Font.Color = rgb(0, 112, 192)
             End If
         End With
     Next lc
@@ -318,8 +318,8 @@ Private Sub FormatReportingTable()
     
     'Set Header Format
     With sty.TableStyleElements(xlHeaderRow)
-        .Interior.Color = RGB(68, 114, 196)
-        .Font.Color = RGB(255, 255, 255)
+        .Interior.Color = rgb(68, 114, 196)
+        .Font.Color = rgb(255, 255, 255)
         .Font.Bold = True
         .Borders.item(xlEdgeTop).LineStyle = xlSolid
         .Borders.item(xlEdgeTop).Weight = xlMedium
@@ -328,8 +328,8 @@ Private Sub FormatReportingTable()
     End With
 
     'Set row stripe format
-    sty.TableStyleElements(xlRowStripe1).Interior.Color = RGB(217, 217, 217)
-    sty.TableStyleElements(xlRowStripe2).Interior.Color = RGB(255, 255, 255)
+    sty.TableStyleElements(xlRowStripe1).Interior.Color = rgb(217, 217, 217)
+    sty.TableStyleElements(xlRowStripe2).Interior.Color = rgb(255, 255, 255)
     
     'Set whole table bottom edge format
     sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).LineStyle = xlSolid
@@ -351,7 +351,7 @@ Private Sub FormatReportingTable()
     
     'Set DAX query range font as blue (this takes place before any formula columns are added
     On Error Resume Next 'In event no data returned and then no databodyrange
-    this.lo.DataBodyRange.Font.Color = RGB(0, 112, 192)
+    this.lo.DataBodyRange.Font.Color = rgb(0, 112, 192)
     On Error GoTo 0
     
 End Sub
