@@ -2,6 +2,10 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
+Workbooks with ReportSheets are slow - possible causes
+ - ErrorChecks not equal to enrire columns
+ - Border formatting
+
 The CreateIndex sub is too big!   Split up
 
 - update the error formula on index tab to start with an iferror test to 
