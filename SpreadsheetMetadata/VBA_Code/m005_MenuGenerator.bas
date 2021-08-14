@@ -107,10 +107,6 @@ Sub CreatePopUpMenu()
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatOkError"
     
     Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Active sheet"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatActiveSheet"
-    
-    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Active table"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatActiveTable"
     
@@ -124,8 +120,8 @@ Sub CreatePopUpMenu()
     MenuCategory.Caption = "Insert"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Formatted sheet"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertFormattedSheetIntoActiveWorkbook"
+    MenuItem.Caption = "Reporting sheet"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertReportingSheetSheetIntoActiveWorkbook"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Index page"
@@ -218,6 +214,11 @@ Sub CreatePopUpMenu()
     'Other Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
     MenuCategory.Caption = "Other"
+    
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Conver active sheet to reporting sheet"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ConvertActiveSheetToReportingSheet"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Run looper"

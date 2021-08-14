@@ -260,7 +260,7 @@ End Sub
 
 
 
-Function InsertFormattedSheetIntoActiveWorkbook()
+Function InsertReportingSheetSheetIntoActiveWorkbook()
     Dim ReportSht As ReportingSheet
     
     StandardEntry
@@ -274,7 +274,7 @@ Function InsertFormattedSheetIntoActiveWorkbook()
 End Function
 
 
-Sub FormatActiveSheet()
+Sub ConvertActiveSheetToReportingSheet()
 
     Dim ReportSht As ReportingSheet
     Set ReportSht = New ReportingSheet
