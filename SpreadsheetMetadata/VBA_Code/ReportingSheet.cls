@@ -189,8 +189,8 @@ Public Sub Create(ByVal wkb As Workbook, _
     Optional ByVal lSheetPosition As Long = 0)
     
     InsertReportingSheet wkb, lSheetPosition
-    SetReportingSheetRangeNames
-    FormatReportingSheet
+    SetRangeNames
+    FormatSheet
     Me.Category = "Category"
     Me.Heading = "Heading"
     this.shtReport.Range("WorkbookErrorStatus").Formula = WorkbookErrorCheckFormula
@@ -231,8 +231,8 @@ Public Function CreateFromExistingSheet(ByVal sht As Worksheet) As Boolean
 
     If CreateFromExistingSheet Then
         Set this.shtReport = sht
-        SetReportingSheetRangeNames
-        FormatReportingSheet
+        SetRangeNames
+        FormatSheet
         If Me.Category = "" Then Me.Category = "Category"
         If Me.Heading = "" Then Me.Heading = "Heading"
         sht.Range("WorkbookErrorStatus").Formula = WorkbookErrorCheckFormula
@@ -263,10 +263,7 @@ Private Sub InsertReportingSheet(ByVal wkb As Workbook, _
 End Sub
 
 
-Private Sub SetReportingSheetRangeNames()
-
-    Dim rng As Range
-
+Private Sub SetRangeNames()
     
     With this.shtReport
         
@@ -283,23 +280,17 @@ Private Sub SetReportingSheetRangeNames()
         On Error GoTo 0
         
         .Names.Add Name:="HiddenWorkingRows", RefersTo:="=$1:$" & NumberOfHiddenWorkingRows
+        
         .Names.Add Name:="HiddenWorkingColumns", RefersTo:="=" & _
             .Range(Columns(1), Columns(NumberOfHiddenWorkingColumns)).Address
             
-        'Set ErrorCheckRowRange
-        Set rng = Range(NumberOfHiddenWorkingRows + 1 & ":" & _
-            NumberOfHiddenWorkingRows + NumberOfErrorCheckRows)
-        Set rng = rng.Resize(rng.rows.Count, rng.Columns.Count - NumberOfHiddenWorkingColumns). _
-            Offset(0, NumberOfHiddenWorkingColumns)
-        .Names.Add Name:="ErrorCheckRows", RefersTo:="=" & rng.Address
+        .Names.Add Name:="ErrorCheckRows", RefersTo:="=" & _
+            Range(NumberOfHiddenWorkingRows + 1 & ":" & _
+            NumberOfHiddenWorkingRows + NumberOfErrorCheckRows).Address
         
-        'Set ErrorCheckColumnRange
-        Set rng = .Range(Columns(NumberOfHiddenWorkingColumns + 1), _
-            Columns(NumberOfHiddenWorkingColumns + NumberOfErrorCheckColumns))
-        Set rng = rng.Resize(rng.rows.Count - NumberOfHiddenWorkingRows, rng.Columns.Count). _
-            Offset(NumberOfHiddenWorkingRows, 0)
-        .Names.Add Name:="ErrorCheckColumns", RefersTo:="=" & rng.Address
-            
+        .Names.Add Name:="ErrorCheckColumns", RefersTo:="=" & _
+            Range(Columns(NumberOfHiddenWorkingColumns + 1), _
+            Columns(NumberOfHiddenWorkingColumns + NumberOfErrorCheckColumns)).Address
             
         .Names.Add Name:="Category", RefersTo:="=" & .Cells( _
             NumberOfHiddenWorkingRows + NumberOfErrorCheckRows + 1, _
@@ -307,13 +298,20 @@ Private Sub SetReportingSheetRangeNames()
         
         .Names.Add Name:="Heading", RefersTo:="=" & _
             .Range("Category").Offset(1, 1).Address
+            
         .Names.Add Name:="WorkbookErrorStatus", RefersTo:="=" & _
             .Range("Category").Offset(0, 4).Address
+            
         .Names.Add Name:="ReturnToIndex", RefersTo:="=" & _
             .Range("Heading").Offset(1, 0).Address
+            
         .Names.Add Name:="DefaultCursorLocation", RefersTo:="=" & _
             .Range("ReturnToIndex").Offset(1, 0).Address
-        
+            
+        .Names.Add Name:="Notes", RefersTo:="=" & _
+            .Range(.Cells(1, 1), .Cells((NumberOfHiddenWorkingRows + NumberOfErrorCheckRows), _
+            (NumberOfHiddenWorkingColumns + NumberOfErrorCheckRows))).Address
+            
     End With
     
 End Sub
@@ -343,7 +341,7 @@ End Sub
 
 
 
-Private Sub FormatReportingSheet()
+Private Sub FormatSheet()
 
     Dim wkbReportWorkbook As Workbook
     Dim wkbActivePriorToSub As Workbook
@@ -367,26 +365,29 @@ Private Sub FormatReportingSheet()
         .Range("Category").Font.Size = 8
 
         .Range("WorkbookErrorStatus").Font.Color = rgb(170, 170, 170)
-
-        'Set error check formatting (set on entire row and column as it is a
-        'lot quicker)
-        .Range("ErrorCheckRows").Cells(1).Value = "Error check workings in red gridlines"
         .Range("ErrorCheckRows").Cells(1).Font.Bold = True
-        FormatDotBorders .Range("ErrorCheckRows").EntireRow, rgb(255, 0, 0)
-        FormatDotBorders .Range("ErrorCheckColumns").EntireColumn, rgb(255, 0, 0)
 
-        .Range("HiddenWorkingRows").Cells(1).Value = "Hidden workings in blue gridlines"
-        .Range("HiddenWorkingRows").Cells(1).Font.Bold = True
-        FormatDotBorders .Range("HiddenWorkingRows").EntireRow, rgb(0, 0, 255)
-        FormatDotBorders .Range("HiddenWorkingColumns").EntireColumn, rgb(0, 0, 255)
-        .Range("HiddenWorkingRows").Interior.Color = rgb(242, 247, 252)
-        .Range("HiddenWorkingColumns").Interior.Color = rgb(242, 247, 252)
 
+        .Range("HiddenWorkingRows").Interior.Color = rgb(217, 217, 217)
+        .Range("HiddenWorkingColumns").Interior.Color = rgb(217, 217, 217)
+        .Range("ErrorCheckRows").Interior.Color = rgb(117, 117, 117)
+        .Range("ErrorCheckColumns").Interior.Color = rgb(117, 117, 117)
+        .Range("ErrorCheckRows").Font.Color = rgb(255, 255, 255)
+        .Range("ErrorCheckColumns").Font.Color = rgb(255, 255, 255)
+        .Range("ErrorCheckRows").Font.Bold = True
+        .Range("ErrorCheckColumns").Font.Bold = True
 
         .Range("ErrorCheckRows").EntireRow.Hidden = True
         .Range("ErrorCheckColumns").EntireColumn.Hidden = True
         .Range("HiddenWorkingRows").EntireRow.Hidden = True
         .Range("HiddenWorkingColumns").EntireColumn.Hidden = True
+            
+        .Range("Notes").Interior.Color = rgb(205, 225, 243)
+        .Range("Notes").Font.Bold = True
+        .Range("Notes").Font.Color = rgb(0, 0, 0)
+        .Range("Notes").BorderAround Weight:=xlThick
+        .Range("Notes").Cells(3, 3).Value = "Hidden workings in light grey"
+        .Range("Notes").Cells(4, 3).Value = "Hidden error checks in dark grey"
 
         ActiveWindow.DisplayGridlines = False
         ActiveWindow.Zoom = 80
@@ -400,47 +401,6 @@ Private Sub FormatReportingSheet()
 End Sub
 
 
-Private Sub FormatDotBorders(ByVal rng As Range, BorderRgb As Long)
-
-    With rng.Borders(xlEdgeLeft)
-        .LineStyle = xlDot
-        .Color = BorderRgb
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With rng.Borders(xlEdgeTop)
-        .LineStyle = xlDot
-        .Color = BorderRgb
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With rng.Borders(xlEdgeBottom)
-        .LineStyle = xlDot
-        .Color = BorderRgb
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With rng.Borders(xlEdgeRight)
-        .LineStyle = xlDot
-        .Color = BorderRgb
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With rng.Borders(xlInsideVertical)
-        .LineStyle = xlDot
-        .Color = BorderRgb
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With rng.Borders(xlInsideHorizontal)
-        .LineStyle = xlDot
-        .Color = BorderRgb
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    
-
-End Sub
 
 
 

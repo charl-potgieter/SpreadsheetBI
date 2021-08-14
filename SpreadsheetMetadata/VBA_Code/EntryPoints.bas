@@ -276,9 +276,14 @@ End Function
 
 Sub FormatActiveSheet()
 
-    Dim Report As ReportingSheet
-    Set Report = New ReportingSheet
-    Report.CreateFromExistingSheet ActiveSheet
+    Dim ReportSht As ReportingSheet
+    Set ReportSht = New ReportingSheet
+    
+    StandardEntry
+    ReportSht.CreateFromExistingSheet ActiveSheet
+    InsertIndexPage ActiveWorkbook
+    ReportSht.Sheet.Activate
+    StandardExit
 
 End Sub
 

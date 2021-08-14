@@ -2,6 +2,11 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
+Get rid  of General / FormatSheet and replace with assignment of report sheet (Maybe just get rid of this format call all toghether?
+ * Rather replace with a sub that converts sheet to reporting sheet by inserting rows and columns so current sheet content is not overwritten
+
+How about hashing headings on each sheet with a formula and summing with 3d sum to compare to same on index page
+
 Workbooks with ReportSheets are slow - possible causes
  - ErrorChecks not equal to enrire columns
  - Border formatting
