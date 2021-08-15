@@ -217,7 +217,7 @@ Sub CreatePopUpMenu()
     
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Conver active sheet to reporting sheet"
+    MenuItem.Caption = "Convert active sheet to reporting sheet"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ConvertActiveSheetToReportingSheet"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)

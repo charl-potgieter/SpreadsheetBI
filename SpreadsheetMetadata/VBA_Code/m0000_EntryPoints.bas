@@ -1,4 +1,4 @@
-Attribute VB_Name = "EntryPoints"
+Attribute VB_Name = "m0000_EntryPoints"
 '@Folder ("000_EntryPoints")
 
 Option Explicit

@@ -2,10 +2,15 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
-Any reason I can't ahve headings on the index page rather than sheet names
+The CreateIndex sub is too big!   Split up
+- update the error formula on index tab to start with an iferror test to 
+  return false if there is an error - eg sheet is deleted
+ - Also name ranges
+
+
 
 Maybe just create a simple formula like below on each sheet to check if missing
-on index tab (rather than linking to index error mechanism)
+on index tab (rather than linking to index error mechanism) - rather use a named range instead of D:D
 =IF(
     COUNTIFS(Index!D:D, Sheet2!ReturnToIndex)=1,
     "OK",
@@ -14,49 +19,10 @@ on index tab (rather than linking to index error mechanism)
 
 Create a shortcut key to navigate to and from the index page
 
-There is still an old General/FormatSheet sub that is being called in other subs in SpreadsheetBI.  Rework these calling subs to use the ReportingSheet class and get rid of the FormatShet sub
-
-
-How about hashing headings on each sheet with a formula and summing with 3d sum to compare to same on index page
-
-
-
-Potential hash text formula
-=SUM(CODE(MID(
-    Heading,
-    SEQUENCE(LEN(Heading)),
-    1
-))* 10 ^ ((SEQUENCE(LEN(Heading))-1)*3))
-
-
-Workbooks with ReportSheets are slow - possible causes
- - ErrorChecks not equal to enrire columns
- - Border formatting
-
-The CreateIndex sub is too big!   Split up
-
-- update the error formula on index tab to start with an iferror test to 
-  return false if there is an error - eg sheet is deleted
-
-Ensuring completeness of error checks
-  - should non-report sheets be allowed?
-  -  check for duplicate heading names when index tab is generated and throw error?
-  - create check that each sheet header appears on index
-  - auto generate index on reportsheet create or format?
-
-
 Should I consider protecting the reportingsheets?
 
-Change index sheet to refer to sheet heading rather than tab name?
+There is still an old General/FormatSheet sub that is being called in other subs in SpreadsheetBI.  Rework these calling subs to use the ReportingSheet class and get rid of the FormatShet sub
 
-
-
-
-Consider hiding rather than grouping the reportingsheet error range.  Ther group outline symbols are a bit messy
-
-Programmatically create a single query of records of data access queries
-
-Keep the <CTRL><SHIFT><M> shortcut popup menu un this utilities add  in only.  Dont need these types of keyboard shortcuts in developer
 
 Replace various subs with my standard VBA library from gitub
  - Note that some of the subs in SpreadsheetBI\General are now included in zLIB_SundryUtilities
@@ -214,7 +180,9 @@ Look into Lambda function when available --> Maybe move to insiders build
   https://blog.crossjoin.co.uk/2016/06/03/creating-tables-in-power-bipower-query-m-code-using-table/
   
 
-  
+
+
+
 Website  / Twitter
 ------------------
 - Set up Wordpress Blog website

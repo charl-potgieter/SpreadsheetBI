@@ -33,10 +33,10 @@ Public Property Let Heading(ByVal sHeading As String)
     this.shtReport.Range("Heading").Value = sHeading
 End Property
 
+
 Public Property Get DefaultCursorLocation() As Range
     Set DefaultCursorLocation = this.shtReport.Range("DefaultCursorLocation")
 End Property
-
 
 
 Public Property Get Category() As String
@@ -51,15 +51,15 @@ Public Property Let Category(ByVal sCategory As String)
 End Property
 
 
-Public Property Get WorkbooksErrorStatus() As String
-    On Error Resume Next
-    WorkbookErrorStatus = this.shtReport.Names("WorkbookErrorStatus").RefersToRange.Value
-    If Err.Number <> 0 Then Category = ""
+
+
+Public Property Get WorkbookErrorStatusFormula() As String
+    WorkbookErrorStatusFormula = this.shtReport.Names("WorkbookErrorStatus").RefersToRange.Formula
 End Property
 
 
-Public Property Let WorkbookErrorStatus(ByVal sErrorStatus As String)
-    this.shtReport.Range("WorkbookErrorStatus").Value = sErrorStatus
+Public Property Let WorkbookErrorStatusFormula(ByVal sFormula As String)
+    this.shtReport.Names("WorkbookErrorStatus").RefersToRange.Formula = sFormula
 End Property
 
 
@@ -193,7 +193,6 @@ Public Sub Create(ByVal wkb As Workbook, _
     FormatSheet
     Me.Category = "Category"
     Me.Heading = "Heading"
-    this.shtReport.Range("WorkbookErrorStatus").Formula = WorkbookErrorCheckFormula
     
 End Sub
 
@@ -241,7 +240,6 @@ Public Function CreateFromExistingSheet(ByVal sht As Worksheet) As Boolean
         FormatSheet
         If Me.Category = "" Then Me.Category = "Category"
         If Me.Heading = "" Then Me.Heading = "Heading"
-        sht.Range("WorkbookErrorStatus").Formula = WorkbookErrorCheckFormula
     End If
 
 End Function
@@ -442,18 +440,7 @@ Private Sub FreezeActiveWindowPanes(ByVal lFreezeRow As Long, ByVal lFreezeColum
 End Sub
 
 
-Private Function WorkbookErrorCheckFormula() As String
 
-    WorkbookErrorCheckFormula = "=IFERROR(" & Chr(10) & _
-    "      IF(" & Chr(10) & _
-    "              COUNTIFS(INDIRECT(""Index!ErrorChecks""), FALSE)=0," & Chr(10) & _
-    "              ""OK""," & Chr(10) & _
-    "              ""Workbook error - see index tab""" & Chr(10) & _
-    "           )," & Chr(10) & _
-    "      ""Error checking not set""" & Chr(10) & _
-    ")"
-
-End Function
 
 
 Private Sub SetWorkbookErrorCellConditionalFormatting()
