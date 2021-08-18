@@ -14,3 +14,23 @@ Sub TestResize()
     rng.Select
 
 End Sub
+
+
+
+
+Sub LoopThroughSelectedSheets()
+'To loop through all selected sheets in
+'the active workbook
+   
+   Dim sh As Object
+   Dim sht As Worksheet
+   
+   For Each sh In ActiveWindow.SelectedSheets
+    Set sht = sh
+   
+     Debug.Print sht.Name
+   Next sh
+End Sub
+
+
+

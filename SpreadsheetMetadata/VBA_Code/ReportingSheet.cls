@@ -159,6 +159,11 @@ Public Property Get Name() As String
 End Property
 
 
+Public Property Get HiddenRangesAreVisible() As Boolean
+    HiddenRangesAreVisible = this.shtReport.Range("HiddenWorkingRows").EntireRow.Hidden = False
+End Property
+
+
 Public Property Let Name(ByVal sName As String)
 
     Dim Counter As Long
@@ -321,27 +326,32 @@ Private Sub SetRangeNames()
 End Sub
 
 
-Public Sub ToggleErrorCheckRangeVisbility()
+Public Sub ToggleErrorCheckRangeVisbility(ByVal ShowHiddenRange As Boolean)
 
     With this.shtReport
-
-    If .Range("HiddenWorkingRows").EntireRow.Hidden Then
-        .Range("HiddenWorkingRows").EntireRow.Hidden = False
-        .Range("HiddenWorkingColumns").EntireColumn.Hidden = False
-        .Range("ErrorCheckRows").EntireRow.Hidden = False
-        .Range("ErrorCheckColumns").EntireColumn.Hidden = False
-        .Range("A1").Select
-    Else
-        .Range("HiddenWorkingRows").EntireRow.Hidden = True
-        .Range("HiddenWorkingColumns").EntireColumn.Hidden = True
-        .Range("ErrorCheckRows").EntireRow.Hidden = True
-        .Range("ErrorCheckColumns").EntireColumn.Hidden = True
-        .Range("DefaultCursorLocation").Select
-    End If
-    
+        .Activate
+        If ShowHiddenRange Then
+            .Range("HiddenWorkingRows").EntireRow.Hidden = False
+            .Range("HiddenWorkingColumns").EntireColumn.Hidden = False
+            .Range("ErrorCheckRows").EntireRow.Hidden = False
+            .Range("ErrorCheckColumns").EntireColumn.Hidden = False
+            .Range("A1").Select
+            ActiveWindow.ScrollRow = 1
+            ActiveWindow.ScrollColumn = 1
+        Else
+            .Range("HiddenWorkingRows").EntireRow.Hidden = True
+            .Range("HiddenWorkingColumns").EntireColumn.Hidden = True
+            .Range("ErrorCheckRows").EntireRow.Hidden = True
+            .Range("ErrorCheckColumns").EntireColumn.Hidden = True
+            .Range("DefaultCursorLocation").Select
+        End If
+        
     End With
     
 End Sub
+
+
+
 
 
 
@@ -380,18 +390,24 @@ Private Sub FormatSheet()
         .Range("ErrorCheckColumns").Font.Color = rgb(255, 255, 255)
         .Range("ErrorCheckRows").Font.Bold = True
         .Range("ErrorCheckColumns").Font.Bold = True
+            
+        .Range("Notes").Interior.Color = rgb(205, 225, 243)
+        .Range("Notes").Font.Color = rgb(0, 0, 0)
+        .Range("Notes").EntireColumn.ColumnWidth = 10
+        .Range("Notes").BorderAround Weight:=xlThick
+        .Range("Notes").Cells(2, 2).Value = "Hidden workings in light grey"
+        .Range("Notes").Cells(3, 2).Value = "Hidden error checks in dark grey"
+        .Range("Notes").Cells(2, 2).Font.Bold = True
+        .Range("Notes").Cells(3, 2).Font.Bold = True
+        .Range("Notes").Cells(5, 2) = "Sheets ordered by categories"
+        .Range("Notes").Cells(6, 2) = "Category / report name combo appears once on index"
+        .Range("Notes").Cells(5, 7).Formula = "=COUNTIFS(Index!CategoryCol, Category) <= 1"
+        .Range("Notes").Cells(6, 7).Formula = "=COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) = 1"
 
         .Range("ErrorCheckRows").EntireRow.Hidden = True
         .Range("ErrorCheckColumns").EntireColumn.Hidden = True
         .Range("HiddenWorkingRows").EntireRow.Hidden = True
         .Range("HiddenWorkingColumns").EntireColumn.Hidden = True
-            
-        .Range("Notes").Interior.Color = rgb(205, 225, 243)
-        .Range("Notes").Font.Bold = True
-        .Range("Notes").Font.Color = rgb(0, 0, 0)
-        .Range("Notes").BorderAround Weight:=xlThick
-        .Range("Notes").Cells(3, 3).Value = "Hidden workings in light grey"
-        .Range("Notes").Cells(4, 3).Value = "Hidden error checks in dark grey"
 
         ActiveWindow.DisplayGridlines = False
         ActiveWindow.Zoom = 80

@@ -2,11 +2,15 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
-The CreateIndex sub is too big!   Split up
-- update the error formula on index tab to start with an iferror test to 
-  return false if there is an error - eg sheet is deleted
- - Also name ranges
+Look at TempIndexErrorStructure.xlsx when working through the below
 
+Add a check for duplicate categories on index tab:
+describe as :No category duplicates (duplicates indicate out of order sheets) 
+=COUNTA(FILTER(CategoryCol, NOT(ISBLANK(Index!CategoryCol)))) = COUNTA(UNIQUE(FILTER(CategoryCol, NOT(ISBLANK(Index!CategoryCol)))))
+
+Perform a similiar check to above (also on the index tab) to check for duplicate category / report name combos
+
+Amend the check written to each ReportSheet to detect cases where there category report name column does not appear on the index
 
 
 Maybe just create a simple formula like below on each sheet to check if missing

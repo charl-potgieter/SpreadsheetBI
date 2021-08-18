@@ -450,8 +450,16 @@ End Sub
 
 
 Sub InsertIndexPageActiveWorkbook()
+    
+    Dim IndexSheet As Worksheet
+
     StandardEntry
-    InsertIndexPage ActiveWorkbook
+    Set IndexSheet = InsertIndexPage(ActiveWorkbook)
+    IndexSheet.Activate
+    IndexSheet.Range("DefaultCursorLocation").Select
+
+    'InsertIndexPage_OUTDATED_ ActiveWorkbook
+
     StandardExit
 End Sub
 
@@ -953,16 +961,38 @@ ExitPoint:
 End Sub
 
 
-Sub ToggleErrorCheckRangeVisbility()
-Attribute ToggleErrorCheckRangeVisbility.VB_ProcData.VB_Invoke_Func = "H\n14"
+Sub ToggleErrorCheckRangeVisbilityOnSelectedSheets()
+Attribute ToggleErrorCheckRangeVisbilityOnSelectedSheets.VB_ProcData.VB_Invoke_Func = "H\n14"
 
+    Dim sht As Worksheet
     Dim ReportSheet As ReportingSheet
     Dim ReportIsAssigned As Boolean
+    Dim obj As Object
+    Dim ShowHiddenRange As Boolean
+    Dim CurrentlyActiveSheet As Worksheet
+    Dim IsFirstReportingSheetInSelection As Boolean
     
-    Set ReportSheet = New ReportingSheet
-    ReportIsAssigned = ReportSheet.AssignExistingSheet(ActiveSheet)
-    If ReportIsAssigned Then
-        ReportSheet.ToggleErrorCheckRangeVisbility
-    End If
+    StandardEntry
+    Set CurrentlyActiveSheet = ActiveSheet
+    IsFirstReportingSheetInSelection = True
+    
+    'Toggling can occur for multiple selected sheets
+    'Visibility is set based on status of the first sheet
+    For Each obj In ActiveWindow.SelectedSheets
+        Set sht = obj
+        Set ReportSheet = New ReportingSheet
+        ReportIsAssigned = ReportSheet.AssignExistingSheet(sht)
+        If ReportIsAssigned Then
+            If IsFirstReportingSheetInSelection Then
+                ShowHiddenRange = Not ReportSheet.HiddenRangesAreVisible
+                IsFirstReportingSheetInSelection = False
+            End If
+            ReportSheet.ToggleErrorCheckRangeVisbility ShowHiddenRange
+        End If
+        Set ReportSheet = Nothing
+    Next obj
+    Set obj = Nothing
+    CurrentlyActiveSheet.Activate
+    StandardExit
     
 End Sub
