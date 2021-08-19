@@ -2,24 +2,33 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
-Look at TempIndexErrorStructure.xlsx when working through the below
+On each reporting sheet
+ - maybe seperate
+   * Grey shaded error checks (already done)
+   * Workbook level error check single cell
+      i)  Links to grey shading with error override
+      ii) checks existince on index sheet
+      iii) check only one case on index sheet
+      iv) Add an additional column on index sheet to pick up above (cannot be in same column as will cause circular reference issues)
 
-Add a check for duplicate categories on index tab:
-describe as :No category duplicates (duplicates indicate out of order sheets) 
-=COUNTA(FILTER(CategoryCol, NOT(ISBLANK(Index!CategoryCol)))) = COUNTA(UNIQUE(FILTER(CategoryCol, NOT(ISBLANK(Index!CategoryCol)))))
-
-Perform a similiar check to above (also on the index tab) to check for duplicate category / report name combos
-
-Amend the check written to each ReportSheet to detect cases where there category report name column does not appear on the index
-
-
-Maybe just create a simple formula like below on each sheet to check if missing
-on index tab (rather than linking to index error mechanism) - rather use a named range instead of D:D
-=IF(
-    COUNTIFS(Index!D:D, Sheet2!ReturnToIndex)=1,
-    "OK",
-    "This sheet is not on index tab"
+=IFERROR(
+   SWITCH(
+       TRUE,
+       NOT(AND(
+              COUNTIFS(ErrorCheckColumns, FALSE) = 0,
+              COUNTIFS(ErrorCheckRows, FALSE) = 0,
+              SUMPRODUCT(--ISERROR(ErrorCheckColumns))=0,
+              SUMPRODUCT(--ISERROR(ErrorCheckRows))=0
+       )), "Sheet error check issue - see ranges ErrrorCheckColumns and ErrorCheckRows",
+       COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) = 0, "This sheet heading / category combination does not appear on index tab",
+       COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) > 1, "This sheet heading / category combination appears multiple times on index tab",
+       "OK"
+),
+"Sheet error"
 )
+       
+
+
 
 Create a shortcut key to navigate to and from the index page
 

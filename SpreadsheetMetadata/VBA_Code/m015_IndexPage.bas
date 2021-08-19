@@ -14,8 +14,9 @@ Function InsertIndexPage(ByVal wkb As Workbook) As Worksheet
     Set IndexSheet = CreateIndexSheet(wkb)
     SetIndexSheetRangeNames IndexSheet
     FormatIndexSheet IndexSheet
+    CreateIndexSheetFormulas IndexSheet
     AddFirstAndLastSheets wkb
-    CurrentRow = 2
+    CurrentRow = 5
     LastCapturedReportCategory = ""
     
     For Each sht In wkb.Worksheets
@@ -29,6 +30,7 @@ Function InsertIndexPage(ByVal wkb As Workbook) As Worksheet
             WriteHiddenCategoryName IndexSheet, ReportSheet, CurrentRow
             WriteReferenceToSheetErrorCheck IndexSheet, ReportSheet, CurrentRow
             ReportSheet.WorkbookErrorStatusFormula = WorkbookErrorStatusFormula
+            ReportSheet.SheetErrorStatusFormula = SheetErrorStatusFormula
         End If
     Next sht
     
@@ -107,6 +109,61 @@ Private Sub FormatIndexSheet(ByRef sht As Worksheet)
     End With
 
 End Sub
+
+Sub CreateIndexSheetFormulas(ByVal IndexSheet As Worksheet)
+
+    Dim ErrorCheckFormatCondition As FormatCondition
+    Dim temp As String
+
+    With IndexSheet.Range("CategoryCol").Cells(5)
+        .Value = "No category duplicates (duplicates indicate out of order sheets)"
+        .Font.Color = rgb(170, 170, 170)
+        .Font.Bold = False
+    End With
+
+    With IndexSheet.Range("ErrorCheckCol").Cells(5)
+        .Formula = _
+            "=COUNTA(" & vbLf & _
+            "    FILTER(CategoryCol, NOT(ISBLANK(CategoryCol)))" & _
+            ") " & vbLf & _
+            " = " & vbLf & _
+            " COUNTA(" & vbLf & _
+            "    UNIQUE(FILTER(CategoryCol, NOT(ISBLANK(CategoryCol))))" & vbLf & _
+            ")"
+        .Font.Color = rgb(170, 170, 170)
+        Set ErrorCheckFormatCondition = .FormatConditions.Add( _
+            Type:=xlCellValue, Operator:=xlEqual, Formula1:="=FALSE")
+        ErrorCheckFormatCondition.Font.Bold = True
+        ErrorCheckFormatCondition.Font.Color = rgb(255, 0, 0)
+    End With
+
+    With IndexSheet.Range("CategoryCol").Cells(6)
+        .Value = "No duplicate category / report name combinations"
+        .Font.Color = rgb(170, 170, 170)
+        .Font.Bold = False
+    End With
+    
+    
+    With IndexSheet.Range("ErrorCheckCol").Cells(6)
+        .Formula = _
+            "=COUNTA(" & vbLf & _
+            "    FILTER(HiddenCategoriesCol & ReportNamesCol, NOT(ISBLANK(ReportNamesCol)))" & vbLf & _
+            ")" & vbLf & _
+            " =" & vbLf & _
+            "COUNTA(" & vbLf & _
+            "    UNIQUE(Filter(HiddenCategoriesCol & ReportNamesCol, NOT(ISBLANK(ReportNamesCol))))" & vbLf & _
+            ")"
+        .Font.Color = rgb(170, 170, 170)
+        Set ErrorCheckFormatCondition = .FormatConditions.Add( _
+            Type:=xlCellValue, Operator:=xlEqual, Formula1:="=FALSE")
+        ErrorCheckFormatCondition.Font.Bold = True
+        ErrorCheckFormatCondition.Font.Color = rgb(255, 0, 0)
+    End With
+    
+
+
+End Sub
+
 
 
 Private Sub AddFirstAndLastSheets(ByVal wkb As Workbook)
@@ -189,31 +246,19 @@ End Sub
 Sub WriteReferenceToSheetErrorCheck(ByVal IndexSheet As Worksheet, _
     ByVal ReportSheet As ReportingSheet, ByVal CurrentRow As Long)
 
-    Dim SheetErrorCheckColumnsRangeName As String
-    Dim SheetErrorCheckRowsRangeName As String
+    Dim SheetErrorStatusRangeName As String
     Dim IndexPageErrorCheckFormula As String
     Dim ErrorCheckFormatCondition As FormatCondition
     
-    'Set link to each sheets error check range (which could be empty)
-    With ReportSheet.Sheet
-        SheetErrorCheckColumnsRangeName = "'" & .Name & "'!ErrorCheckColumns"
-        SheetErrorCheckRowsRangeName = "'" & .Name & "'!ErrorCheckRows"
-    End With
     
-    IndexPageErrorCheckFormula = "=IFERROR(" & Chr(10) & _
-    "   AND(" & Chr(10) & _
-    "       COUNTIFS(<ColErrCheckRange>, FALSE) = 0," & Chr(10) & _
-    "       COUNTIFS(<RowErrCheckRange>, FALSE) = 0," & Chr(10) & _
-    "       SUMPRODUCT(--ISERROR(<ColErrCheckRange>))=0," & Chr(10) & _
-    "       SUMPRODUCT(--ISERROR(<RowErrCheckRange>))=0" & Chr(10) & _
-    "   )," & Chr(10) & _
-    "   FALSE" & Chr(10) & _
-    ")"
+    SheetErrorStatusRangeName = "'" & ReportSheet.Name & "'!SheetErrorStatus"
     
-    IndexPageErrorCheckFormula = Replace(IndexPageErrorCheckFormula, _
-        "<ColErrCheckRange>", SheetErrorCheckColumnsRangeName)
-    IndexPageErrorCheckFormula = Replace(IndexPageErrorCheckFormula, _
-        "<RowErrCheckRange>", SheetErrorCheckRowsRangeName)
+    
+    IndexPageErrorCheckFormula = _
+        "=IFERROR(" & vbLf & _
+        "   " & SheetErrorStatusRangeName & "=""OK""," & vbLf & _
+        "   FALSE" & vbLf & _
+        ")"
     
     With IndexSheet.Range("ErrorCheckCol")
         .Cells(CurrentRow).Formula = IndexPageErrorCheckFormula
@@ -228,17 +273,40 @@ End Sub
 
 
 
-
 Private Function WorkbookErrorStatusFormula() As String
 
-    WorkbookErrorStatusFormula = "=IFERROR(" & Chr(10) & _
-    "      IF(" & Chr(10) & _
-    "              COUNTIFS(Index!ErrorCheckCol, FALSE)=0," & Chr(10) & _
-    "              ""OK""," & Chr(10) & _
-    "              ""Workbook error - see index tab""" & Chr(10) & _
-    "           )," & Chr(10) & _
-    "      ""Error checking not set""" & Chr(10) & _
-    ")"
+    WorkbookErrorStatusFormula = _
+        "=IFERROR(" & vbLf & _
+        "   IF(" & vbLf & _
+        "       COUNTIFS(Index!ErrorCheckCol, FALSE) <> 0," & vbLf & _
+        "      ""Workbook error - see index page""," & vbLf & _
+        "      ""OK""" & vbLf & _
+        "   )," & vbLf & _
+        "   ""Workbook error - see index page""" & vbLf & _
+        ")"
+
+End Function
+
+
+Private Function SheetErrorStatusFormula() As String
+
+    SheetErrorStatusFormula = _
+        "=IFERROR(" & vbLf & _
+        "   SWITCH(" & vbLf & _
+        "       TRUE," & vbLf & _
+        "       NOT(AND(" & vbLf & _
+        "           COUNTIFS(ErrorCheckColumns, FALSE) = 0," & vbLf & _
+        "           COUNTIFS(ErrorCheckRows, FALSE) = 0," & vbLf & _
+        "           SUMPRODUCT(--ISERROR(ErrorCheckColumns))=0," & vbLf & _
+        "           SumProduct(--IsError(ErrorCheckRows)) = 0" & vbLf & _
+        "       )), ""Sheet error check issue - see ranges ErrrorCheckColumns and ErrorCheckRows""," & vbLf & _
+        "       COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) = 0, ""This sheet heading / category combination does not appear on index tab""," & vbLf & _
+        "       COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) > 1, ""This sheet heading / category combination appears multiple times on index tab""," & vbLf & _
+        "       ""OK""" & vbLf & _
+        "   )," & vbLf & _
+        "   ""Sheet error""" & vbLf & _
+        ")"
+
 
 End Function
 

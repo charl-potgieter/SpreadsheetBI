@@ -2021,7 +2021,7 @@ Public Function MoveEmptyStringsToEndOfArray(InputArray As Variant) As Boolean
 '       IsArrayAllocated
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-Dim Temp As String
+Dim temp As String
 Dim Ndx As Long
 Dim Ndx2 As Long
 Dim NonEmptyNdx As Long
@@ -2210,7 +2210,7 @@ Public Function ReverseArrayInPlace(InputArray As Variant, _
 ' on arrays of objects. Use ReverseArrayOfObjectsInPlace to reverse an array of objects.
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-Dim Temp As Variant
+Dim temp As Variant
 Dim Ndx As Long
 Dim Ndx2 As Long
 
@@ -2263,9 +2263,9 @@ Ndx2 = UBound(InputArray)
 ''''''''''''''''''''''''''''''''''''''
 For Ndx = LBound(InputArray) To ((UBound(InputArray) - LBound(InputArray) + 1) \ 2)
     'swap the elements
-    Temp = InputArray(Ndx)
+    temp = InputArray(Ndx)
     InputArray(Ndx) = InputArray(Ndx2)
-    InputArray(Ndx2) = Temp
+    InputArray(Ndx2) = temp
     ' decrement the upper index
     Ndx2 = Ndx2 - 1
 Next Ndx
@@ -2289,7 +2289,7 @@ Public Function ReverseArrayOfObjectsInPlace(InputArray As Variant, _
 ' will occur if an element of the array is not an object.
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-Dim Temp As Variant
+Dim temp As Variant
 Dim Ndx As Long
 Dim Ndx2 As Long
 
@@ -2356,9 +2356,9 @@ Next Ndx
 ' the midpoint of InputArray
 ''''''''''''''''''''''''''''''''''''''
 For Ndx = LBound(InputArray) To ((UBound(InputArray) - LBound(InputArray) + 1) \ 2)
-    Set Temp = InputArray(Ndx)
+    Set temp = InputArray(Ndx)
     Set InputArray(Ndx) = InputArray(Ndx2)
-    Set InputArray(Ndx2) = Temp
+    Set InputArray(Ndx2) = temp
     ' decrement the upper index
     Ndx2 = Ndx2 - 1
 Next Ndx

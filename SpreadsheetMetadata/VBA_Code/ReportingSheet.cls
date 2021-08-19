@@ -51,8 +51,6 @@ Public Property Let Category(ByVal sCategory As String)
 End Property
 
 
-
-
 Public Property Get WorkbookErrorStatusFormula() As String
     WorkbookErrorStatusFormula = this.shtReport.Names("WorkbookErrorStatus").RefersToRange.Formula
 End Property
@@ -60,6 +58,16 @@ End Property
 
 Public Property Let WorkbookErrorStatusFormula(ByVal sFormula As String)
     this.shtReport.Names("WorkbookErrorStatus").RefersToRange.Formula = sFormula
+End Property
+
+
+Public Property Get SheetErrorStatusFormula() As String
+    SheetErrorStatusFormula = this.shtReport.Names("SheetErrorStatus").RefersToRange.Formula
+End Property
+
+
+Public Property Let SheetErrorStatusFormula(ByVal sFormula As String)
+    this.shtReport.Names("SheetErrorStatus").RefersToRange.Formula = sFormula
 End Property
 
 
@@ -197,7 +205,7 @@ Public Sub Create(ByVal wkb As Workbook, _
     SetRangeNames
     FormatSheet
     Me.Category = "Category"
-    Me.Heading = "Heading"
+    Me.Heading = "Heading - " & this.shtReport.Name
     
 End Sub
 
@@ -244,7 +252,7 @@ Public Function CreateFromExistingSheet(ByVal sht As Worksheet) As Boolean
         SetRangeNames
         FormatSheet
         If Me.Category = "" Then Me.Category = "Category"
-        If Me.Heading = "" Then Me.Heading = "Heading"
+        If Me.Heading = "" Then Me.Heading = "Heading - " & this.shtReport.Name
     End If
 
 End Function
@@ -310,6 +318,9 @@ Private Sub SetRangeNames()
             
         .Names.Add Name:="WorkbookErrorStatus", RefersTo:="=" & _
             .Range("Category").Offset(0, 4).Address
+            
+        .Names.Add Name:="SheetErrorStatus", RefersTo:="=" & _
+            .Range("Category").Offset(0, 8).Address
             
         .Names.Add Name:="ReturnToIndex", RefersTo:="=" & _
             .Range("Heading").Offset(1, 0).Address
@@ -379,8 +390,8 @@ Private Sub FormatSheet()
         .Range("Category").Font.Size = 8
 
         .Range("WorkbookErrorStatus").Font.Color = rgb(170, 170, 170)
+        .Range("SheetErrorStatus").Font.Color = rgb(170, 170, 170)
         .Range("ErrorCheckRows").Cells(1).Font.Bold = True
-
 
         .Range("HiddenWorkingRows").Interior.Color = rgb(217, 217, 217)
         .Range("HiddenWorkingColumns").Interior.Color = rgb(217, 217, 217)
@@ -399,21 +410,20 @@ Private Sub FormatSheet()
         .Range("Notes").Cells(3, 2).Value = "Hidden error checks in dark grey"
         .Range("Notes").Cells(2, 2).Font.Bold = True
         .Range("Notes").Cells(3, 2).Font.Bold = True
-        .Range("Notes").Cells(5, 2) = "Sheets ordered by categories"
-        .Range("Notes").Cells(6, 2) = "Category / report name combo appears once on index"
-        .Range("Notes").Cells(5, 7).Formula = "=COUNTIFS(Index!CategoryCol, Category) <= 1"
-        .Range("Notes").Cells(6, 7).Formula = "=COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) = 1"
 
         .Range("ErrorCheckRows").EntireRow.Hidden = True
         .Range("ErrorCheckColumns").EntireColumn.Hidden = True
         .Range("HiddenWorkingRows").EntireRow.Hidden = True
         .Range("HiddenWorkingColumns").EntireColumn.Hidden = True
 
+        SetErrorCellConditionalFormatting .Range("WorkbookErrorStatus")
+        SetErrorCellConditionalFormatting .Range("SheetErrorStatus")
+
         ActiveWindow.DisplayGridlines = False
         ActiveWindow.Zoom = 80
     End With
 
-    SetWorkbookErrorCellConditionalFormatting
+    
 
     'Reactivate the original active workbook
     wkbActivePriorToSub.Activate
@@ -459,16 +469,12 @@ End Sub
 
 
 
-Private Sub SetWorkbookErrorCellConditionalFormatting()
+Private Sub SetErrorCellConditionalFormatting(ByVal rng As Range)
 
 
-    Dim rng As Range
     Dim i As Integer
     Dim ErrorFormatCondition As FormatCondition
-    Dim ErrorCheckFormatConditionIsError As FormatCondition
-    Dim ErrorCheckFormatConditionNotSet As FormatCondition
     
-    Set rng = this.shtReport.Range("WorkbookErrorStatus")
     
     'Delete existing conditional formatting - needs to be done
     'in reverse order to prevent errors
@@ -476,18 +482,10 @@ Private Sub SetWorkbookErrorCellConditionalFormatting()
         rng.FormatConditions(i).Delete
     Next i
     
-    Set ErrorCheckFormatConditionNotSet = rng.FormatConditions.Add( _
-        Type:=xlCellValue, Operator:=xlEqual, Formula1:="=""Error checking not set""")
-    With ErrorCheckFormatConditionNotSet.Font
-        .Bold = True
-        .Italic = False
-        .Color = rgb(255, 122, 0)
-        .TintAndShade = 0
-    End With
 
-    Set ErrorCheckFormatConditionIsError = rng.FormatConditions.Add( _
-        Type:=xlCellValue, Operator:=xlEqual, Formula1:="=""Workbook error - see index tab""")
-    With ErrorCheckFormatConditionIsError.Font
+    Set ErrorFormatCondition = rng.FormatConditions.Add( _
+        Type:=xlCellValue, Operator:=xlNotEqual, Formula1:="OK")
+    With ErrorFormatCondition.Font
         .Bold = True
         .Italic = False
         .Color = rgb(255, 0, 0)
