@@ -90,7 +90,7 @@ Sub LoopSourceAndCopyToConsolSheet(ByVal ReportSheetSource As ReportingSheet, By
             rngStartOfConsolTable.PasteSpecial Paste:=xlPasteFormats
         Else
             Set rngPasteTarget = rngStartOfConsolTable.CurrentRegion _
-                .Offset(rngStartOfConsolTable.CurrentRegion.rows.Count, 0).Resize(1, 1)
+                .Offset(rngStartOfConsolTable.CurrentRegion.Rows.Count, 0).Resize(1, 1)
             loSource.DataBodyRange.Copy
             rngPasteTarget.PasteSpecial Paste:=xlPasteValues
             rngPasteTarget.PasteSpecial Paste:=xlPasteFormats

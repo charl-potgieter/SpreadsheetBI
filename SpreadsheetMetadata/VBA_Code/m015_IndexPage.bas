@@ -101,7 +101,7 @@ Private Sub FormatIndexSheet(ByRef sht As Worksheet)
         .Range("HiddenSheetNamesCol").Cells(5).Font.Bold = True
         .Range("HiddenCategoriesCol").Cells(5).Font.Bold = True
         
-        .rows("4:4").Select
+        .Rows("4:4").Select
         ActiveWindow.FreezePanes = True
         ActiveWindow.DisplayGridlines = False
         ActiveWindow.Zoom = 80

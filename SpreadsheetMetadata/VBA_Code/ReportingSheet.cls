@@ -245,8 +245,8 @@ Public Function CreateFromExistingSheet(ByVal sht As Worksheet) As Boolean
         Range(Columns(1), _
             Columns(NumberOfHiddenWorkingColumns + NumberOfErrorCheckColumns + 1)). _
             Insert xlShiftToRight
-        Range(rows(1), _
-            rows(NumberOfHiddenWorkingRows + NumberOfErrorCheckRows + 5)). _
+        Range(Rows(1), _
+            Rows(NumberOfHiddenWorkingRows + NumberOfErrorCheckRows + 5)). _
             Insert xlShiftDown
         Set this.shtReport = sht
         SetRangeNames

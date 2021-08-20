@@ -38,7 +38,7 @@ Sub GenerateMetadataFileWorksheets(ByRef wkb As Workbook, ByVal sFilePathAndName
                     sRowToWrite = sRowToWrite & _
                         sht.ListObjects(1).Name & "|" & _
                         sht.ListObjects(1).HeaderRowRange.Columns.Count & "|" & _
-                        sht.ListObjects(1).Range.rows.Count & "|" & _
+                        sht.ListObjects(1).Range.Rows.Count & "|" & _
                         sht.ListObjects(1).HeaderRowRange.Cells(1).Address
                 Else
                     sRowToWrite = sRowToWrite & "||"
@@ -147,7 +147,7 @@ Sub GenerateMetadataFileListObjectValues(ByRef wkb As Workbook, ByVal sFilePathA
             If Err.Number = 0 And sht.ListObjects.Count = 1 Then
                 For i = 1 To lo.HeaderRowRange.Columns.Count
                     If Not (lo.ListColumns(i).DataBodyRange.Cells(1).HasFormula) Then
-                        For j = 1 To lo.DataBodyRange.rows.Count
+                        For j = 1 To lo.DataBodyRange.Rows.Count
                             sRowToWrite = vbCr & _
                                 sht.Name & "|" & _
                                 lo.Name & "|" & _

@@ -80,7 +80,7 @@ Public Property Get NumberOfRecords(Optional bFiltered As Boolean = False) As Lo
 
     On Error Resume Next
 
-    NumberOfRecords = SelectedListObject(bFiltered).DataBodyRange.rows.Count
+    NumberOfRecords = SelectedListObject(bFiltered).DataBodyRange.Rows.Count
     
     If Err.Number <> 0 Then
         'There is no databodyrange
@@ -177,7 +177,7 @@ Public Function InsertFromDictionary(InsertValues As Dictionary) As Boolean
     If bKeysAreValid Then
         InsertFromDictionary = True
         AddOneRowToListObject this.ListObj
-        i = this.ListObj.DataBodyRange.rows.Count
+        i = this.ListObj.DataBodyRange.Rows.Count
         For Each key In InsertValues.Keys
             this.ListObj.ListColumns(key).DataBodyRange(i) = InsertValues.item(key)
         Next key
@@ -203,7 +203,7 @@ Public Function Filter(ByVal sFilterString As String, Optional bSorted As Boolea
     '(there is notging to filter)
     If this.ListObj.DataBodyRange Is Nothing Then
         If Not (this.FilteredListObj.DataBodyRange Is Nothing) Then
-            this.FilteredListObj.DataBodyRange.rows.Delete
+            this.FilteredListObj.DataBodyRange.Rows.Delete
         End If
         Exit Function
     End If
@@ -249,7 +249,7 @@ Public Sub ReplaceDataWithFilteredData()
 'Filtered List object is cleared
     
     If Not this.ListObj.DataBodyRange Is Nothing Then
-        this.ListObj.DataBodyRange.rows.Delete
+        this.ListObj.DataBodyRange.Rows.Delete
     End If
     
     If Not (this.FilteredListObj.DataBodyRange Is Nothing) Then
@@ -257,7 +257,7 @@ Public Sub ReplaceDataWithFilteredData()
         this.FilteredListObj.DataBodyRange.Copy
         this.ListObj.DataBodyRange.Cells(1).PasteSpecial xlPasteValues
         Application.CutCopyMode = False
-        this.FilteredListObj.DataBodyRange.rows.Delete
+        this.FilteredListObj.DataBodyRange.Rows.Delete
     End If
     
 
@@ -511,7 +511,7 @@ Public Sub AddFieldValidationList(ByVal sFieldName As String, sValidationList As
 
     'Ensure databody range exists
     On Error Resume Next
-    TestCount = this.ListObj.DataBodyRange.rows.Count
+    TestCount = this.ListObj.DataBodyRange.Rows.Count
     If Err.Number <> 0 Then AddOneRowToListObject this.ListObj
 
     With this.ListObj.ListColumns(sFieldName).DataBodyRange.Validation
@@ -533,7 +533,7 @@ Private Sub AddOneRowToListObject(lo As ListObject)
         lo.HeaderRowRange.Cells(1).Offset(1, 0) = " "
         lo.HeaderRowRange.Cells(1).Offset(1, 0).ClearContents
     Else
-        lo.Resize lo.Range.Resize(lo.Range.rows.Count + 1)
+        lo.Resize lo.Range.Resize(lo.Range.Rows.Count + 1)
     End If
     On Error GoTo 0
     

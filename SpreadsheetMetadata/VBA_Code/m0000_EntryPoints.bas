@@ -532,7 +532,7 @@ Sub CreateDataModelRelationships()
     StandardEntry
     Set mdl = ActiveWorkbook.Model
     Set lo = ActiveWorkbook.Sheets("Model_Relationships").ListObjects(1)
-    For i = 1 To lo.DataBodyRange.rows.Count
+    For i = 1 To lo.DataBodyRange.Rows.Count
         sForeignKeyTable = lo.ListColumns("Foreign Key Table").DataBodyRange.Cells(i)
         sForeignKeyCol = lo.ListColumns("Foreign Key Column").DataBodyRange.Cells(i)
         sPrimaryKeyTable = lo.ListColumns("Primary Key Table").DataBodyRange.Cells(i)
@@ -656,7 +656,7 @@ Sub GeneratePowerQueryTable()
         "    tbl = Table.FromRecords({" & vbCrLf
 
     'Table from records portion of power query
-    For i = 1 To lo.DataBodyRange.rows.Count
+    For i = 1 To lo.DataBodyRange.Rows.Count
         For j = 1 To lo.HeaderRowRange.Cells.Count
             If j = 1 Then
                 sQueryText = sQueryText & "        ["
@@ -665,13 +665,13 @@ Sub GeneratePowerQueryTable()
                 lo.HeaderRowRange.Cells(j) & " = """ & lo.ListColumns(j).DataBodyRange.Cells(i) & """"
             If j <> lo.HeaderRowRange.Cells.Count Then
                 sQueryText = sQueryText & ", "
-            ElseIf i <> lo.DataBodyRange.rows.Count Then
+            ElseIf i <> lo.DataBodyRange.Rows.Count Then
                 sQueryText = sQueryText & "], " & vbCrLf
             Else
                 sQueryText = sQueryText & "]" & vbCrLf
             End If
         Next j
-        If i = lo.DataBodyRange.rows.Count Then
+        If i = lo.DataBodyRange.Rows.Count Then
             sQueryText = sQueryText & "        }), " & vbCrLf & vbCrLf
         End If
     Next i
@@ -996,3 +996,39 @@ Attribute ToggleErrorCheckRangeVisbilityOnSelectedSheets.VB_ProcData.VB_Invoke_F
     StandardExit
     
 End Sub
+
+
+
+Sub IndexPageNavigation()
+Attribute IndexPageNavigation.VB_ProcData.VB_Invoke_Func = "I\n14"
+
+    Dim wkb As Workbook
+    Dim TargetSheetName As String
+    Dim TargetSheet As Worksheet
+
+    Set wkb = ActiveWorkbook
+
+    Select Case True
+    
+        Case ActiveSheet.Name <> "Index" And SheetExists(wkb, "Index")
+            Sheets("Index").Activate
+            On Error Resume Next
+            On Error GoTo 0
+            
+        Case Selection.Rows.Count <> 1
+            'Do Nothing
+        
+        Case wkb.Sheets("Index").Range("HiddenSheetNamesCol").Cells(Selection.Row) = ""
+            'Do Nothing
+            
+        Case Else
+            On Error Resume Next
+            TargetSheetName = wkb.Sheets("Index").Range("HiddenSheetNamesCol").Cells(Selection.Row)
+            Set TargetSheet = wkb.Sheets(TargetSheetName)
+            TargetSheet.Activate
+            On Error GoTo 0
+            
+    End Select
+
+End Sub
+

@@ -9,7 +9,7 @@ Sub TestResize()
     Set rng = ActiveSheet.Range(Columns(4), Columns(7))
     rng.Select
 
-    Set rng = rng.Resize(rng.rows.Count - 3, rng.Columns.Count).Offset(3, 0)
+    Set rng = rng.Resize(rng.Rows.Count - 3, rng.Columns.Count).Offset(3, 0)
 
     rng.Select
 

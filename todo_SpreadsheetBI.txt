@@ -2,34 +2,6 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
-On each reporting sheet
- - maybe seperate
-   * Grey shaded error checks (already done)
-   * Workbook level error check single cell
-      i)  Links to grey shading with error override
-      ii) checks existince on index sheet
-      iii) check only one case on index sheet
-      iv) Add an additional column on index sheet to pick up above (cannot be in same column as will cause circular reference issues)
-
-=IFERROR(
-   SWITCH(
-       TRUE,
-       NOT(AND(
-              COUNTIFS(ErrorCheckColumns, FALSE) = 0,
-              COUNTIFS(ErrorCheckRows, FALSE) = 0,
-              SUMPRODUCT(--ISERROR(ErrorCheckColumns))=0,
-              SUMPRODUCT(--ISERROR(ErrorCheckRows))=0
-       )), "Sheet error check issue - see ranges ErrrorCheckColumns and ErrorCheckRows",
-       COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) = 0, "This sheet heading / category combination does not appear on index tab",
-       COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) > 1, "This sheet heading / category combination appears multiple times on index tab",
-       "OK"
-),
-"Sheet error"
-)
-       
-
-
-
 Create a shortcut key to navigate to and from the index page
 
 Should I consider protecting the reportingsheets?
@@ -41,7 +13,7 @@ Replace various subs with my standard VBA library from gitub
  - Note that some of the subs in SpreadsheetBI\General are now included in zLIB_SundryUtilities
 
 Create code that pulls standard vba modules and class modules from github into the active workbook.
- - Use this in the Lamba Manager code especially ListStorage
+ - Use this in the Lambda Manager code especially ListStorage
 
 Remove the VBA code import and Export from SpreadsheetBI - move to CodeManager add in
 
