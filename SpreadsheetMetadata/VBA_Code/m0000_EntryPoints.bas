@@ -1032,3 +1032,27 @@ Attribute IndexPageNavigation.VB_ProcData.VB_Invoke_Func = "I\n14"
 
 End Sub
 
+
+
+Sub CreateRefencedPowerQueriesInActiveWorkbook()
+
+    Dim FilePaths() As String
+    Dim i As Integer
+    Dim fso As New FileSystemObject
+    Dim FileNameExcludingExtension As String
+    Dim wkb As Workbook
+    Dim QueryText As String
+    Dim QueryName As String
+    
+    Set wkb = ActiveWorkbook
+    GetPowerQueryFileNamesFromUser FilePaths
+    For i = LBound(FilePaths) To UBound(FilePaths)
+        QueryName = fso.GetBaseName(FilePaths(i))
+        QueryText = PowerQueryReferencedToTextFile(FilePaths(i))
+        wkb.Queries.Add QueryName, QueryText
+    Next i
+
+    MsgBox ("Queries created")
+
+End Sub
+

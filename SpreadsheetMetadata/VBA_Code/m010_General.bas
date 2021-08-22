@@ -247,3 +247,51 @@ Function GetDataValidationFromRangeReference(ByVal rngSingleCell As Range) As Va
 
 End Function
 
+
+
+
+Sub GetPowerQueryFileNamesFromUser(ByRef FilePaths() As String)
+
+    Dim sPowerQueryFilePath As String
+    Dim sPowerQueryName As String
+    Dim fDialog As FileDialog
+    Dim fso As FileSystemObject
+    Dim i As Integer
+
+    Set fDialog = Application.FileDialog(msoFileDialogFilePicker)
+
+    With fDialog
+        .AllowMultiSelect = True
+        .Title = "Select power query / queries"
+        .InitialFileName = ThisWorkbook.Path
+        .Filters.Clear
+        .Filters.Add "m Power Query Files", "*.m"
+    End With
+
+    'fDialog.Show value of -1 below means success
+    If fDialog.Show = -1 Then
+        ReDim Preserve FilePaths(0 To fDialog.SelectedItems.Count - 1)
+        For i = 0 To fDialog.SelectedItems.Count - 1
+            FilePaths(i) = fDialog.SelectedItems(i + 1)
+        Next i
+    End If
+
+End Sub
+
+
+Function PowerQueryReferencedToTextFile(ByVal FileName As String) As String
+
+    PowerQueryReferencedToTextFile = _
+        "let" & vbLf & _
+        "   FileName = ""<FileName>""," & vbLf & _
+        "   Binary = File.Contents(FileName)," & vbLf & _
+        "   QueryText = Text.FromBinary(Binary)," & vbLf & _
+        "   Output = Expression.Evaluate(QueryText, #shared)" & vbLf & _
+        "in" & vbLf & _
+        "   Output"
+
+    PowerQueryReferencedToTextFile = Replace(PowerQueryReferencedToTextFile, _
+        "<FileName>", FileName)
+
+End Function
+

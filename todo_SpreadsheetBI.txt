@@ -2,18 +2,49 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
-Create a shortcut key to navigate to and from the index page
+Create a sub to select and create power queries (shared reference - not imported) from selected files
 
-Should I consider protecting the reportingsheets?
+Refer Sub CreateRefencedPowerQueries()
 
-There is still an old General/FormatSheet sub that is being called in other subs in SpreadsheetBI.  Rework these calling subs to use the ReportingSheet class and get rid of the FormatShet sub
+Consider
+ - Create sub to loop all queries and refresh
+    *  ActiveWorkbook.Connections("Query - ContosoFinanceData").Refresh
+    *  When queries are looped load to sheet for specified queries.
+    *  Kill connection and save sheet as a new file
+    *  See sub ExportQueryResults below
+    * Also save down any sheets with powerpivot results in seperate workbooks
+
+
+        Sub ExportQueryResults
+
+            Application.CutCopyMode = False
+            ActiveWorkbook.Connections("Query - ContosoFinanceData").Refresh
+            ActiveWorkbook.Worksheets.Add
+            With ActiveSheet.ListObjects.Add(SourceType:=4, Source:=ActiveWorkbook. _
+                Connections("Query - ContosoFinanceData"), Destination:=Range("$A$1")). _
+                TableObject
+                .RowNumbers = False
+                .PreserveFormatting = True
+                .RefreshStyle = 1
+                .AdjustColumnWidth = True
+                .ListObject.DisplayName = "ContosoFinanceData"
+                .Refresh
+            End With
+            ActiveSheet.ListObjects("ContosoFinanceData").Unlink
+            Sheets("ContosoFinanceData").Select
+            Sheets("ContosoFinanceData").Move
+            
+        End Sub
+
 
 
 Replace various subs with my standard VBA library from gitub
  - Note that some of the subs in SpreadsheetBI\General are now included in zLIB_SundryUtilities
 
-Create code that pulls standard vba modules and class modules from github into the active workbook.
- - Use this in the Lambda Manager code especially ListStorage
+Should I consider protecting the reportingsheets?
+
+There is still an old General/FormatSheet sub that is being called in other subs in SpreadsheetBI.  Rework these calling subs to use the ReportingSheet class and get rid of the FormatShet sub
+
 
 Remove the VBA code import and Export from SpreadsheetBI - move to CodeManager add in
 
