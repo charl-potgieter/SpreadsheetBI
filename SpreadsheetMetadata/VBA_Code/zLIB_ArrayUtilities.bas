@@ -1,6 +1,7 @@
-Attribute VB_Name = "m900_ArraySupport"
+Attribute VB_Name = "zLIB_ArrayUtilities"
 Option Explicit
 Option Compare Text
+
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '       This module is a copy of that per cpearson.com website - details below
@@ -2021,7 +2022,7 @@ Public Function MoveEmptyStringsToEndOfArray(InputArray As Variant) As Boolean
 '       IsArrayAllocated
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-Dim temp As String
+Dim Temp As String
 Dim Ndx As Long
 Dim Ndx2 As Long
 Dim NonEmptyNdx As Long
@@ -2210,7 +2211,7 @@ Public Function ReverseArrayInPlace(InputArray As Variant, _
 ' on arrays of objects. Use ReverseArrayOfObjectsInPlace to reverse an array of objects.
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-Dim temp As Variant
+Dim Temp As Variant
 Dim Ndx As Long
 Dim Ndx2 As Long
 
@@ -2263,9 +2264,9 @@ Ndx2 = UBound(InputArray)
 ''''''''''''''''''''''''''''''''''''''
 For Ndx = LBound(InputArray) To ((UBound(InputArray) - LBound(InputArray) + 1) \ 2)
     'swap the elements
-    temp = InputArray(Ndx)
+    Temp = InputArray(Ndx)
     InputArray(Ndx) = InputArray(Ndx2)
-    InputArray(Ndx2) = temp
+    InputArray(Ndx2) = Temp
     ' decrement the upper index
     Ndx2 = Ndx2 - 1
 Next Ndx
@@ -2289,7 +2290,7 @@ Public Function ReverseArrayOfObjectsInPlace(InputArray As Variant, _
 ' will occur if an element of the array is not an object.
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-Dim temp As Variant
+Dim Temp As Variant
 Dim Ndx As Long
 Dim Ndx2 As Long
 
@@ -2356,9 +2357,9 @@ Next Ndx
 ' the midpoint of InputArray
 ''''''''''''''''''''''''''''''''''''''
 For Ndx = LBound(InputArray) To ((UBound(InputArray) - LBound(InputArray) + 1) \ 2)
-    Set temp = InputArray(Ndx)
+    Set Temp = InputArray(Ndx)
     Set InputArray(Ndx) = InputArray(Ndx2)
-    Set InputArray(Ndx2) = temp
+    Set InputArray(Ndx2) = Temp
     ' decrement the upper index
     Ndx2 = Ndx2 - 1
 Next Ndx

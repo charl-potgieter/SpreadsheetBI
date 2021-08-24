@@ -2,44 +2,24 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
-Create a sub to select and create power queries (shared reference - not imported) from selected files
-
-Refer Sub CreateRefencedPowerQueries()
-
-Consider
- - Create sub to loop all queries and refresh
-    *  ActiveWorkbook.Connections("Query - ContosoFinanceData").Refresh
-    *  When queries are looped load to sheet for specified queries.
-    *  Kill connection and save sheet as a new file
-    *  See sub ExportQueryResults below
-    * Also save down any sheets with powerpivot results in seperate workbooks
-
-
-        Sub ExportQueryResults
-
-            Application.CutCopyMode = False
-            ActiveWorkbook.Connections("Query - ContosoFinanceData").Refresh
-            ActiveWorkbook.Worksheets.Add
-            With ActiveSheet.ListObjects.Add(SourceType:=4, Source:=ActiveWorkbook. _
-                Connections("Query - ContosoFinanceData"), Destination:=Range("$A$1")). _
-                TableObject
-                .RowNumbers = False
-                .PreserveFormatting = True
-                .RefreshStyle = 1
-                .AdjustColumnWidth = True
-                .ListObject.DisplayName = "ContosoFinanceData"
-                .Refresh
-            End With
-            ActiveSheet.ListObjects("ContosoFinanceData").Unlink
-            Sheets("ContosoFinanceData").Select
-            Sheets("ContosoFinanceData").Move
-            
-        End Sub
+Mechanism for multi-tab spreadsheet to create power query data and save in individual files
+ - I could potentially run into Excel row limits
+ - Create a seperate pq function that calls each query based on a batch paramater
+    * add a batch col to each of the underlying queries
+    * with vba loop batch number paramater until table has no RowNumbers
+    * then export and combine with a command line call as per below or alternatively append with vba?
+ - https://officetricks.com/merge-multiple-files-to-one-file/
+ - https://www.itsupportguides.com/knowledge-base/office-2010/how-to-merge-multiple-csv-files-into-one-csv-file-using-cmd/
+ - Worth saving all data as text files in a stanard format with a side file for text type so it can be easily picked up in target spreadsheet?
 
 
 
-Replace various subs with my standard VBA library from gitub
- - Note that some of the subs in SpreadsheetBI\General are now included in zLIB_SundryUtilities
+Auto upload to power pivot when creating creating referenced power queries
+
+Broaden the idea of an interim spreadsheet workings
+ - Save the pivots as values (e.g. where used for faster relationships)
+ - consolidate the creation of checks?
+ - Creation of consolidated outputs?
 
 Should I consider protecting the reportingsheets?
 

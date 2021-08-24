@@ -330,7 +330,7 @@ Sub FormatHeadings()
 
     'Set header colour
     With Selection.Interior
-        .Color = rgb(217, 225, 242)
+        .Color = RGB(217, 225, 242)
         .Pattern = xlSolid
     End With
 
@@ -1038,12 +1038,12 @@ Sub CreateRefencedPowerQueriesInActiveWorkbook()
 
     Dim FilePaths() As String
     Dim i As Integer
-    Dim fso As New FileSystemObject
-    Dim FileNameExcludingExtension As String
+    Dim fso As FileSystemObject
     Dim wkb As Workbook
     Dim QueryText As String
     Dim QueryName As String
     
+    Set fso = New FileSystemObject
     Set wkb = ActiveWorkbook
     GetPowerQueryFileNamesFromUser FilePaths
     For i = LBound(FilePaths) To UBound(FilePaths)
@@ -1053,6 +1053,41 @@ Sub CreateRefencedPowerQueriesInActiveWorkbook()
     Next i
 
     MsgBox ("Queries created")
+
+End Sub
+
+
+Sub CreateDataSheetsFromQueries()
+
+    Dim qry As WorkbookQuery
+    Dim SourceWkb As Workbook
+    Dim SourceSht As Worksheet
+    Dim SourceRng As Range
+    Dim QueryPath As String
+    Dim QueryName As String
+    Dim Targetwkb As Workbook
+    Dim TargetFilePath As String
+    Dim i As Long
+    Dim lo As ListObject
+    
+    StandardEntry
+    Set SourceWkb = ActiveWorkbook
+    
+    For Each SourceSht In SourceWkb.Worksheets
+        Set SourceRng = SourceSht.Range("A1").CurrentRegion
+        For i = 1 To SourceRng.Rows.Count
+            QueryPath = SourceRng.Rows(i).Cells(1)
+            QueryName = FileNameFromPathExclExtension(QueryPath)
+            TargetFilePath = SourceRng.Rows(i).Cells(2)
+            Set Targetwkb = Application.Workbooks.Add
+            ImportOrRefreshSinglePowerQuery QueryPath, QueryName, Targetwkb
+            LoadPowerQueryToTable Targetwkb.Sheets(1), QueryName
+            Targetwkb.SaveAs TargetFilePath
+            Targetwkb.Close
+        Next i
+    Next SourceSht
+    StandardExit
+
 
 End Sub
 

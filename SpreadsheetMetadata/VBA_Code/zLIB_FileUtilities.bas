@@ -1,6 +1,7 @@
-Attribute VB_Name = "m030_FileUtilities"
+Attribute VB_Name = "zLIB_FileUtilities"
 Option Explicit
 Option Private Module
+
 '-----------------------------------------------------------------------------
 '   Requires reference to Microsoft Scripting runtime
 '-----------------------------------------------------------------------------
@@ -423,4 +424,71 @@ Sub DeleteFirstLineOfTextFile(ByVal sFilePathAndName As String)
     
     
 End Sub
+
+
+Function DownloadFileFromUrl(ByVal sUrl As String, ByVal sFilePathAndName As String, _
+    Optional bOverWriteFile As Boolean = False) As Boolean
+'https://stackoverflow.com/questions/17877389/how-do-i-download-a-file-using-vba-without-internet-explorer
+
+    Dim oStream
+    Dim iOverwriteParameter
+    Dim WinHttpReq As Object
+    
+    If bOverWriteFile = False Then
+        iOverwriteParameter = 1
+    Else
+        iOverwriteParameter = 2
+    End If
+    
+    On Error Resume Next
+    
+    Set WinHttpReq = CreateObject("Microsoft.XMLHTTP")
+    WinHttpReq.Open "GET", sUrl, False
+    WinHttpReq.send
+    
+    If WinHttpReq.Status = 200 Then
+        Set oStream = CreateObject("ADODB.Stream")
+        oStream.Open
+        oStream.Type = 1
+        oStream.Write WinHttpReq.responseBody
+        oStream.SaveToFile sFilePathAndName, iOverwriteParameter
+        oStream.Close
+    End If
+
+    DownloadFileFromUrl = (Err.Number = 0)
+    On Error GoTo 0
+
+End Function
+
+
+
+
+Function ConvertTextFileUnixToWindowsLineFeeds _
+    (sSourceFilePathAndName As String, Optional sTargetFilePathAndName As String = "") As Boolean
+'Inspired by : https://newtonexcelbach.com/2015/11/10/importing-text-files-unix-format/
+'*Nix operating systems utilise different line feeds in text files compared to Windows.
+'This function converts to Windows Format
+
+    Dim WholeLine As String
+    Dim iFileNo As Integer
+
+    'Get first free file number
+    iFileNo = FreeFile
+
+    If sTargetFilePathAndName = "" Then sTargetFilePathAndName = sSourceFilePathAndName
+    Open sSourceFilePathAndName For Input Access Read As #iFileNo
+
+    Line Input #iFileNo, WholeLine
+    If EOF(iFileNo) Then
+        WholeLine = Replace(WholeLine, vbLf, vbCrLf)
+        Close #iFileNo
+        Open sTargetFilePathAndName For Output Access Write As #iFileNo
+        Print #iFileNo, WholeLine
+        Close #iFileNo
+        ConvertTextFileUnixToWindowsLineFeeds = True
+    Else
+        ConvertTextFileUnixToWindowsLineFeeds = False
+    End If
+
+End Function
 

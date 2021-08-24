@@ -210,6 +210,11 @@ Sub CreatePopUpMenu()
     MenuItem.Caption = "Generate hard coded power query table"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "GeneratePowerQueryTable"
     
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Create power query referenced to text file"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateRefencedPowerQueriesInActiveWorkbook"
+    
+    
     
     'Other Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)

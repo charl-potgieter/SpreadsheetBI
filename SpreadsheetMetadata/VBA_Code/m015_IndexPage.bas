@@ -113,11 +113,11 @@ End Sub
 Sub CreateIndexSheetFormulas(ByVal IndexSheet As Worksheet)
 
     Dim ErrorCheckFormatCondition As FormatCondition
-    Dim temp As String
+    Dim Temp As String
 
     With IndexSheet.Range("CategoryCol").Cells(5)
         .Value = "No category duplicates (duplicates indicate out of order sheets)"
-        .Font.Color = rgb(170, 170, 170)
+        .Font.Color = RGB(170, 170, 170)
         .Font.Bold = False
     End With
 
@@ -130,16 +130,16 @@ Sub CreateIndexSheetFormulas(ByVal IndexSheet As Worksheet)
             " COUNTA(" & vbLf & _
             "    UNIQUE(FILTER(CategoryCol, NOT(ISBLANK(CategoryCol))))" & vbLf & _
             ")"
-        .Font.Color = rgb(170, 170, 170)
+        .Font.Color = RGB(170, 170, 170)
         Set ErrorCheckFormatCondition = .FormatConditions.Add( _
             Type:=xlCellValue, Operator:=xlEqual, Formula1:="=FALSE")
         ErrorCheckFormatCondition.Font.Bold = True
-        ErrorCheckFormatCondition.Font.Color = rgb(255, 0, 0)
+        ErrorCheckFormatCondition.Font.Color = RGB(255, 0, 0)
     End With
 
     With IndexSheet.Range("CategoryCol").Cells(6)
         .Value = "No duplicate category / report name combinations"
-        .Font.Color = rgb(170, 170, 170)
+        .Font.Color = RGB(170, 170, 170)
         .Font.Bold = False
     End With
     
@@ -153,11 +153,11 @@ Sub CreateIndexSheetFormulas(ByVal IndexSheet As Worksheet)
             "COUNTA(" & vbLf & _
             "    UNIQUE(Filter(HiddenCategoriesCol & ReportNamesCol, NOT(ISBLANK(ReportNamesCol))))" & vbLf & _
             ")"
-        .Font.Color = rgb(170, 170, 170)
+        .Font.Color = RGB(170, 170, 170)
         Set ErrorCheckFormatCondition = .FormatConditions.Add( _
             Type:=xlCellValue, Operator:=xlEqual, Formula1:="=FALSE")
         ErrorCheckFormatCondition.Font.Bold = True
-        ErrorCheckFormatCondition.Font.Color = rgb(255, 0, 0)
+        ErrorCheckFormatCondition.Font.Color = RGB(255, 0, 0)
     End With
     
 
@@ -262,11 +262,11 @@ Sub WriteReferenceToSheetErrorCheck(ByVal IndexSheet As Worksheet, _
     
     With IndexSheet.Range("ErrorCheckCol")
         .Cells(CurrentRow).Formula = IndexPageErrorCheckFormula
-        .Cells(CurrentRow).Font.Color = rgb(170, 170, 170)
+        .Cells(CurrentRow).Font.Color = RGB(170, 170, 170)
         Set ErrorCheckFormatCondition = .Cells(CurrentRow).FormatConditions.Add( _
             Type:=xlCellValue, Operator:=xlEqual, Formula1:="=FALSE")
         ErrorCheckFormatCondition.Font.Bold = True
-        ErrorCheckFormatCondition.Font.Color = rgb(255, 0, 0)
+        ErrorCheckFormatCondition.Font.Color = RGB(255, 0, 0)
     End With
 
 End Sub

@@ -2,54 +2,54 @@ Attribute VB_Name = "ZZZ_Testing"
 Option Explicit
 
 
-Sub TestResize()
+Sub TestAddQueriesToPowerPivot()
 
-    Dim rng As Range
+    Dim qry As WorkbookQuery
+    Dim wkb As Workbook
+        
+    Set wkb = ActiveWorkbook
     
-    Set rng = ActiveSheet.Range(Columns(4), Columns(7))
-    rng.Select
+    For Each qry In wkb.Queries
+    
+        wkb.Connections.Add2 _
+            Name:="Query - CalculationSource", _
+            Description:="Connection to the 'CalculationSource' query in the workbook.", _
+            ConnectionString:="OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=CalculationSource;Extended Properties=", _
+            CommandText:="""" & qry.Name & """", _
+            lCmdtype:=xlCmdTableCollection, _
+            CreateModelConnection:=True, _
+            ImportRelationShips:=False
+    
+    Next qry
 
-    Set rng = rng.Resize(rng.Rows.Count - 3, rng.Columns.Count).Offset(3, 0)
 
-    rng.Select
+
+'    Workbooks("Book3").Connections.Add2 "Query - CalculationSource", _
+'        "Connection to the 'CalculationSource' query in the workbook.", _
+'        "OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=CalculationSource;Extended Properties=" _
+'        , """CalculationSource""", 6, True, False
+
+
 
 End Sub
 
 
 
+Sub TestLoadQueryToTabl()
 
-Sub LoopThroughSelectedSheets()
-'To loop through all selected sheets in
-'the active workbook
-   
-   Dim sh As Object
-   Dim sht As Worksheet
-   
-   For Each sh In ActiveWindow.SelectedSheets
-    Set sht = sh
-   
-     Debug.Print sht.Name
-   Next sh
-End Sub
-
-
-Sub HelloWorld()
-    MsgBox ("Hello, World!")
-End Sub
-
-
-Sub TestAppOnTime()
+    Dim cn As WorkbookConnection
+    Dim qry As WorkbookQuery
     
-    Dim ScheduledTime As Double
+    For Each cn In ActiveWorkbook.Connections
+        If cn.Type = xlConnectionTypeOLEDB Then
+            Debug.Print cn.Name & " " & cn.Type & cn.OLEDBConnection.CommandText
+        End If
+    Next cn
     
-    ScheduledTime = Now + (1 / 24 / 60 / 60 * 30)
-    Application.OnTime ScheduledTime, "HelloWorld"
-    
+'
+'    For Each qry In ActiveWorkbook.Queries
+'        Debug.Print (qry)
+'    Next qry
 
 End Sub
-
-
-
-
-
 

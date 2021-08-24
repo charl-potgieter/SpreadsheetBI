@@ -83,7 +83,6 @@ Sub LoopSourceAndCopyToConsolSheet(ByVal ReportSheetSource As ReportingSheet, By
     
     For i = LBound(ValidationItems) To UBound(ValidationItems)
         SelectionCell.Value = ValidationItems(i)
-        WaitForCalc
         If i = 0 Then
             loSource.Range.Copy
             rngStartOfConsolTable.PasteSpecial Paste:=xlPasteValues

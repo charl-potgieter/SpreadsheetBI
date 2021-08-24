@@ -15,13 +15,13 @@ Const csPivotReportQueriesPerReport As String = "PivotReportingQueriesPerReport"
 '---------------------------------------------------------------------------------------
 
 Public Function AssignReportStructureStorage(ByRef wkb As Workbook, _
-    Optional bCreateIfNoneExists As Boolean = True) As ListStorage
+    Optional bCreateIfNoneExists As Boolean = True) As zLIB_ListStorage
 
-    Dim ls As ListStorage
+    Dim ls As zLIB_ListStorage
     Dim bStorageIsAssigned As Boolean
     Dim sHeaders(4) As String
     
-    Set ls = New ListStorage
+    Set ls = New zLIB_ListStorage
     bStorageIsAssigned = ls.AssignStorage(wkb, csReportMetaDataStorageName)
 
     Select Case True
@@ -43,13 +43,13 @@ End Function
 
 
 Public Function AssignPivotTableQueriesPerReport(ByRef wkb As Workbook, _
-    Optional bCreateIfNoneExists As Boolean = True) As ListStorage
+    Optional bCreateIfNoneExists As Boolean = True) As zLIB_ListStorage
 
-    Dim ls As ListStorage
+    Dim ls As zLIB_ListStorage
     Dim bStorageIsAssigned As Boolean
     Dim sHeaders(1) As String
 
-    Set ls = New ListStorage
+    Set ls = New zLIB_ListStorage
     bStorageIsAssigned = ls.AssignStorage(wkb, csPivotReportQueriesPerReport)
 
     Select Case True
@@ -78,7 +78,7 @@ Public Sub DeleteExistingReportData(ByRef vStorageObject As Variant, _
 'If there is any existing data in Listorage with same sReportName as report then this is deleted
 
     Dim sFilterString As String
-    Dim ls As ListStorage
+    Dim ls As zLIB_ListStorage
 
     Set ls = vStorageObject
 
@@ -100,7 +100,7 @@ Public Sub WriteReportData(ByRef vStorageObject As Variant, sReportType As Strin
     
     Dim DataRow As Dictionary
     Dim key As Variant
-    Dim ls As ListStorage
+    Dim ls As zLIB_ListStorage
     
     Set ls = vStorageObject
     For Each key In DataDictionary.Keys
@@ -127,7 +127,7 @@ Public Function ReadUniqueSortedReportCategories(ByRef vStorageObject As Variant
     Optional ByVal sReportType As String = "") As Variant
 'Returns a variant array of unique report categories
 
-    Dim ls As ListStorage
+    Dim ls As zLIB_ListStorage
     Dim sFilterStr As String
 
     Set ls = vStorageObject
@@ -155,7 +155,7 @@ Public Function ReadReportNames(ByRef vStorageObject As Variant, _
     Optional ByVal sCategory As String = "") As Variant
 'Returns a variant array of all Reports, optionally filtered by ReportType
 
-    Dim ls As ListStorage
+    Dim ls As zLIB_ListStorage
     Dim sFilterStr As String
 
     Set ls = vStorageObject
@@ -188,7 +188,7 @@ Public Function ReadReportProperties(ByVal vStorageObject As Variant, _
     ByVal sDataType As String) As Dictionary
 
     Dim sFilterStr As String
-    Dim ls As ListStorage
+    Dim ls As zLIB_ListStorage
     Dim i As Long
     Dim NumberOfProperties As Long
     Dim Property As String
@@ -220,7 +220,7 @@ Public Function ReadQueriesForReportList(ByRef vStorageObject, _
 'Returns the queries to be retained in order to generate ReportList as a
 'one dimensional variant array
 
-    Dim ls As ListStorage
+    Dim ls As zLIB_ListStorage
     Dim sReportListStr As String
     Dim sFilterStr As String
     Dim i As Long

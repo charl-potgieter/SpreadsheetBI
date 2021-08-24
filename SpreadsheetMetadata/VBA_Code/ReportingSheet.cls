@@ -386,24 +386,24 @@ Private Sub FormatSheet()
         .Range("Heading").Font.Bold = True
         .Range("Heading").Font.Size = 16
 
-        .Range("Category").Font.Color = rgb(170, 170, 170)
+        .Range("Category").Font.Color = RGB(170, 170, 170)
         .Range("Category").Font.Size = 8
 
-        .Range("WorkbookErrorStatus").Font.Color = rgb(170, 170, 170)
-        .Range("SheetErrorStatus").Font.Color = rgb(170, 170, 170)
+        .Range("WorkbookErrorStatus").Font.Color = RGB(170, 170, 170)
+        .Range("SheetErrorStatus").Font.Color = RGB(170, 170, 170)
         .Range("ErrorCheckRows").Cells(1).Font.Bold = True
 
-        .Range("HiddenWorkingRows").Interior.Color = rgb(217, 217, 217)
-        .Range("HiddenWorkingColumns").Interior.Color = rgb(217, 217, 217)
-        .Range("ErrorCheckRows").Interior.Color = rgb(117, 117, 117)
-        .Range("ErrorCheckColumns").Interior.Color = rgb(117, 117, 117)
-        .Range("ErrorCheckRows").Font.Color = rgb(255, 255, 255)
-        .Range("ErrorCheckColumns").Font.Color = rgb(255, 255, 255)
+        .Range("HiddenWorkingRows").Interior.Color = RGB(217, 217, 217)
+        .Range("HiddenWorkingColumns").Interior.Color = RGB(217, 217, 217)
+        .Range("ErrorCheckRows").Interior.Color = RGB(117, 117, 117)
+        .Range("ErrorCheckColumns").Interior.Color = RGB(117, 117, 117)
+        .Range("ErrorCheckRows").Font.Color = RGB(255, 255, 255)
+        .Range("ErrorCheckColumns").Font.Color = RGB(255, 255, 255)
         .Range("ErrorCheckRows").Font.Bold = True
         .Range("ErrorCheckColumns").Font.Bold = True
             
-        .Range("Notes").Interior.Color = rgb(205, 225, 243)
-        .Range("Notes").Font.Color = rgb(0, 0, 0)
+        .Range("Notes").Interior.Color = RGB(205, 225, 243)
+        .Range("Notes").Font.Color = RGB(0, 0, 0)
         .Range("Notes").EntireColumn.ColumnWidth = 10
         .Range("Notes").BorderAround Weight:=xlThick
         .Range("Notes").Cells(2, 2).Value = "Hidden workings in light grey"
@@ -488,7 +488,7 @@ Private Sub SetErrorCellConditionalFormatting(ByVal rng As Range)
     With ErrorFormatCondition.Font
         .Bold = True
         .Italic = False
-        .Color = rgb(255, 0, 0)
+        .Color = RGB(255, 0, 0)
         .TintAndShade = 0
     End With
 

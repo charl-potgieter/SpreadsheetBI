@@ -1,4 +1,4 @@
-Attribute VB_Name = "m040_SundryUtilities"
+Attribute VB_Name = "zLIB_SundryUtilities"
 Option Explicit
 Option Private Module
 
@@ -11,6 +11,24 @@ Option Private Module
 Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal Index As Long) As Long
 Private Const SM_CXSCREEN As Long = 0
 Private Const SM_CYSCREEN As Long = 1
+
+
+
+Sub StandardEntry()
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculationManual
+    Application.DisplayAlerts = False
+End Sub
+
+
+Sub StandardExit()
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.CutCopyMode = False
+    Application.DisplayAlerts = True
+End Sub
 
 
 
@@ -37,8 +55,6 @@ Function SheetExists(wkb As Workbook, sSheetName As String) As Boolean
     On Error GoTo 0
     
 End Function
-
-
 
 
 
@@ -212,17 +228,84 @@ Function GetCellColour(rng As Range, Optional formatType As Integer = 0) As Vari
 End Function
 
 
-Sub WaitForCalc()
-'Scope is an application object e.g. sheet. workkook range
-'Note below link how a calculate can be applied to a single workbook / worksheet etc
-'https://docs.microsoft.com/en-us/office/vba/api/excel.application.calculate
-'https://stackoverflow.com/questions/11277034/wait-until-application-calculate-has-finished
-'https://docs.microsoft.com/en-us/office/vba/api/excel.application.calculatefullrebuild
 
 
-    Application.Calculate
-    Do Until Application.CalculationState <> xlCalculating
-    Loop
+Function GetCellFontColour(rng As Range, Optional formatType As Integer = 0) As Variant
 
-End Sub
+'https://stackoverflow.com/questions/24132665/return-rgb-values-from-range-interior-color-or-any-other-color-property?rq=1
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'   Function            Color
+'   Purpose             Determine the Font Color Of a Cell
+'   @Param rng          Range to Determine Background Color of
+'   @Param formatType   Default Value = 0
+'                       0   Integer
+'                       1   Hex
+'                       2   RGB
+'                       3   Excel Color Index
+'   Usage               Color(A1)      -->   9507341
+'                       Color(A1, 0)   -->   9507341
+'                       Color(A1, 1)   -->   91120D
+'                       Color(A1, 2)   -->   13, 18, 145
+'                       Color(A1, 3)   -->   6
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+    Dim colorVal As Variant
+    colorVal = Cells(rng.Row, rng.Column).Font.Color
+    Select Case formatType
+        Case 1
+            GetCellFontColour = Hex(colorVal)
+        Case 2
+            GetCellFontColour = (colorVal Mod 256) & ", " & ((colorVal \ 256) Mod 256) & ", " & (colorVal \ 65536)
+        Case 3
+            GetCellFontColour = Cells(rng.Row, rng.Column).Interior.ColorIndex
+        Case Else
+            GetCellFontColour = colorVal
+    End Select
+End Function
+
+
+
+
+
+Function GetDataValidationFromRangeReference(ByVal rngSingleCell As Range) As Variant
+'Returns a variant array of data validation items for rngSingleCell
+'rngSingleCell must contain a list validation
+    
+    Dim bValidationListIsRange
+    Dim rngValidationReference
+    Dim sValidationFormula As String
+    Dim SplitStringArray As Variant
+    Dim ReturnValue() As Variant
+    Dim i As Long
+    
+    On Error Resume Next
+    sValidationFormula = rngSingleCell.Validation.Formula1
+    If Err.Number <> 0 Then
+        GetDataValidationFromRangeReference = Nothing
+        Exit Function
+    End If
+    
+    Set rngValidationReference = Range(Replace(sValidationFormula, "=", ""))
+    bValidationListIsRange = (Err.Number = 0)
+    On Error GoTo 0
+
+    If bValidationListIsRange Then
+        ReDim ReturnValue(0 To (rngValidationReference.Cells.Count - 1))
+        For i = LBound(ReturnValue) To UBound(ReturnValue)
+            ReturnValue(i) = rngValidationReference.Cells(i + 1)
+        Next i
+    Else
+        SplitStringArray = Split(sValidationFormula, ",")
+        ReDim ReturnValue(LBound(SplitStringArray) To UBound(SplitStringArray))
+        For i = LBound(SplitStringArray) To UBound(SplitStringArray)
+            ReturnValue(i) = SplitStringArray(i)
+        Next i
+    End If
+    
+    GetDataValidationFromRangeReference = ReturnValue
+
+End Function
+
+
 

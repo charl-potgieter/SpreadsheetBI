@@ -116,7 +116,7 @@ Sub LoadQueryToDataModel(ByVal sQueryName As String, Optional wkb As Workbook)
             CommandText:=sQueryName, _
             lCmdtype:=6, _
             CreateModelConnection:=True, _
-            ImportRelationships:=False
+            ImportRelationShips:=False
     End If
             
 End Sub
@@ -522,11 +522,7 @@ ExitPoint:
 End Sub
 
 
-Sub test()
 
-    WriteModelRelationshipsToPipeDelimitedFile Workbooks("Temp.xlsx"), "C:\Users\charl\Dropbox\Dropbox_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\TestRelationships.txt"
-
-End Sub
 
 
 Sub GetModelMeasures(ByRef wkb As Workbook, ByRef aModelMeasures() As TypeModelMeasures)
@@ -927,8 +923,8 @@ Sub CreateTableGeneratorSheet(ByRef wkb As Workbook)
     sht.Range("B7") = "Query Name"
     sht.Range("C7") = "TestTable"
     sht.Range("B7").Font.Bold = True
-    sht.Range("C7,B9:F9").Interior.Color = rgb(242, 242, 242)
-    sht.Range("C7,B9:F9").Font.Color = rgb(0, 112, 192)
+    sht.Range("C7,B9:F9").Interior.Color = RGB(242, 242, 242)
+    sht.Range("C7,B9:F9").Font.Color = RGB(0, 112, 192)
     sht.Range("B9:F9").HorizontalAlignment = xlCenter
     sht.Range("B9:F9") = "type text"
     
@@ -953,4 +949,113 @@ Sub CreateTableGeneratorSheet(ByRef wkb As Workbook)
 End Sub
 
 
+
+Sub GetPowerQueryFileNamesFromUser(ByRef FilePaths() As String)
+
+    Dim sPowerQueryFilePath As String
+    Dim sPowerQueryName As String
+    Dim fDialog As FileDialog
+    Dim fso As FileSystemObject
+    Dim i As Integer
+    Dim LatestSelectedFilePath As String
+
+    Set fDialog = Application.FileDialog(msoFileDialogFilePicker)
+
+    With fDialog
+        .AllowMultiSelect = True
+        .Title = "Select power query / queries"
+        .InitialFileName = ThisWorkbook.Path
+        .Filters.Clear
+        .Filters.Add "m Power Query Files", "*.m"
+        .InitialFileName = ThisWorkbook.Names("LastUsedDirReferencedPowerQueries"). _
+            RefersToRange.Value
+    End With
+
+    'fDialog.Show value of -1 below means success
+    If fDialog.Show = -1 Then
+        ReDim Preserve FilePaths(0 To fDialog.SelectedItems.Count - 1)
+        For i = 0 To fDialog.SelectedItems.Count - 1
+            FilePaths(i) = fDialog.SelectedItems(i + 1)
+        Next i
+    End If
+
+    Set fso = New FileSystemObject
+    LatestSelectedFilePath = fso.GetParentFolderName(fDialog.SelectedItems(1))
+    ThisWorkbook.Names("LastUsedDirReferencedPowerQueries").RefersToRange.Value = LatestSelectedFilePath
+    ThisWorkbook.Save
+
+End Sub
+
+
+Function PowerQueryReferencedToTextFile(ByVal FileName As String) As String
+
+    PowerQueryReferencedToTextFile = _
+        "let" & vbLf & _
+        "   FileName = ""<FileName>""," & vbLf & _
+        "   Binary = File.Contents(FileName)," & vbLf & _
+        "   QueryText = Text.FromBinary(Binary)," & vbLf & _
+        "   Output = Expression.Evaluate(QueryText, #shared)" & vbLf & _
+        "in" & vbLf & _
+        "   Output"
+
+    PowerQueryReferencedToTextFile = Replace(PowerQueryReferencedToTextFile, _
+        "<FileName>", FileName)
+
+End Function
+
+
+Function GetConnectionFromPowerQueryName(ByVal wkb As Workbook, ByVal PowerQueryName As String) As WorkbookConnection
+
+    Dim cn As WorkbookConnection
+    Dim i As Integer
+    Dim MatchFound As Boolean
+    
+    MatchFound = False
+    i = 1
+    
+    Do While i <= wkb.Connections.Count And Not MatchFound
+        Set cn = wkb.Connections(i)
+        If cn.Type = xlConnectionTypeOLEDB Then
+            If cn.OLEDBConnection.CommandText = """" & PowerQueryName & """" Then
+                Set GetConnectionFromPowerQueryName = cn
+                MatchFound = True
+            End If
+        End If
+        i = i + 1
+    Loop
+    
+End Function
+
+
+
+
+Sub LoadPowerQueryToTable(ByVal TargetSht As Worksheet, ByVal QueryName As String)
+
+    Dim QryTable As QueryTable
+    Dim lo As ListObject
+    Dim SourceString As String
+    Dim CommandString As String
+
+    SourceString = "OLEDB;" & _
+        "Provider=Microsoft.Mashup.OleDb.1;" & _
+        "Data Source=$Workbook$;" & _
+        "Location=" & QueryName & ";" & _
+        "Extended Properties="""""
+        
+    CommandString = "SELECT * FROM [" & QueryName & "]"
+    
+    Set lo = TargetSht.ListObjects.Add( _
+        SourceType:=xlSrcExternal, _
+        Source:=SourceString, _
+        Destination:=Range("$A$1"))
+    
+    
+    
+    With lo.QueryTable
+        .CommandType = xlCmdSql
+        .CommandText = Array(CommandString)
+        .Refresh BackgroundQuery:=False
+    End With
+    
+End Sub
 

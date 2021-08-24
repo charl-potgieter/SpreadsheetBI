@@ -2,14 +2,14 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "ListStorage"
+Attribute VB_Name = "zLIB_ListStorage"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 '@Folder "Storage"
-
+'
 
 'Use "This" declaration as an easy way to get intellisense to the classes private variables
 'https://rubberduckvba.wordpress.com/2020/02/27/vba-classes-gateway-to-solid/
@@ -21,13 +21,13 @@ Private Type TypeListStorage
 End Type
 Private this As TypeListStorage
 
-Public Enum lsSortOrder  'ls = ListStorage
+Public Enum lsSortOrder  'ls = zLIB_ListStorage
     lsAsc = 1
     lsDesc = -1
 End Enum
 
 
-Public Function CreateStorage(ByRef wkb As Workbook, ByVal sName As String, Headings() As String) As Boolean
+Public Function CreateStorage(ByRef wkb As Workbook, ByVal sName As String, Headings As Variant) As Boolean
 'Does nothing and returns FALSE if sheet or listobject already exist
 'Creates a new sheet named "sName" and listobject named "tbl_sName" in wkb and returns TRUE
     
@@ -45,6 +45,11 @@ Public Function CreateStorage(ByRef wkb As Workbook, ByVal sName As String, Head
         
         Set this.FilteredListObj = CreateFilteredListStorageListObject(this.Sheet, Headings)
         FormatStorageListObject this.FilteredListObj
+        
+        
+        this.FilteredListObj.Range.Columns.Group
+        this.Sheet.Outline.ShowLevels ColumnLevels:=1
+        
     End If
 
 End Function
@@ -89,6 +94,12 @@ Public Property Get NumberOfRecords(Optional bFiltered As Boolean = False) As Lo
     On Error GoTo 0
     
 End Property
+
+Public Sub AddBlankRow()
+
+    AddOneRowToListObject this.ListObj
+
+End Sub
 
 
 Public Function ItemsInField(ByVal sFieldName As String, _
@@ -271,7 +282,7 @@ Public Function Xlookup(ByVal LookupValue As Variant, _
     Optional SearchMode As Integer = 1, _
     Optional ByVal bFiltered As Boolean = False) As Variant
 
-'Replicates Xlookup on the liststorage, either original or filtered data depending on value of
+'Replicates Xlookup on the zLIB_ListStorage, either original or filtered data depending on value of
 'the bFiltered parameter.  Table name does not need to be specified for example
 'Xlookup([a], [b], [c]) becomes Xlookup(tbl_TableName[a], tbl_TableName[b], tbl_TableName[c])
 'Null is returned when optional parameter IfNotFound is missing and xlookup is not found
@@ -321,8 +332,28 @@ Public Function Xlookup(ByVal LookupValue As Variant, _
 End Function
 
 
+Public Function Delete() As Boolean
 
-Function StorageAlreadyExists(ByRef wkb As Workbook, ByVal sName As String) As Boolean
+    On Error Resume Next
+    this.Sheet.Delete
+    Delete = (Err.Number = 0)
+    On Error Resume Next
+
+End Function
+
+
+Public Function ListObj() As ListObject
+    Set ListObj = this.ListObj
+End Function
+
+
+Public Function FilteredListObj() As ListObject
+    Set FilteredListObj = this.FilteredListObj
+End Function
+
+
+
+Public Function StorageAlreadyExists(ByRef wkb As Workbook, ByVal sName As String) As Boolean
 
     Dim sht As Worksheet
     Dim sTestSheet As String
@@ -347,6 +378,28 @@ Function StorageAlreadyExists(ByRef wkb As Workbook, ByVal sName As String) As B
         
 
 End Function
+
+
+Public Function IsEmpty() As Boolean
+
+    Dim test As Double
+    On Error Resume Next
+    test = this.ListObj.DataBodyRange.Rows.Count
+    IsEmpty = (Err.Number <> 0)
+    On Error GoTo 0
+    
+
+End Function
+
+
+Public Sub ClearData()
+
+    On Error Resume Next 'In event there is no databody range
+    this.ListObj.DataBodyRange.Rows.Delete
+    On Error GoTo 0
+
+End Sub
+
 
 
 Private Function CreateListStorageSheet(ByRef wkb As Workbook, ByVal sName As String) As Worksheet
@@ -383,20 +436,15 @@ Private Sub FormatListStorageSheet(ByRef sht As Worksheet)
     
     With sht.Range("SheetCategory")
         .Value = "List Storage"
-        .Font.Color = rgb(170, 170, 170)
+        .Font.Color = RGB(170, 170, 170)
         .Font.Size = 8
     End With
-    
-    'Freeze Panes
-    sht.Activate
-    ActiveWindow.SplitRow = 7
-    ActiveWindow.FreezePanes = True
 
 
 End Sub
 
 
-Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings() As String) As ListObject
+Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings As Variant) As ListObject
 
     Dim i As Integer
     Const iTableRowStart As Integer = 7
@@ -415,7 +463,6 @@ Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings() 
     'example which will be correctly saved as strings with below setting.
     lo.Range.EntireColumn.NumberFormat = "@"
     
-    sht.Cells(iTableRowStart - 2, iTableColStart).Value = "Original List"
     sht.Cells(iTableRowStart - 2, iTableColStart).Font.Bold = True
     
     Set CreateListStorageListObject = lo
@@ -423,7 +470,7 @@ Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings() 
 End Function
 
 
-Private Function CreateFilteredListStorageListObject(ByRef sht As Worksheet, Headings() As String) As ListObject
+Private Function CreateFilteredListStorageListObject(ByRef sht As Worksheet, Headings As Variant) As ListObject
 
     Dim i As Integer
     Const iTableRowStart As Integer = 7
@@ -450,6 +497,7 @@ Private Function CreateFilteredListStorageListObject(ByRef sht As Worksheet, Hea
     sht.Cells(iTableRowStart - 2, iTableColStart).Value = "Filtered List"
     sht.Cells(iTableRowStart - 2, iTableColStart).Font.Bold = True
     
+
     Set CreateFilteredListStorageListObject = lo
 
 End Function
@@ -470,8 +518,8 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
     
     'Set Header Format
     With sty.TableStyleElements(xlHeaderRow)
-        .Interior.Color = rgb(68, 114, 196)
-        .Font.Color = rgb(255, 255, 255)
+        .Interior.Color = RGB(68, 114, 196)
+        .Font.Color = RGB(255, 255, 255)
         .Font.Bold = True
         .Borders.item(xlEdgeTop).LineStyle = xlSolid
         .Borders.item(xlEdgeTop).Weight = xlMedium
@@ -480,8 +528,8 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
     End With
 
     'Set row stripe format
-    sty.TableStyleElements(xlRowStripe1).Interior.Color = rgb(217, 217, 217)
-    sty.TableStyleElements(xlRowStripe2).Interior.Color = rgb(255, 255, 255)
+    sty.TableStyleElements(xlRowStripe1).Interior.Color = RGB(217, 217, 217)
+    sty.TableStyleElements(xlRowStripe2).Interior.Color = RGB(255, 255, 255)
     
     'Set whole table bottom edge format
     sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).LineStyle = xlSolid
@@ -553,5 +601,16 @@ Private Function SelectedListObject(ByVal bFiltered) As ListObject
 
 End Function
  
+
+
+Private Sub Class_Terminate()
+   Set this.FilteredListObj = Nothing
+   Set this.ListObj = Nothing
+   Set this.Sheet = Nothing
+   Set this.wkb = Nothing
+End Sub
+
+
+
 
 
