@@ -2,29 +2,9 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
-Mechanism for multi-tab spreadsheet to create power query data and save in individual files
- - I could potentially run into Excel row limits
- - Create a seperate pq function that calls each query based on a batch paramater
-    * add a batch col to each of the underlying queries
-    * with vba loop batch number paramater until table has no RowNumbers
-    * then export and combine with a command line call as per below or alternatively append with vba?
- - https://officetricks.com/merge-multiple-files-to-one-file/
- - https://www.itsupportguides.com/knowledge-base/office-2010/how-to-merge-multiple-csv-files-into-one-csv-file-using-cmd/
- - Worth saving all data as text files in a stanard format with a side file for text type so it can be easily picked up in target spreadsheet?
-
-
-
-Auto upload to power pivot when creating creating referenced power queries
-
-Broaden the idea of an interim spreadsheet workings
- - Save the pivots as values (e.g. where used for faster relationships)
- - consolidate the creation of checks?
- - Creation of consolidated outputs?
-
 Should I consider protecting the reportingsheets?
 
 There is still an old General/FormatSheet sub that is being called in other subs in SpreadsheetBI.  Rework these calling subs to use the ReportingSheet class and get rid of the FormatShet sub
-
 
 Remove the VBA code import and Export from SpreadsheetBI - move to CodeManager add in
 

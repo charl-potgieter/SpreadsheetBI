@@ -1057,37 +1057,4 @@ Sub CreateRefencedPowerQueriesInActiveWorkbook()
 End Sub
 
 
-Sub CreateDataSheetsFromQueries()
-
-    Dim qry As WorkbookQuery
-    Dim SourceWkb As Workbook
-    Dim SourceSht As Worksheet
-    Dim SourceRng As Range
-    Dim QueryPath As String
-    Dim QueryName As String
-    Dim Targetwkb As Workbook
-    Dim TargetFilePath As String
-    Dim i As Long
-    Dim lo As ListObject
-    
-    StandardEntry
-    Set SourceWkb = ActiveWorkbook
-    
-    For Each SourceSht In SourceWkb.Worksheets
-        Set SourceRng = SourceSht.Range("A1").CurrentRegion
-        For i = 1 To SourceRng.Rows.Count
-            QueryPath = SourceRng.Rows(i).Cells(1)
-            QueryName = FileNameFromPathExclExtension(QueryPath)
-            TargetFilePath = SourceRng.Rows(i).Cells(2)
-            Set Targetwkb = Application.Workbooks.Add
-            ImportOrRefreshSinglePowerQuery QueryPath, QueryName, Targetwkb
-            LoadPowerQueryToTable Targetwkb.Sheets(1), QueryName
-            Targetwkb.SaveAs TargetFilePath
-            Targetwkb.Close
-        Next i
-    Next SourceSht
-    StandardExit
-
-
-End Sub
 
