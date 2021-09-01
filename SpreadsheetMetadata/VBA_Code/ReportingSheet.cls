@@ -198,6 +198,33 @@ Public Property Let Name(ByVal sName As String)
 End Property
 
 
+Public Property Let SheetFont(ByVal FontName As String)
+    this.shtReport.Cells.Font.Name = FontName
+End Property
+
+
+Public Property Let DefaultFontSize(ByVal DefaultSize As String)
+    this.shtReport.Cells.Font.Size = DefaultSize
+End Property
+
+
+Public Property Let ZoomPercentage(ByVal Pct As String)
+    this.shtReport.Activate
+    ActiveWindow.Zoom = Pct
+End Property
+
+
+Public Property Let HeadingFontColour(ByVal RgbArray)
+    this.shtReport.Range("Heading").Font.Color = RGB(RgbArray(0), RgbArray(1), RgbArray(2))
+End Property
+
+
+Public Property Let HeadingFontSize(ByVal FontSize As Integer)
+    this.shtReport.Range("Heading").Font.Size = FontSize
+End Property
+
+
+
 Public Sub Create(ByVal wkb As Workbook, _
     Optional ByVal lSheetPosition As Long = 0)
     
@@ -378,13 +405,10 @@ Private Sub FormatSheet()
     this.shtReport.Select
 
     With this.shtReport
-        .Cells.Font.Name = "Calibri"
-        .Cells.Font.Size = 11
         .DisplayPageBreaks = False
         .Columns(NumberOfHiddenWorkingColumns + NumberOfErrorCheckColumns + 1).ColumnWidth = 4
 
         .Range("Heading").Font.Bold = True
-        .Range("Heading").Font.Size = 16
 
         .Range("Category").Font.Color = RGB(170, 170, 170)
         .Range("Category").Font.Size = 8
@@ -420,7 +444,7 @@ Private Sub FormatSheet()
         SetErrorCellConditionalFormatting .Range("SheetErrorStatus")
 
         ActiveWindow.DisplayGridlines = False
-        ActiveWindow.Zoom = 80
+        
     End With
 
     

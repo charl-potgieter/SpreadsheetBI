@@ -61,7 +61,7 @@ Private Sub WriteDmvContent(ByVal dmvName As String, ByRef conn As ADODB.Connect
     Set rs = New ADODB.Recordset
     rs.ActiveConnection = conn
     
-    On Error GoTo ExitPoint
+    On Error GoTo Exitpoint
     rs.Open sSQL, conn, adOpenForwardOnly, adLockOptimistic
     On Error GoTo 0
     
@@ -91,7 +91,7 @@ Private Sub WriteDmvContent(ByVal dmvName As String, ByRef conn As ADODB.Connect
     
     iRowNum = iRowNum + 2
 
-ExitPoint:
+Exitpoint:
     Set rs = Nothing
 
 End Sub
@@ -100,7 +100,7 @@ End Sub
 Private Sub WriteFormatedCellValue(ByRef cell As Excel.Range, ByRef field As ADODB.field)
 ' Write and Format the value depending on the data type
 
-    On Error GoTo ExitPoint
+    On Error GoTo Exitpoint
     cell = field.Value
     
     Select Case field.Type
@@ -115,7 +115,7 @@ Private Sub WriteFormatedCellValue(ByRef cell As Excel.Range, ByRef field As ADO
             cell.NumberFormat = "#,##0.00"
     End Select
     
-ExitPoint:
+Exitpoint:
 
 End Sub
 

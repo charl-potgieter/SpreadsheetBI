@@ -63,6 +63,17 @@ Public Type TypeReportUserSelection
     NumberOfReportsForIndexGeneration As Integer
 End Type
 
+Public Type TypeReportSheetFormat
+    SheetFont As String
+    DefaultFontSize As Integer
+    ZoomPercentage As Integer
+    HeadingColourRed As Integer
+    HeadingColourGreen As Integer
+    HeadingColourBlue As Integer
+    HeadingFontSize As Integer
+End Type
+
+
 Public Const MaxInt As Integer = 32767
 Public Const cPR_MaxStorageRecords As Long = 1000000  'PR  = PowerReport
 Public Const csReportTypePivot As String = "Pivot"
@@ -261,11 +272,15 @@ End Sub
 
 
 Function InsertReportingSheetSheetIntoActiveWorkbook()
+    
     Dim ReportSht As ReportingSheet
+    Dim ReportSheetFormat As TypeReportSheetFormat
     
     StandardEntry
+    
     Set ReportSht = New ReportingSheet
-    ReportSht.Create ActiveWorkbook, ActiveSheet.Index
+    ReadSavedReportSheetFormat ReportSheetFormat
+    ApplyReportSheetFormatProperties ReportSht, ReportSheetFormat
     InsertIndexPage ActiveWorkbook
     ReportSht.Sheet.Activate
     ReportSht.DefaultCursorLocation.Select
@@ -277,10 +292,14 @@ End Function
 Sub ConvertActiveSheetToReportingSheet()
 
     Dim ReportSht As ReportingSheet
+    Dim ReportSheetFormat As TypeReportSheetFormat
+    
     Set ReportSht = New ReportingSheet
     
     StandardEntry
     ReportSht.CreateFromExistingSheet ActiveSheet
+    ReadSavedReportSheetFormat ReportSheetFormat
+    ApplyReportSheetFormatProperties ReportSht, ReportSheetFormat
     InsertIndexPage ActiveWorkbook
     ReportSht.Sheet.Activate
     StandardExit
@@ -557,12 +576,12 @@ Sub RunTableLooperOnActiveSheet()
     
     If Not bReportSheetAssigned Then
         MsgBox ("Not a valid sheet for table looping")
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
     
     If Not IsTableLooperSheet(ReportSheetSource.Sheet) Then
         MsgBox ("Not a valid sheet for table looping")
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
     
     Set ReportSheetConsol = InsertConsolLooperSheet(ReportSheetSource)
@@ -570,7 +589,7 @@ Sub RunTableLooperOnActiveSheet()
     FilterOutExcludedItems ReportSheetConsol
     SetLoopTableAndSheetFormat ReportSheetSource, ReportSheetConsol
 
-ExitPoint:
+Exitpoint:
     StandardExit
 
 End Sub
@@ -806,7 +825,7 @@ Sub CopyPowerQueriesFromWorkbook()
 
     'Exit sub  if no file is selected
     If fDialog.Show <> -1 Then
-       GoTo ExitPoint
+       GoTo Exitpoint
     End If
 
     sFilePathAndName = fDialog.SelectedItems(1)
@@ -815,7 +834,7 @@ Sub CopyPowerQueriesFromWorkbook()
 
     If sWorkbookName = ActiveWorkbook.Name Then
         MsgBox ("Cannot copy between 2 workbooks with the same name, exiting...")
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
 
 
@@ -845,7 +864,7 @@ Sub CopyPowerQueriesFromWorkbook()
     wkbTarget.Activate
     MsgBox ("Power Queries copied")
 
-ExitPoint:
+Exitpoint:
     StandardExit
 
 End Sub
@@ -910,7 +929,7 @@ Sub CreateReportFromMetadata()
     'Exit if no report metadata exists on active sheet
     If vStorageObjReportStructure Is Nothing Then
         MsgBox ("No report metadata exists on active sheet")
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
 
     UserReportSelection = GetUserReportSelection
@@ -919,7 +938,7 @@ Sub CreateReportFromMetadata()
 
     With UserReportSelection
         
-        If .SelectionMade = False Then GoTo ExitPoint
+        If .SelectionMade = False Then GoTo Exitpoint
 
         For i = LBound(.ReportList) To UBound(.ReportList)
             sReportName = .ReportList(i).ReportName
@@ -955,7 +974,7 @@ Sub CreateReportFromMetadata()
 
     End With
 
-ExitPoint:
+Exitpoint:
     StandardExit
 
 End Sub
@@ -1056,5 +1075,34 @@ Sub CreateRefencedPowerQueriesInActiveWorkbook()
 
 End Sub
 
+
+
+Sub SetReportSheetFormat()
+
+    Dim RptSheetFormat As TypeReportSheetFormat
+    Dim uf As ufReportShtFormat
+    Dim nm As Name
+    
+    StandardEntry
+    Set uf = New ufReportShtFormat
+    ReadSavedReportSheetFormat RptSheetFormat
+    PopulateUserFormWithSavedReportSheetFormats uf, RptSheetFormat
+    uf.Show
+     
+    GetReportSheetFormatFromUserForm uf, RptSheetFormat
+    If uf.UserCancelled Then
+        GoTo Exitpoint
+    End If
+    
+    WriteReportSheetFormatsToSheet RptSheetFormat
+    
+    
+Exitpoint:
+    Unload uf
+    Set uf = Nothing
+    ThisWorkbook.Save
+    StandardExit
+    
+End Sub
 
 

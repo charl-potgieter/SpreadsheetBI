@@ -69,7 +69,7 @@ Private Sub cbCancel_Click()
     Me.Hide
 End Sub
 
-Private Sub cbOK_Click()
+Private Sub cbOk_Click()
     Me.Hide
 End Sub
 

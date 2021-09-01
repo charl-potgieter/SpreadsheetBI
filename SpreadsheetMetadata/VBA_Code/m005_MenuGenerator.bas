@@ -114,6 +114,10 @@ Sub CreatePopUpMenu()
     MenuItem.Caption = "Headings"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatHeadings"
     
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Set default report sheet format"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "SetReportSheetFormat"
+    
     
     'Insert Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
