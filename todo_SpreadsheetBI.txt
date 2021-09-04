@@ -2,11 +2,26 @@ TODO
 ------- 
 Rebadge as XL Utilities and convert to an add in
 
-Create an option to update all report sheets based on new formats
+What is causing out of memory issues - is it worthwhile going through all subs and classes and set objects as nothing on exit?
+ - Looks like it is the insertindexsheet causing the issues
+   * Why goes this also take so long?
+ - https://stackoverflow.com/questions/14396998/how-to-clear-memory-to-prevent-out-of-memory-error-in-excel-vba
+  - Maybe start a clean file
+  - I am tempted to move all stored data into a listobject?
+     --> makes it easier to recreate file rather than messing around with range
+     names
+     --> Revisit my file creation from metadata
+     --> should I move this into XL_Developer
+     
+
 
 A return to index shape (rather than text) has advantage that it be set so that it doesnt print
+ - See ZZZ_Test
 
 The category and error checking on the spreadsheet clutters tabs a bit?  How to avoid without forgetting they are there adn accidentally deleting?
+ - could move category into a name (not linked to range)
+ - can move error checks into hidden section of workbook
+ - Set conditional formatting of heading to custom number format which displays certain text if the (hidden) error check cells are not ok
 
 
 Should I consider protecting the reportingsheets?
