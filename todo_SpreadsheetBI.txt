@@ -12,8 +12,6 @@ What is causing out of memory issues - is it worthwhile going through all subs a
      names
      --> Revisit my file creation from metadata
      --> should I move this into XL_Developer
-     
-
 
 A return to index shape (rather than text) has advantage that it be set so that it doesnt print
  - See ZZZ_Test
@@ -25,6 +23,14 @@ The category and error checking on the spreadsheet clutters tabs a bit?  How to 
 
 
 Should I consider protecting the reportingsheets?
+
+Maybe create a simple format sheet - seperate from Reporting Sheet
+ - all it does is 
+ * set no gridlines and 
+ * no page breaks and 
+ * large heading formats
+ * 80% window zoom
+ But does not set range names, categories etc
 
 There is still an old General/FormatSheet sub that is being called in other subs in SpreadsheetBI.  Rework these calling subs to use the ReportingSheet class and get rid of the FormatShet sub
 
