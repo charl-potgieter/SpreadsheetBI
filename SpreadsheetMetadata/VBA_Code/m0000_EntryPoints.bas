@@ -1,6 +1,4 @@
 Attribute VB_Name = "m0000_EntryPoints"
-'@Folder ("000_EntryPoints")
-
 Option Explicit
 
 Public Type TypeModelMeasures
@@ -31,53 +29,6 @@ Public Type TypeModelRelationship
     PrimaryKeyColumn As String
     Active As Boolean
 End Type
-
-'Utilised for saving data
-Public Type TypePowerReportStorageRecord
-    SheetName As String
-    Name As String
-    DataType As String
-    Property As String
-    Value As String
-    CubeFieldPosition As Variant
-End Type
-
-
-Public Enum EnumReportType
-    PowerPivotSource
-    ExcelTableOnly
-End Enum
-
-Public Type TypeReportRecord
-    ReportName As String
-    ReportType As EnumReportType
-End Type
-
-
-Public Type TypeReportUserSelection
-    SelectionMade As Boolean
-    ReportList() As TypeReportRecord
-    NumberOfSelectedReports As Long
-    SaveInNewWorkbook As Boolean
-    GenerateIndex As Boolean
-    NumberOfReportsForIndexGeneration As Integer
-End Type
-
-Public Type TypeReportSheetFormat
-    SheetFont As String
-    DefaultFontSize As Integer
-    ZoomPercentage As Integer
-    HeadingColourRed As Integer
-    HeadingColourGreen As Integer
-    HeadingColourBlue As Integer
-    HeadingFontSize As Integer
-End Type
-
-
-Public Const MaxInt As Integer = 32767
-Public Const cPR_MaxStorageRecords As Long = 1000000  'PR  = PowerReport
-Public Const csReportTypePivot As String = "Pivot"
-Public Const csReportTypeTable As String = "Table"
 
 
 Sub DisplayPopUpMenu()
@@ -269,37 +220,72 @@ Sub FormatOkError()
 
 End Sub
 
+Sub InsertIndexPageActiveWorkbook()
+    
+    Dim IndexSheet As Worksheet
+
+    StandardEntry
+    Set IndexSheet = InsertIndexPage(ActiveWorkbook)
+    IndexSheet.Activate
+    IndexSheet.Range("DefaultCursorLocation").Select
+    Set IndexSheet = Nothing
+    StandardExit
+
+End Sub
 
 
 Function InsertReportingSheetSheetIntoActiveWorkbook()
     
     Dim ReportSht As ReportingSheet
-    Dim ReportSheetFormat As TypeReportSheetFormat
-    
+    Dim wkb As Workbook
+    Dim ReportSheetFormat As Dictionary
+
     StandardEntry
-    
+
+    Set wkb = ActiveWorkbook
     Set ReportSht = New ReportingSheet
-    ReadSavedReportSheetFormat ReportSheetFormat
-    ApplyReportSheetFormatProperties ReportSht, ReportSheetFormat
+    ReportSht.Create wkb, ActiveSheet.Index
+    
+    Set ReportSheetFormat = GetSavedReportSheetFormat
+    ReportSht.SheetFont = ReportSheetFormat.item("Sheet font")
+    ReportSht.DefaultFontSize = ReportSheetFormat.item("Default font size")
+    ReportSht.ZoomPercentage = ReportSheetFormat.item("Zoom percentage")
+    ReportSht.HeadingFontColour = Array( _
+        ReportSheetFormat.item("Heading colour red (0 to 255)"), _
+        ReportSheetFormat.item("Heading colour green (0 to 255)"), _
+        ReportSheetFormat.item("Heading colour blue (0 to 255)"))
+    ReportSht.HeadingFontSize = ReportSheetFormat.item("Heading font size")
+    
     InsertIndexPage ActiveWorkbook
     ReportSht.Sheet.Activate
     ReportSht.DefaultCursorLocation.Select
+
+    Set wkb = Nothing
+    Set ReportSht = Nothing
     StandardExit
-    
+
 End Function
 
 
 Sub ConvertActiveSheetToReportingSheet()
 
     Dim ReportSht As ReportingSheet
-    Dim ReportSheetFormat As TypeReportSheetFormat
-    
-    Set ReportSht = New ReportingSheet
-    
+    Dim ReportSheetFormat As Dictionary
+
     StandardEntry
+    Set ReportSht = New ReportingSheet
+
     ReportSht.CreateFromExistingSheet ActiveSheet
-    ReadSavedReportSheetFormat ReportSheetFormat
-    ApplyReportSheetFormatProperties ReportSht, ReportSheetFormat
+    Set ReportSheetFormat = GetSavedReportSheetFormat
+    ReportSht.SheetFont = ReportSheetFormat.item("Sheet font")
+    ReportSht.DefaultFontSize = ReportSheetFormat.item("Default font size")
+    ReportSht.ZoomPercentage = ReportSheetFormat.item("Zoom percentage")
+    ReportSht.HeadingFontColour = Array( _
+        ReportSheetFormat.item("Heading colour red (0 to 255)"), _
+        ReportSheetFormat.item("Heading colour green (0 to 255)"), _
+        ReportSheetFormat.item("Heading colour blue (0 to 255)"))
+    ReportSht.HeadingFontSize = ReportSheetFormat.item("Heading font size")
+    
     InsertIndexPage ActiveWorkbook
     ReportSht.Sheet.Activate
     StandardExit
@@ -468,22 +454,6 @@ Sub ImportSelectedPowerQueries()
 End Sub
 
 
-Sub InsertIndexPageActiveWorkbook()
-    
-    Dim IndexSheet As Worksheet
-
-    StandardEntry
-    Set IndexSheet = InsertIndexPage(ActiveWorkbook)
-    IndexSheet.Activate
-    IndexSheet.Range("DefaultCursorLocation").Select
-
-    'InsertIndexPage_OUTDATED_ ActiveWorkbook
-
-    StandardExit
-End Sub
-
-
-
 Sub FormatPivotTableFlatten()
 
     Dim pvt As PivotTable
@@ -529,9 +499,6 @@ Sub FormatActiveTable()
     FormatTable ActiveCell.ListObject
 
 End Sub
-
-
-
 
 
 
@@ -719,85 +686,6 @@ Sub GeneratePowerQueryTable()
 End Sub
 
 
-
-Sub ExportVBAcodeExModuleName()
-'Exports VBA code into path of current workbook.  The module name is excluded so that the code
-'can simply be copied and pasted into the VBA ide, rather than imported.
-'Likely that this functionality will only be used for spreadsheets with only a single module of code
-
-    ExportVBAModules ActiveWorkbook, ActiveWorkbook.Path, True
-    MsgBox ("VBA Code exported")
-
-End Sub
-
-
-
-Sub GenerateSpreadsheetMetaData()
-
-'Generates selected spreadsheet data to allo the spreadsheet to be recreated
-'via VBA.
-'Aspects covered include:
-'   - Sheet names
-'   - Sheet category
-'   - Sheet heading
-'   - Table name
-'   - Number of table columns
-'   -  Listobject number format
-'   -  Listobject font colour
-
-    Dim sMetaDataRootPath As String
-    Dim sWorksheetStructurePath As String
-    Dim sPowerQueriesPath As String
-    Dim sVbaCodePath As String
-    Dim sDataModelPath As String
-
-    StandardEntry
-
-    sMetaDataRootPath = ActiveWorkbook.Path & Application.PathSeparator & "SpreadsheetMetadata"
-    sWorksheetStructurePath = sMetaDataRootPath & Application.PathSeparator & "WorksheetStructure"
-    sPowerQueriesPath = sMetaDataRootPath & Application.PathSeparator & "PowerQueries"
-    sVbaCodePath = sMetaDataRootPath & Application.PathSeparator & "VBA_Code"
-    sDataModelPath = sMetaDataRootPath & Application.PathSeparator & "DataModel"
-
-    'Rather ask user to manually delete rather than have risky folder deletions in VBA code
-    If FolderExists(sMetaDataRootPath) Then
-        MsgBox ("Manually delete " & sMetaDataRootPath & " before continuing.  Exiting")
-        Exit Sub
-    End If
-
-    'Create folders for storing metadata
-    CreateFolder sMetaDataRootPath
-    CreateFolder sWorksheetStructurePath
-    CreateFolder sPowerQueriesPath
-    CreateFolder sVbaCodePath
-    CreateFolder sDataModelPath
-
-    'Generate Worksheet structure metadata text files
-    GenerateMetadataFileWorksheets ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "MetadataWorksheets.txt"
-    GenerateMetadataFileListObjectFields ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "ListObjectFields.txt"
-    GenerateMetadataFileListObjectValues ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "ListObjectFieldValues.txt"
-    GenerateMetadataFileListObjectFormat ActiveWorkbook, sWorksheetStructurePath & Application.PathSeparator & "ListObjectFormat.txt"
-
-    'Generate power pivot data model text files
-    WriteModelMeasuresToPipeDelimtedText ActiveWorkbook, sDataModelPath & Application.PathSeparator & "Measures.txt"
-    WriteModelCalcColsToPipeDelimitedFile ActiveWorkbook, sDataModelPath & Application.PathSeparator & "CalculatedColumns.txt"
-    WriteModelColsToPipeDelimitedFile ActiveWorkbook, sDataModelPath & Application.PathSeparator & "Columns.txt"
-    WriteModelRelationshipsToPipeDelimitedFile ActiveWorkbook, sDataModelPath & Application.PathSeparator & "Relationships.txt"
-    WriteModelMeasuresToHumanReadableText ActiveWorkbook, sDataModelPath & Application.PathSeparator & "MeasuresHumanReadable.dax"
-
-    'Export VBA code
-    ExportVBAModules ActiveWorkbook, sVbaCodePath
-
-    'Export Power Queries
-    ExportPowerQueriesToFiles sPowerQueriesPath, ActiveWorkbook
-
-    MsgBox ("Metadata created")
-    StandardExit
-
-
-End Sub
-
-
 Sub CopyPowerQueriesFromWorkbook()
 'Copies power queries from selected workbook into active workbook
 
@@ -884,100 +772,6 @@ Sub TempDeleteAllPQ()
 End Sub
 
 
-
-Sub AssignPivotReportQueriesPerReportActiveWorkbook()
-'Utilsied as storage for saving of DAX tables (connections and queries) to be retained per
-'report.  If nothing is specified for report than all tables are retained
-
-    StandardEntry
-    Reporting_Data.AssignPivotTableQueriesPerReport ActiveWorkbook
-    StandardExit
-
-End Sub
-
-
-Sub SaveReportMetadataInActiveWorkbook()
-'Reads all report metadata from reports in active workbook and saves
-
-    StandardEntry
-    SaveReportingPowerPivotMetaData ActiveWorkbook
-    SaveReportingTableMetadata ActiveWorkbook
-    StandardExit
-
-End Sub
-
-
-Sub CreateReportFromMetadata()
-
-    Dim vStorageObjReportStructure As Variant
-    Dim vStorageObjQueriesForSelectedReports As Variant
-    Dim UserReportSelection As TypeReportUserSelection
-    Dim i As Long
-    Dim PwrPvtReport As ReportingPowerPivot
-    Dim TableReport As ReportingTable
-    Dim sReportName As String
-    Dim wkbSource As Workbook
-    Dim wkbTarget As Workbook
-    Dim sDaxTableQueryPath As String
-    Const csSubDirectory As String = "DaxTableQueries"
-
-    StandardEntry
-
-    Set vStorageObjReportStructure = AssignReportStructureStorage(ActiveWorkbook, False)
-    Set vStorageObjQueriesForSelectedReports = AssignPivotTableQueriesPerReport(ActiveWorkbook, False)
-
-    'Exit if no report metadata exists on active sheet
-    If vStorageObjReportStructure Is Nothing Then
-        MsgBox ("No report metadata exists on active sheet")
-        GoTo Exitpoint
-    End If
-
-    UserReportSelection = GetUserReportSelection
-    Set wkbSource = ActiveWorkbook
-    Set wkbTarget = AssignReportWorkbook(wkbSource, UserReportSelection.SaveInNewWorkbook)
-
-    With UserReportSelection
-        
-        If .SelectionMade = False Then GoTo Exitpoint
-
-        For i = LBound(.ReportList) To UBound(.ReportList)
-            sReportName = .ReportList(i).ReportName
-            Select Case .ReportList(i).ReportType
-                Case PowerPivotSource
-                    Set PwrPvtReport = New ReportingPowerPivot
-                    PwrPvtReport.CreateEmptyPowerPivotReport wkbTarget, sReportName
-                    DesignPowerPivotReportBasedOnStoredData _
-                        vStorageObjReportStructure, PwrPvtReport
-                Case ExcelTableOnly
-                    sDaxTableQueryPath = wkbSource.Path & Application.PathSeparator & _
-                        csSubDirectory & Application.PathSeparator & sReportName & ".dax"
-                    Set TableReport = New ReportingTable
-                    TableReport.CreateEmptyReportingTable wkbTarget, sReportName
-                    DesignPowerTableReportBasedOnStoredData vStorageObjReportStructure, _
-                        TableReport, sDaxTableQueryPath
-                    TableReport.ApplyColourFormatting
-            End Select
-        Next i
-
-        If .SaveInNewWorkbook Then
-            DeleteNonReportSheets wkbTarget, .ReportList
-            If Not vStorageObjQueriesForSelectedReports Is Nothing Then
-                DeleteUnusedDataModelTables vStorageObjQueriesForSelectedReports, wkbTarget, .ReportList
-            End If
-            If .GenerateIndex And (UBound(.ReportList) - LBound(.ReportList) + 1) _
-                >= .NumberOfReportsForIndexGeneration Then
-                    InsertIndexPage wkbTarget
-            End If
-
-            wkbTarget.Save
-        End If
-
-    End With
-
-Exitpoint:
-    StandardExit
-
-End Sub
 
 
 Sub ToggleErrorCheckRangeVisbilityOnSelectedSheets()
@@ -1076,33 +870,97 @@ Sub CreateRefencedPowerQueriesInActiveWorkbook()
 End Sub
 
 
-
 Sub SetReportSheetFormat()
 
-    Dim RptSheetFormat As TypeReportSheetFormat
-    Dim uf As ufReportShtFormat
-    Dim nm As Name
-    
+    Dim ReportSheetFormatStorage As zLIB_ListStorage
+    Dim wkbUserInput As Workbook
+    Dim UserInputSheet As Worksheet
+    Dim UserInputListObj As ListObject
+
     StandardEntry
-    Set uf = New ufReportShtFormat
-    ReadSavedReportSheetFormat RptSheetFormat
-    PopulateUserFormWithSavedReportSheetFormats uf, RptSheetFormat
-    uf.Show
-     
-    GetReportSheetFormatFromUserForm uf, RptSheetFormat
-    If uf.UserCancelled Then
-        GoTo Exitpoint
-    End If
+    Set ReportSheetFormatStorage = New zLIB_ListStorage
+    ReportSheetFormatStorage.AssignStorage ThisWorkbook, "ReportSheetFormat"
+
+    Set wkbUserInput = Application.Workbooks.Add
+    Set UserInputSheet = wkbUserInput.Sheets(1)
+    FormatSheet UserInputSheet
+    UserInputSheet.Range("SheetHeading") = "Report Sheet Formating --> Run 'Format->" & _
+        "Save default report sheet format"
+    UserInputSheet.Range("SheetCategory") = ""
     
-    WriteReportSheetFormatsToSheet RptSheetFormat
+    ReportSheetFormatStorage.ListObj.Range.Copy
+    UserInputSheet.Activate
+    UserInputSheet.Range("B5").PasteSpecial xlPasteValues
     
-    
+    Set UserInputListObj = UserInputSheet.ListObjects.Add(xlSrcRange, Range("$B$5").CurrentRegion, , xlYes)
+    FormatTable UserInputListObj
+    UserInputListObj.Name = "tbl_ReportSheetFormat"
+
+    ActiveWindow.WindowState = xlMaximized
+
 Exitpoint:
-    Unload uf
-    Set uf = Nothing
+    Set ReportSheetFormatStorage = Nothing
+    StandardExit
+
+End Sub
+
+
+Sub SaveReportSheetFormat()
+
+    Dim i As Integer
+    Dim ReportSheetFormatStorage As zLIB_ListStorage
+    Dim UserInputListObj As ListObject
+
+    StandardEntry
+    Set ReportSheetFormatStorage = New zLIB_ListStorage
+    ReportSheetFormatStorage.AssignStorage ThisWorkbook, "ReportSheetFormat"
+    Set UserInputListObj = ActiveWorkbook.Worksheets(1).ListObjects("tbl_ReportSheetFormat")
+    
+    For i = 1 To ReportSheetFormatStorage.NumberOfRecords
+        ReportSheetFormatStorage.ListObj.ListColumns("Value").DataBodyRange.Cells(i) = _
+            UserInputListObj.ListColumns("Value").DataBodyRange.Cells(i)
+    Next i
+
+    MsgBox ("Report sheet format updated")
+    
+    UserInputListObj.Parent.Parent.Close
+    
     ThisWorkbook.Save
     StandardExit
-    
+
 End Sub
+
+
+
+
+Function UpdateReportSheetFormatsInActiveWorkbook()
+    
+'    Dim wkb As Workbook
+'    Dim SheetActiveAtSubStart As Worksheet
+'    Dim sht As Worksheet
+'    Dim ReportSheet As ReportingSheet
+'    Dim ReportSheetAssigned As Boolean
+'    Dim RptSheetFormat As TypeReportSheetFormat
+'
+'    StandardEntry
+'    Set wkb = ActiveWorkbook
+'    Set SheetActiveAtSubStart = ActiveSheet
+'    ReadSavedReportSheetFormat RptSheetFormat
+'
+'    For Each sht In wkb.Worksheets
+'        Set ReportSheet = New ReportingSheet
+'        ReportSheetAssigned = ReportSheet.AssignExistingSheet(sht)
+'        If ReportSheetAssigned And (sht.Visible = xlSheetVisible) Then
+'            ApplyReportSheetFormat ReportSheet, RptSheetFormat
+'        End If
+'    Next sht
+'
+'    SheetActiveAtSubStart.Activate
+'    Set wkb = Nothing
+'    Set SheetActiveAtSubStart = Nothing
+'    StandardExit
+
+End Function
+
 
 

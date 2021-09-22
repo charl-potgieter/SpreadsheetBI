@@ -1,5 +1,6 @@
 Attribute VB_Name = "m015_IndexPage"
 Option Explicit
+Option Private Module
 
 
 Function InsertIndexPage(ByVal wkb As Workbook) As Worksheet
@@ -18,7 +19,7 @@ Function InsertIndexPage(ByVal wkb As Workbook) As Worksheet
     AddFirstAndLastSheets wkb
     CurrentRow = 5
     LastCapturedReportCategory = ""
-    
+
     For Each sht In wkb.Worksheets
         Set ReportSheet = New ReportingSheet
         ReportSheetAssigned = ReportSheet.AssignExistingSheet(sht)
@@ -32,15 +33,18 @@ Function InsertIndexPage(ByVal wkb As Workbook) As Worksheet
             ReportSheet.WorkbookErrorStatusFormula = WorkbookErrorStatusFormula
             ReportSheet.SheetErrorStatusFormula = SheetErrorStatusFormula
         End If
+        Set ReportSheet = Nothing
     Next sht
     
     IndexSheet.Activate
     IndexSheet.Range("DefaultCursorLocation").Select
     Set InsertIndexPage = IndexSheet
 
+    Set IndexSheet = Nothing
+    Set sht = Nothing
+    Set ReportSheet = Nothing
+
 End Function
-
-
 Private Function CreateIndexSheet(ByVal wkb As Workbook) As Worksheet
 
     Dim sht As Worksheet
@@ -51,6 +55,7 @@ Private Function CreateIndexSheet(ByVal wkb As Workbook) As Worksheet
     Set sht = wkb.Sheets.Add(Before:=wkb.Sheets(1))
     sht.Name = "Index"
     Set CreateIndexSheet = sht
+    Set sht = Nothing
 
 End Function
 
@@ -160,8 +165,8 @@ Sub CreateIndexSheetFormulas(ByVal IndexSheet As Worksheet)
         ErrorCheckFormatCondition.Font.Color = RGB(255, 0, 0)
     End With
     
-
-
+    Set ErrorCheckFormatCondition = Nothing
+    
 End Sub
 
 
@@ -185,17 +190,69 @@ Private Sub AddFirstAndLastSheets(ByVal wkb As Workbook)
     FirstSheet.Visible = xlSheetHidden
     LastSheet.Visible = xlSheetHidden
 
+    Set FirstSheet = Nothing
+    Set LastSheet = Nothing
+
 End Sub
 
 
 
 Sub CreateReturnToIndexLink(ByVal ReportSheet As ReportingSheet)
+    
+    Dim sht As Worksheet
+    Dim ReturnToIndexShape As Shape
+    
+    Set sht = ReportSheet.Sheet
+    On Error Resume Next
+    sht.Shapes("ReturnToIndex").Delete
+    On Error GoTo 0
 
-    ReportSheet.Sheet.Hyperlinks.Add _
-        Anchor:=ReportSheet.Sheet.Range("ReturnToIndex"), _
+    Set ReturnToIndexShape = sht.Shapes.AddShape( _
+        msoShapeRoundedRectangle, sht.Range("ReturnToIndex").Left, _
+        sht.Range("ReturnToIndex").Offset(1, 0).Top, _
+        100, 21)
+    
+    ReturnToIndexShape.Name = "ReturnToIndex"
+    
+    With ReturnToIndexShape.Fill
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorBackground1
+        .ForeColor.TintAndShade = 0
+        .ForeColor.RGB = RGB(240, 240, 240)
+        .Transparency = 0
+        .Solid
+    End With
+    
+    With ReturnToIndexShape.Line
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorText1
+        .ForeColor.TintAndShade = 0
+        .ForeColor.Brightness = 0
+        .Transparency = 0
+        .Weight = 0.5
+    End With
+    
+    With ReturnToIndexShape.TextFrame2.TextRange
+        .Text = "Return to index"
+        .Font.Fill.Visible = msoTrue
+        .Font.Fill.ForeColor.RGB = RGB(0, 0, 0)
+        .Font.Fill.Transparency = 0
+        .Font.Fill.Solid
+        .ParagraphFormat.FirstLineIndent = 0
+        .ParagraphFormat.Alignment = msoAlignLeft
+        .Font.Fill.Visible = msoTrue
+        .Font.Fill.ForeColor.RGB = RGB(0, 0, 0)
+        .Font.Fill.Transparency = 0
+        .Font.Fill.Solid
+        .Font.Size = 9
+    End With
+    
+    sht.Hyperlinks.Add Anchor:=ReturnToIndexShape, _
         Address:="", _
-        SubAddress:="Index!DefaultCursorLocation", _
-        TextToDisplay:="<Return to Index>"
+        SubAddress:="Index!DefaultCursorLocation"
+
+    Set ReturnToIndexShape = Nothing
+    Set sht = Nothing
 
 End Sub
 
@@ -268,6 +325,8 @@ Sub WriteReferenceToSheetErrorCheck(ByVal IndexSheet As Worksheet, _
         ErrorCheckFormatCondition.Font.Bold = True
         ErrorCheckFormatCondition.Font.Color = RGB(255, 0, 0)
     End With
+
+    Set ErrorCheckFormatCondition = Nothing
 
 End Sub
 

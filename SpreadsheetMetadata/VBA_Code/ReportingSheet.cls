@@ -208,7 +208,7 @@ Public Property Let DefaultFontSize(ByVal DefaultSize As String)
 End Property
 
 
-Public Property Let ZoomPercentage(ByVal Pct As String)
+Public Property Let ZoomPercentage(ByVal Pct As Double)
     this.shtReport.Activate
     ActiveWindow.Zoom = Pct
 End Property
@@ -336,24 +336,20 @@ Private Sub SetRangeNames()
             Range(Columns(NumberOfHiddenWorkingColumns + 1), _
             Columns(NumberOfHiddenWorkingColumns + NumberOfErrorCheckColumns)).Address
             
-        .Names.Add Name:="Category", RefersTo:="=" & .Cells( _
-            NumberOfHiddenWorkingRows + NumberOfErrorCheckRows + 1, _
-            NumberOfHiddenWorkingColumns + NumberOfErrorCheckColumns + 1).Address
+        .Names.Add Name:="SheetErrorStatus", RefersTo:="=$C$1"
+        .Names.Add Name:="WorkbookErrorStatus", RefersTo:="=$C$2"
+        .Names.Add Name:="Category", RefersTo:="=$C$3"
+        
         
         .Names.Add Name:="Heading", RefersTo:="=" & _
-            .Range("Category").Offset(1, 1).Address
-            
-        .Names.Add Name:="WorkbookErrorStatus", RefersTo:="=" & _
-            .Range("Category").Offset(0, 4).Address
-            
-        .Names.Add Name:="SheetErrorStatus", RefersTo:="=" & _
-            .Range("Category").Offset(0, 8).Address
+            .Cells(1, 1).Offset(NumberOfErrorCheckRows + NumberOfErrorCheckRows + 1, _
+            NumberOfHiddenWorkingRows + NumberOfHiddenWorkingColumns + 1).Address
             
         .Names.Add Name:="ReturnToIndex", RefersTo:="=" & _
             .Range("Heading").Offset(1, 0).Address
             
         .Names.Add Name:="DefaultCursorLocation", RefersTo:="=" & _
-            .Range("ReturnToIndex").Offset(1, 0).Address
+            .Range("Heading").Offset(-1, -1).Address
             
         .Names.Add Name:="Notes", RefersTo:="=" & _
             .Range(.Cells(1, 1), .Cells((NumberOfHiddenWorkingRows + NumberOfErrorCheckRows), _
@@ -430,8 +426,11 @@ Private Sub FormatSheet()
         .Range("Notes").Font.Color = RGB(0, 0, 0)
         .Range("Notes").EntireColumn.ColumnWidth = 10
         .Range("Notes").BorderAround Weight:=xlThick
-        .Range("Notes").Cells(2, 2).Value = "Hidden workings in light grey"
-        .Range("Notes").Cells(3, 2).Value = "Hidden error checks in dark grey"
+        .Range("Notes").Cells(1, 1).Value = "Sheet error status"
+        .Range("Notes").Cells(2, 1).Value = "Workbook error status"
+        .Range("Notes").Cells(3, 1).Value = "Category"
+        .Range("Notes").Cells(6, 1).Value = "Hidden workings in light grey"
+        .Range("Notes").Cells(7, 1).Value = "Hidden error checks in dark grey"
         .Range("Notes").Cells(2, 2).Font.Bold = True
         .Range("Notes").Cells(3, 2).Font.Bold = True
 
@@ -439,23 +438,60 @@ Private Sub FormatSheet()
         .Range("ErrorCheckColumns").EntireColumn.Hidden = True
         .Range("HiddenWorkingRows").EntireRow.Hidden = True
         .Range("HiddenWorkingColumns").EntireColumn.Hidden = True
-
-        SetErrorCellConditionalFormatting .Range("WorkbookErrorStatus")
-        SetErrorCellConditionalFormatting .Range("SheetErrorStatus")
-
-        ActiveWindow.DisplayGridlines = False
         
+        .Range("Category").Font.Color = RGB(0, 0, 255)
+        .Range("Category").Font.Bold = True
+        
+        SetErrorConditionalFormatting
+        ActiveWindow.DisplayGridlines = False
+                
     End With
-
-    
 
     'Reactivate the original active workbook
     wkbActivePriorToSub.Activate
+    
+    Set wkbReportWorkbook = Nothing
+    Set wkbActivePriorToSub = Nothing
     
 End Sub
 
 
 
+Private Sub SetErrorConditionalFormatting()
+
+    Dim HeadingCell As Range
+    Dim FormatConditionSheetError
+    Dim FormatConditionWorkbookError As FormatCondition
+    
+    Set HeadingCell = this.shtReport.Range("Heading")
+    HeadingCell.FormatConditions.Delete
+    
+    Set FormatConditionSheetError = HeadingCell.FormatConditions.Add( _
+        Type:=xlExpression, Formula1:="=SheetErrorStatus<>""OK""")
+    
+    With FormatConditionSheetError
+        .NumberFormat = """SHEET ERROR""; ""SHEET ERROR"";" & _
+            """SHEET ERROR""; ""SHEET ERROR"""
+        .Font.Bold = True
+        .Font.Italic = False
+        .Font.Color = RGB(255, 0, 0)
+        .Font.TintAndShade = 0
+    End With
+    
+    Set FormatConditionWorkbookError = HeadingCell.FormatConditions.Add( _
+        Type:=xlExpression, Formula1:="=WorkbookErrorStatus<>""OK""")
+    
+    With FormatConditionWorkbookError
+        .NumberFormat = """WORKBOOK ERROR""; ""WORKBOOK ERROR"";" & _
+            """WORKBOOK ERROR""; ""WORKBOOK ERROR"""
+        .Font.Bold = True
+        .Font.Italic = False
+        .Font.Color = RGB(255, 0, 0)
+        .Font.TintAndShade = 0
+    End With
+    
+    
+End Sub
 
 
 
@@ -493,28 +529,6 @@ End Sub
 
 
 
-Private Sub SetErrorCellConditionalFormatting(ByVal rng As Range)
-
-
-    Dim i As Integer
-    Dim ErrorFormatCondition As FormatCondition
-    
-    
-    'Delete existing conditional formatting - needs to be done
-    'in reverse order to prevent errors
-    For i = rng.FormatConditions.Count To 1 Step -1
-        rng.FormatConditions(i).Delete
-    Next i
-    
-
-    Set ErrorFormatCondition = rng.FormatConditions.Add( _
-        Type:=xlCellValue, Operator:=xlNotEqual, Formula1:="OK")
-    With ErrorFormatCondition.Font
-        .Bold = True
-        .Italic = False
-        .Color = RGB(255, 0, 0)
-        .TintAndShade = 0
-    End With
-
+Private Sub Class_Terminate()
+    Set this.shtReport = Nothing
 End Sub
-

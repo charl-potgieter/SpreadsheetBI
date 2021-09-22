@@ -115,8 +115,16 @@ Sub CreatePopUpMenu()
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatHeadings"
     
     Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Set default report sheet format"
+    MenuItem.Caption = "Update default report sheet format"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "SetReportSheetFormat"
+    
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Save default report sheet format"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "SaveReportSheetFormat"
+    
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Update report sheet formats in active workbook"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "UpdateReportSheetFormatsInActiveWorkbook"
     
     
     'Insert Menu
@@ -247,7 +255,9 @@ Sub CreatePopUpMenu()
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportVBAcodeExModuleName"
     
     
-
+    Set MenuCategory = Nothing
+    Set MenuSubcategory = Nothing
+    Set MenuItem = Nothing
     
     
 End Sub
