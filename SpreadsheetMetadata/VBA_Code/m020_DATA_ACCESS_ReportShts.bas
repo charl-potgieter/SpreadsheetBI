@@ -1,4 +1,4 @@
-Attribute VB_Name = "m001_DataAccess"
+Attribute VB_Name = "m020_DATA_ACCESS_ReportShts"
 Option Explicit
 Option Private Module
 
@@ -6,11 +6,11 @@ Option Private Module
 Function GetSavedReportSheetFormat() As Dictionary
 
     Dim i As Integer
-    Dim Storage As zLIB_ListStorage
+    Dim Storage As ListStorage
     Dim dict As Dictionary
     
     Set dict = New Dictionary
-    Set Storage = New zLIB_ListStorage
+    Set Storage = New ListStorage
     
     Storage.AssignStorage ThisWorkbook, "ReportSheetFormat"
     For i = 1 To Storage.NumberOfRecords

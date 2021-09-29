@@ -1,8 +1,8 @@
-Attribute VB_Name = "zLIB_SundryUtilities"
+Attribute VB_Name = "m800_UTILITIES_Sundry"
 Option Explicit
 Option Private Module
 
-'------------------------------------------------------------------------------
+'------------------------------------------------------------------------------x
 '    Requires reference to Microsoft Forms 2.0 object library
 '------------------------------------------------------------------------------
 
@@ -80,19 +80,6 @@ Function ActiveCellIsInPivotTable() As Boolean
     
 End Function
 
-
-Function QueryExists(ByVal sQryName As String, Optional wkb As Workbook) As Boolean
-
-    If wkb Is Nothing Then
-        Set wkb = ActiveWorkbook
-    End If
-    
-    On Error Resume Next
-    QueryExists = CBool(Len(wkb.Queries(sQryName).Name))
-    On Error GoTo 0
-    
-
-End Function
 
 
 
@@ -306,6 +293,7 @@ Function GetDataValidationFromRangeReference(ByVal rngSingleCell As Range) As Va
     GetDataValidationFromRangeReference = ReturnValue
 
 End Function
+
 
 
 

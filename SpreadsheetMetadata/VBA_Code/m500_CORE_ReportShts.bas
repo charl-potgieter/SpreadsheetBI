@@ -1,4 +1,4 @@
-Attribute VB_Name = "m015_IndexPage"
+Attribute VB_Name = "m500_CORE_ReportShts"
 Option Explicit
 Option Private Module
 
@@ -8,9 +8,11 @@ Function InsertIndexPage(ByVal wkb As Workbook) As Worksheet
     Dim IndexSheet As Worksheet
     Dim sht As Worksheet
     Dim ReportSheet As ReportingSheet
+    Dim Storage As ListStorage
     Dim LastCapturedReportCategory As String
     Dim CurrentRow As Long
     Dim ReportSheetAssigned As Boolean
+    Dim StorageAssigned As Boolean
     
     Set IndexSheet = CreateIndexSheet(wkb)
     SetIndexSheetRangeNames IndexSheet
@@ -24,14 +26,24 @@ Function InsertIndexPage(ByVal wkb As Workbook) As Worksheet
         Set ReportSheet = New ReportingSheet
         ReportSheetAssigned = ReportSheet.AssignExistingSheet(sht)
         If ReportSheetAssigned And (sht.Visible = xlSheetVisible) Then
-            CreateReturnToIndexLink ReportSheet
-            WriteCategoryName IndexSheet, ReportSheet, CurrentRow, LastCapturedReportCategory
-            WriteReportName IndexSheet, ReportSheet, CurrentRow
-            WriteHiddenSheetName IndexSheet, ReportSheet, CurrentRow
-            WriteHiddenCategoryName IndexSheet, ReportSheet, CurrentRow
+            CreateReturnToIndexLink ReportSheet.Sheet
+            WriteCategoryName IndexSheet, ReportSheet.Category, CurrentRow, LastCapturedReportCategory
+            WriteReportName IndexSheet, ReportSheet.Heading, ReportSheet.Name, CurrentRow
+            WriteHiddenSheetName IndexSheet, ReportSheet.Name, CurrentRow
+            WriteHiddenCategoryName IndexSheet, ReportSheet.Category, CurrentRow
             WriteReferenceToSheetErrorCheck IndexSheet, ReportSheet, CurrentRow
             ReportSheet.WorkbookErrorStatusFormula = WorkbookErrorStatusFormula
             ReportSheet.SheetErrorStatusFormula = SheetErrorStatusFormula
+        Else
+            Set Storage = New ListStorage
+            StorageAssigned = Storage.AssignStorage(sht.Parent, sht.Name)
+            If StorageAssigned Then
+                CreateReturnToIndexLink Storage.Sheet
+                WriteCategoryName IndexSheet, "ListStorage", CurrentRow, LastCapturedReportCategory
+                WriteReportName IndexSheet, Storage.Name, Storage.Name, CurrentRow
+                WriteHiddenSheetName IndexSheet, Storage.Name, CurrentRow
+                WriteHiddenCategoryName IndexSheet, "ListStorage", CurrentRow
+            End If
         End If
         Set ReportSheet = Nothing
     Next sht
@@ -45,6 +57,8 @@ Function InsertIndexPage(ByVal wkb As Workbook) As Worksheet
     Set ReportSheet = Nothing
 
 End Function
+
+
 Private Function CreateIndexSheet(ByVal wkb As Workbook) As Worksheet
 
     Dim sht As Worksheet
@@ -197,12 +211,10 @@ End Sub
 
 
 
-Sub CreateReturnToIndexLink(ByVal ReportSheet As ReportingSheet)
+Sub CreateReturnToIndexLink(ByVal sht As Worksheet)
     
-    Dim sht As Worksheet
     Dim ReturnToIndexShape As Shape
     
-    Set sht = ReportSheet.Sheet
     On Error Resume Next
     sht.Shapes("ReturnToIndex").Delete
     On Error GoTo 0
@@ -257,45 +269,45 @@ Sub CreateReturnToIndexLink(ByVal ReportSheet As ReportingSheet)
 End Sub
 
 
-Sub WriteCategoryName(ByVal IndexSheet As Worksheet, ByVal ReportSheet As ReportingSheet, _
+Sub WriteCategoryName(ByVal IndexSheet As Worksheet, ByVal SheetCategory As String, _
     ByRef CurrentRow As Long, ByRef LastCapturedReportCategory As String)
 
-    If ReportSheet.Category <> LastCapturedReportCategory Then
+    If SheetCategory <> LastCapturedReportCategory Then
         CurrentRow = CurrentRow + 3
-        LastCapturedReportCategory = ReportSheet.Category
-        IndexSheet.Range("CategoryCol").Cells(CurrentRow) = ReportSheet.Category
+        LastCapturedReportCategory = SheetCategory
+        IndexSheet.Range("CategoryCol").Cells(CurrentRow) = SheetCategory
     End If
 
 End Sub
 
 
-Sub WriteReportName(ByVal IndexSheet As Worksheet, ByVal ReportSheet As ReportingSheet, _
-    ByRef CurrentRow As Long)
+Sub WriteReportName(ByVal IndexSheet As Worksheet, ByVal SheetHeading As String, _
+    ByVal SheetName As String, ByRef CurrentRow As Long)
 
     CurrentRow = CurrentRow + 2
-    IndexSheet.Range("ReportNamesCol").Cells(CurrentRow) = ReportSheet.Heading
+    IndexSheet.Range("ReportNamesCol").Cells(CurrentRow) = SheetHeading
     ActiveSheet.Hyperlinks.Add _
         Anchor:=IndexSheet.Range("ReportNamesCol").Cells(CurrentRow), _
         Address:="", _
-        SubAddress:="'" & ReportSheet.Sheet.Name & "'" & "!DefaultCursorLocation"
+        SubAddress:="'" & SheetName & "'" & "!DefaultCursorLocation"
 
 End Sub
 
 
-Sub WriteHiddenSheetName(ByVal IndexSheet As Worksheet, ByVal ReportSheet As ReportingSheet, _
+Sub WriteHiddenSheetName(ByVal IndexSheet As Worksheet, ByVal SheetName As String, _
     ByRef CurrentRow As Long)
 
     'Write sheet name in hidden column (not used anymore but could change)
-    IndexSheet.Range("HiddenSheetNamesCol").Cells(CurrentRow) = ReportSheet.Sheet.Name
+    IndexSheet.Range("HiddenSheetNamesCol").Cells(CurrentRow) = SheetName
 
 End Sub
 
 
-Sub WriteHiddenCategoryName(ByVal IndexSheet As Worksheet, ByVal ReportSheet As ReportingSheet, _
+Sub WriteHiddenCategoryName(ByVal IndexSheet As Worksheet, ByVal SheetCategory As String, _
     ByRef CurrentRow As Long)
 
     'Write sheet name in hidden column (not used anymore but could change)
-    IndexSheet.Range("HiddenCategoriesCol").Cells(CurrentRow) = ReportSheet.Category
+    IndexSheet.Range("HiddenCategoriesCol").Cells(CurrentRow) = SheetCategory
 
 End Sub
 
@@ -368,9 +380,4 @@ Private Function SheetErrorStatusFormula() As String
 
 
 End Function
-
-
-
-
-
 

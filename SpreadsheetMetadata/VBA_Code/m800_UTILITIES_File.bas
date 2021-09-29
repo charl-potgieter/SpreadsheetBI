@@ -1,10 +1,11 @@
-Attribute VB_Name = "zLIB_FileUtilities"
+Attribute VB_Name = "m800_UTILITIES_File"
 Option Explicit
 Option Private Module
 
 '-----------------------------------------------------------------------------
 '   Requires reference to Microsoft Scripting runtime
 '-----------------------------------------------------------------------------
+'
 
 Function FolderExists(ByVal sFolderPath) As Boolean
 'Requires reference to Microsoft Scripting runtime
@@ -210,7 +211,7 @@ Function NumberOfFilesInFolder(ByVal sFolderPath As String) As Integer
 End Function
 
 
-Function GetFolder() As String
+Function GetFolder(Optional InitialPath As String = "") As String
 'Returns the results of a user folder picker
 
     Dim fldr As FileDialog
@@ -220,7 +221,11 @@ Function GetFolder() As String
     With fldr
         .Title = "Select a folder"
         .AllowMultiSelect = False
-        .InitialFileName = ActiveWorkbook.Path
+        If InitialPath <> "" Then
+            .InitialFileName = InitialPath
+        Else
+            .InitialFileName = ActiveWorkbook.Path
+        End If
         If .Show = -1 Then
             GetFolder = .SelectedItems(1)
         End If
@@ -489,6 +494,25 @@ Function ConvertTextFileUnixToWindowsLineFeeds _
     Else
         ConvertTextFileUnixToWindowsLineFeeds = False
     End If
+
+End Function
+
+
+
+Function GetBaseFileNamesInFolder(ByVal FolderPath As String, ByRef BaseFileNames() As String)
+
+    Dim FileItems() As Scripting.File
+    Dim i As Integer
+    Dim fso As Scripting.FileSystemObject
+
+    Set fso = New Scripting.FileSystemObject
+
+    FileItemsInFolder FolderPath, False, FileItems
+
+    ReDim BaseFileNames(LBound(FileItems) To UBound(FileItems))
+    For i = LBound(FileItems) To UBound(FileItems)
+        BaseFileNames(i) = fso.GetBaseName(FileItems(i).Name)
+    Next i
 
 End Function
 

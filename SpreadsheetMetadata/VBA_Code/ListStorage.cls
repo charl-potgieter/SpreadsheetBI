@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "zLIB_ListStorage"
+Attribute VB_Name = "ListStorage"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
@@ -12,16 +12,18 @@ Option Explicit
 '
 
 'Use "This" declaration as an easy way to get intellisense to the classes private variables
-'https://rubberduckvba.wordpress.com/2020/02/27/vba-classes-gateway-to-solid/
+'https://rubberduckvba.wordpress.com/2020/02/27/vba-classes-gateway-to-solid/\
+'
 Private Type TypeListStorage
     wkb As Workbook
     Sheet As Worksheet
     ListObj As ListObject
     FilteredListObj As ListObject
+    CreatedFromPowerQuery As Boolean
 End Type
 Private this As TypeListStorage
 
-Public Enum lsSortOrder  'ls = zLIB_ListStorage
+Public Enum lsSortOrder  'ls = ListStorage
     lsAsc = 1
     lsDesc = -1
 End Enum
@@ -50,6 +52,53 @@ Public Function CreateStorage(ByRef wkb As Workbook, ByVal sName As String, Head
         this.FilteredListObj.Range.Columns.Group
         this.Sheet.Outline.ShowLevels ColumnLevels:=1
         
+        this.CreatedFromPowerQuery = False
+        
+    End If
+
+End Function
+
+
+Public Function CreateStorageFromPowerQuery(ByVal wkb As Workbook, _
+    ByVal sName As String, ByVal PowerQueryName As String _
+    ) As Boolean
+
+    Dim Headings As Variant
+
+    If StorageAlreadyExists(wkb, sName) Or Not QueryExists(PowerQueryName) Then
+        CreateStorageFromPowerQuery = False
+    Else
+
+        this.CreatedFromPowerQuery = True
+        Set this.wkb = wkb
+        Set this.Sheet = CreateListStorageSheet(wkb, sName)
+        FormatListStorageSheet this.Sheet
+         
+        'Output the Power Query to a worksheet table
+        Set this.ListObj = this.Sheet.ListObjects.Add( _
+            SourceType:=0, _
+            Source:="OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=" & PowerQueryName & ";Extended Properties=""""", _
+            Destination:=Range("$B$5"))
+            
+        With this.ListObj
+            .QueryTable.CommandType = xlCmdSql
+            .QueryTable.CommandText = Array("SELECT * FROM [" & PowerQueryName & "]")
+            .QueryTable.Refresh BackgroundQuery:=False
+            .Name = "tbl_" & sName
+        End With
+
+        FormatStorageListObject this.ListObj
+
+        'Double transpose trick converts to a 1 dimensional array
+        'https://stackoverflow.com/questions/7649046/one-dimensional-array-from-excel-range/7651439
+        Headings = WorksheetFunction.Transpose( _
+            WorksheetFunction.Transpose(this.ListObj.HeaderRowRange))
+            
+        Set this.FilteredListObj = CreateFilteredListStorageListObject(this.Sheet, Headings)
+        FormatStorageListObject this.FilteredListObj
+        this.FilteredListObj.Range.Columns.Group
+        this.Sheet.Outline.ShowLevels ColumnLevels:=1
+
     End If
 
 End Function
@@ -68,7 +117,8 @@ Public Function AssignStorage(ByRef wkb As Workbook, ByVal sName As String) As B
     
     this.ListObj.ShowAutoFilter = True
     this.ListObj.AutoFilter.ShowAllData
-        
+    this.CreatedFromPowerQuery = (this.ListObj.SourceType = xlSrcQuery)
+    
     AssignStorage = (Err.Number = 0)
     
     On Error GoTo 0
@@ -95,9 +145,16 @@ Public Property Get NumberOfRecords(Optional bFiltered As Boolean = False) As Lo
     
 End Property
 
+Public Property Get Sheet() As Worksheet
+    Set Sheet = this.Sheet
+End Property
+
+
 Public Sub AddBlankRow()
 
-    AddOneRowToListObject this.ListObj
+    If Not this.CreatedFromPowerQuery Then
+        AddOneRowToListObject this.ListObj
+    End If
 
 End Sub
 
@@ -178,6 +235,11 @@ Public Function InsertFromDictionary(InsertValues As Dictionary) As Boolean
 
     bKeysAreValid = True
 
+    If this.CreatedFromPowerQuery Then
+        InsertFromDictionary = False
+        Exit Function
+    End If
+
     'First test that keys in dictionary correspond to field headers
     For Each key In InsertValues.Keys
         bKeysAreValid = bKeysAreValid And _
@@ -255,9 +317,14 @@ Public Function Filter(ByVal sFilterString As String, Optional bSorted As Boolea
 End Function
 
 
-Public Sub ReplaceDataWithFilteredData()
+Function ReplaceDataWithFilteredData() As Boolean
 'Replaces the Original data per the listobject with the filtered versions per This.FilteredListObject
 'Filtered List object is cleared
+    
+    If this.CreatedFromPowerQuery Then
+        ReplaceDataWithFilteredData = False
+        Exit Function
+    End If
     
     If Not this.ListObj.DataBodyRange Is Nothing Then
         this.ListObj.DataBodyRange.Rows.Delete
@@ -271,8 +338,9 @@ Public Sub ReplaceDataWithFilteredData()
         this.FilteredListObj.DataBodyRange.Rows.Delete
     End If
     
+    ReplaceDataWithFilteredData = True
 
-End Sub
+End Function
 
 Public Function Xlookup(ByVal LookupValue As Variant, _
     ByVal sLookupArray As String, _
@@ -282,7 +350,7 @@ Public Function Xlookup(ByVal LookupValue As Variant, _
     Optional SearchMode As Integer = 1, _
     Optional ByVal bFiltered As Boolean = False) As Variant
 
-'Replicates Xlookup on the zLIB_ListStorage, either original or filtered data depending on value of
+'Replicates Xlookup on the liststorage, either original or filtered data depending on value of
 'the bFiltered parameter.  Table name does not need to be specified for example
 'Xlookup([a], [b], [c]) becomes Xlookup(tbl_TableName[a], tbl_TableName[b], tbl_TableName[c])
 'Null is returned when optional parameter IfNotFound is missing and xlookup is not found
@@ -380,11 +448,12 @@ Public Function StorageAlreadyExists(ByRef wkb As Workbook, ByVal sName As Strin
 End Function
 
 
-Public Function IsEmpty() As Boolean
+Public Function IsEmpty(Optional ByVal bFiltered As Boolean = False) As Boolean
 
     Dim test As Double
     On Error Resume Next
-    test = this.ListObj.DataBodyRange.Rows.Count
+    
+    test = SelectedListObject(bFiltered).DataBodyRange.Rows.Count
     IsEmpty = (Err.Number <> 0)
     On Error GoTo 0
     
@@ -392,13 +461,19 @@ Public Function IsEmpty() As Boolean
 End Function
 
 
-Public Sub ClearData()
+Public Function ClearData() As Boolean
+
+    If this.CreatedFromPowerQuery Then
+        ClearData = False
+    End If
 
     On Error Resume Next 'In event there is no databody range
     this.ListObj.DataBodyRange.Rows.Delete
     On Error GoTo 0
+    ClearData = True
 
-End Sub
+
+End Function
 
 
 
@@ -427,6 +502,8 @@ Private Sub FormatListStorageSheet(ByRef sht As Worksheet)
     
     sht.Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
     sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
+    sht.Names.Add Name:="ReturnToIndex", RefersTo:="=$B$3"
+    sht.Names.Add Name:="DefaultCursorLocation", RefersTo:="=$A$2"
     
     With sht.Range("SheetHeading")
         .Value = sht.Name
@@ -452,7 +529,7 @@ Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings As
     Dim lo As ListObject
     
     For i = LBound(Headings) To UBound(Headings)
-        sht.Cells(iTableRowStart, iTableColStart + i).Value = Headings(i)
+        sht.Cells(iTableRowStart, iTableColStart + i - LBound(Headings)).Value = Headings(i)
     Next i
 
     Set lo = sht.ListObjects.Add(xlSrcRange, _
@@ -482,7 +559,7 @@ Private Function CreateFilteredListStorageListObject(ByRef sht As Worksheet, Hea
     iTableColStart = iUnfilteredTableColStart + (UBound(Headings)) + (iGapBetweenTables + 1)
     
     For i = LBound(Headings) To UBound(Headings)
-        sht.Cells(iTableRowStart, iTableColStart + i).Value = Headings(i)
+        sht.Cells(iTableRowStart, iTableColStart + i - LBound(Headings)).Value = Headings(i)
     Next i
 
     Set lo = sht.ListObjects.Add(xlSrcRange, _
@@ -553,9 +630,16 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
 End Sub
 
 
-Public Sub AddFieldValidationList(ByVal sFieldName As String, sValidationList As String)
+Public Function AddFieldValidationList(ByVal sFieldName As String, sValidationList As String) As Boolean
 
     Dim TestCount As Long
+
+    If this.CreatedFromPowerQuery Then
+        AddFieldValidationList = False
+    Else
+        AddFieldValidationList = True
+    End If
+    
 
     'Ensure databody range exists
     On Error Resume Next
@@ -566,7 +650,7 @@ Public Sub AddFieldValidationList(ByVal sFieldName As String, sValidationList As
         .Delete
         .Add Type:=xlValidateList, Formula1:=sValidationList
     End With
-End Sub
+End Function
 
 
 
@@ -609,6 +693,8 @@ Private Sub Class_Terminate()
    Set this.Sheet = Nothing
    Set this.wkb = Nothing
 End Sub
+
+
 
 
 

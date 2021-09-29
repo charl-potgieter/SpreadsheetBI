@@ -1,21 +1,29 @@
 TODO
 ------- 
-Starting to wonder if I should go back to one consolidated spreadsheetBI add in?
+In menu move the PowerQuery items out of datamodel into a separate sub menu
 
-Rebadge as XL Utilities and convert to an add in
+Ensure all entry point subs have a menu item
+
+Where is best spot to store 
+ * Useful standard power queries
+ * Useful standard DAX functions
+ * Lambda formulas
+
+EntryPoints and Core for DataModel not really linked to Menu.  Reconsider best way to use.  Can make date model unstable?
+
+Out of memory / crashing
+* If excel remains stable add back other add ins one by one (maybe download latest version)
+   (i) DAX studio
+   (ii) Power Pivot Utilities
+   (iii) Name manager
+   (iv) Rubber Duck VBA
+
+
+Not major issue - but why is the insert index page / reporting sheet so slow?
+
 
 Add an additional menu items that runs looper and also adds (updates) the index page
 
-Sharing and maintaining lambdas
- - below link can read txt from raw github files 
- https://www.devhut.net/2013/09/20/vba-read-a-file-from-a-webserver-or-internet-website/
- - Sheets in excel lambda creator file have cells containing lambdas, lambda categories and comments for name manager
- - Lambdas can be refreshed in target sheet with spreadsheetBI, maybe with a listbox of lambda selections so that all lambdas do not clutter up spreadsheet
- - Delimiting between comments and lambda is difficult - can I store a table in a readme somehow?  --> can I store in HTML table format in github
-    https://www.w3schools.com/html/html_tables.asp
- - Maybe create an add-in with a combined roll of generator of table as well as refresher of defined names
-
-Any way I can refresh lambda functions in spreadsheet from github?
 
 Revisit name manger - can filter by Lambda functions?
 

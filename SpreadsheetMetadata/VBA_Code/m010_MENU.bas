@@ -1,4 +1,4 @@
-Attribute VB_Name = "m005_MenuGenerator"
+Attribute VB_Name = "m010_MENU"
 Option Explicit
 Option Private Module
 
@@ -99,6 +99,10 @@ Sub CreatePopUpMenu()
     MenuSubcategory.Caption = "Other"
        
     Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Active Sheet (simple format, not reporting sheet)"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatActiveSheet"
+       
+    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Date"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatDate"
     
@@ -122,22 +126,23 @@ Sub CreatePopUpMenu()
     MenuItem.Caption = "Save default report sheet format"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "SaveReportSheetFormat"
     
-    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Update report sheet formats in active workbook"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "UpdateReportSheetFormatsInActiveWorkbook"
-    
     
     'Insert Menu
+    
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
     MenuCategory.Caption = "Insert"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Index page"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertIndexPageActiveWorkbook"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Reporting sheet"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertReportingSheetSheetIntoActiveWorkbook"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Index page"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertIndexPageActiveWorkbook"
+    MenuItem.Caption = "List storage sheet"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertStorageSheet"
     
     
     'Reports Menu
@@ -224,8 +229,45 @@ Sub CreatePopUpMenu()
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Create power query referenced to text file"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateRefencedPowerQueriesInActiveWorkbook"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateTextReferencedPowerQueriesInActiveWorkbook"
     
+    
+    'Lambda menu
+    Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
+    MenuCategory.Caption = "Lambdas"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Insert lambda"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ShowLambdaUserForm"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Export lambda functions from active workbook to xml"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportLambdaFunctionsFromActiveWorkbookToXml"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Add lambda git repo to active workbook"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "AddLambdaGitRepoToActiveWorkbook"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Refresh formulas"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "RefreshAvailableLambdaFormulas"
+
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Create lambda xml generator workbook"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateLambdaXmlGeneratorWorkbook"
+    
+    
+    'Developer Menu
+    Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
+    MenuCategory.Caption = "Developer"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Generate metadata from active workbook"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "GenerateSpreadsheetMetadataActiveWorkbook"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Create spreadsheet from metadata"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateSpreadsheetFromMetadata"
     
     
     'Other Menu

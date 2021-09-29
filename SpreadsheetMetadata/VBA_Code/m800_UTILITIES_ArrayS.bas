@@ -1,6 +1,7 @@
-Attribute VB_Name = "zLIB_ArrayUtilities"
+Attribute VB_Name = "m800_UTILITIES_ArrayS"
 Option Explicit
 Option Compare Text
+Option Private Module
 
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -3827,4 +3828,6 @@ End If
 
 
 End Function
+
+
 
