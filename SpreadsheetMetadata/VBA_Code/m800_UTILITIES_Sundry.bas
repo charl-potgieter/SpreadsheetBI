@@ -139,15 +139,15 @@ End Sub
 
 Function ValueIsInStringArray(ByVal aValueToTest As Variant, ByRef aArray() As String) As Boolean
 
-    Dim item As Variant
+    Dim Item As Variant
     
     ValueIsInStringArray = False
-    For Each item In aArray
-        If item = aValueToTest Then
+    For Each Item In aArray
+        If Item = aValueToTest Then
             ValueIsInStringArray = True
             Exit Function
         End If
-    Next item
+    Next Item
 
 End Function
 

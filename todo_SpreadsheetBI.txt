@@ -1,8 +1,19 @@
 TODO
 ------- 
-In menu move the PowerQuery items out of datamodel into a separate sub menu
+CreateTextReferencedPowerQueriesInActiveWorkbook is generating an error
+ - Need to enable writing last used directory back to SundryStorage
 
-Ensure all entry point subs have a menu item
+Move the XL Developer tab into SundryStorage
+
+Saving metadata does not save ListStorage -> maybe I should consider
+
+Change tab on XL_Developer to ListStorage
+ 
+
+PowerQueries have already been imported.  
+ - Create pipe delimited categorisation (VBA cant pick up folder names)
+  - Allow users to add from a userform
+  - Add query descriptions
 
 Where is best spot to store 
  * Useful standard power queries

@@ -89,13 +89,13 @@ Public Property Let SheetProperties(ByVal Properties As Dictionary)
     Set this.ReportSht = New ReportingSheet
     With this.ReportSht
         .Create wkb
-        .Name = Properties.item("SheetName")
-        .Category = Properties.item("Category")
-        .Heading = Properties.item("Heading")
-        .FreezePaneRow = Properties.item("FreezePaneRow")
-        .FreezePaneCol = Properties.item("FreezePaneCol")
+        .Name = Properties.Item("SheetName")
+        .Category = Properties.Item("Category")
+        .Heading = Properties.Item("Heading")
+        .FreezePaneRow = Properties.Item("FreezePaneRow")
+        .FreezePaneCol = Properties.Item("FreezePaneCol")
         
-        sFirstCellAddress = Properties.item("FirstCellAddress")
+        sFirstCellAddress = Properties.Item("FirstCellAddress")
         this.pvt.TableRange2.Cut
         .Sheet.Paste .Sheet.Range(sFirstCellAddress)
         'if below step is ignored the this.pvt reference is deleted on cut and paste
@@ -142,7 +142,7 @@ Public Property Let PivotTableProperties(Properties As Dictionary)
 
     Dim Property As Variant
     For Each Property In Properties.Keys
-        CallByName this.pvt, Property, VbLet, Properties.item(Property)
+        CallByName this.pvt, Property, VbLet, Properties.Item(Property)
     Next Property
 
 End Property
@@ -230,7 +230,7 @@ Property Let CubeFieldProperties(PropertyDictionary As Dictionary)
     For Each CubePositionNameProperty In PropertyDictionary
         sCubeFieldName = Split(CubePositionNameProperty, "|")(1)
         sProperty = Split(CubePositionNameProperty, "|")(2)
-        sPropertyValue = PropertyDictionary.item(CubePositionNameProperty)
+        sPropertyValue = PropertyDictionary.Item(CubePositionNameProperty)
         If sProperty = "Orientation" Then
             CallByName this.pvt.CubeFields(sCubeFieldName), sProperty, _
                 VbLet, sPropertyValue
@@ -242,7 +242,7 @@ Property Let CubeFieldProperties(PropertyDictionary As Dictionary)
     For Each CubePositionNameProperty In PropertyDictionary
         sCubeFieldName = Split(CubePositionNameProperty, "|")(1)
         sProperty = Split(CubePositionNameProperty, "|")(2)
-        sPropertyValue = PropertyDictionary.item(CubePositionNameProperty)
+        sPropertyValue = PropertyDictionary.Item(CubePositionNameProperty)
         If sProperty <> "Orientation" Then
             CallByName this.pvt.CubeFields(sCubeFieldName), sProperty, _
                 VbLet, sPropertyValue
@@ -300,7 +300,7 @@ Property Let PivotFieldProperties(PropertyDictionary As Dictionary)
     For Each FieldNameAndProperty In PropertyDictionary
         sPivotFieldName = Split(FieldNameAndProperty, "|")(0)
         sProperty = Split(FieldNameAndProperty, "|")(1)
-        sPropertyValue = PropertyDictionary.item(FieldNameAndProperty)
+        sPropertyValue = PropertyDictionary.Item(FieldNameAndProperty)
         If sProperty = "Subtotals" Then
             this.pvt.PivotFields(sPivotFieldName).Subtotals(1) = sPropertyValue
         End If
@@ -309,7 +309,7 @@ Property Let PivotFieldProperties(PropertyDictionary As Dictionary)
     For Each FieldNameAndProperty In PropertyDictionary
         sPivotFieldName = Split(FieldNameAndProperty, "|")(0)
         sProperty = Split(FieldNameAndProperty, "|")(1)
-        sPropertyValue = PropertyDictionary.item(FieldNameAndProperty)
+        sPropertyValue = PropertyDictionary.Item(FieldNameAndProperty)
         If sProperty <> "Subtotals" Then
             CallByName this.pvt.PivotFields(sPivotFieldName), sProperty, _
                 VbLet, sPropertyValue
@@ -359,11 +359,11 @@ Property Let ColumnWidths(PropertyDictionary As Dictionary)
     Dim i As Long
     
     If PropertyDictionary.Exists("DataBodyRangeColWidth") Then
-        this.pvt.DataBodyRange.Columns.ColumnWidth = PropertyDictionary.item("DataBodyRangeColWidth")
+        this.pvt.DataBodyRange.Columns.ColumnWidth = PropertyDictionary.Item("DataBodyRangeColWidth")
     End If
     
     If PropertyDictionary.Exists("RowRangeColWidths") Then
-        aRowRangeColWidths = Split(PropertyDictionary.item("RowRangeColWidths"), "|")
+        aRowRangeColWidths = Split(PropertyDictionary.Item("RowRangeColWidths"), "|")
         For i = LBound(aRowRangeColWidths) To UBound(aRowRangeColWidths)
             this.pvt.TableRange2.Columns(i + 1).ColumnWidth = aRowRangeColWidths(i)
         Next i

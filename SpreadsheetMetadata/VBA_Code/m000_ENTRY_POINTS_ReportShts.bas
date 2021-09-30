@@ -29,14 +29,14 @@ Function InsertReportingSheetSheetIntoActiveWorkbook()
     ReportSht.Create wkb, ActiveSheet.Index
     
     Set ReportSheetFormat = GetSavedReportSheetFormat
-    ReportSht.SheetFont = ReportSheetFormat.item("Sheet font")
-    ReportSht.DefaultFontSize = ReportSheetFormat.item("Default font size")
-    ReportSht.ZoomPercentage = ReportSheetFormat.item("Zoom percentage")
+    ReportSht.SheetFont = ReportSheetFormat.Item("Sheet font")
+    ReportSht.DefaultFontSize = ReportSheetFormat.Item("Default font size")
+    ReportSht.ZoomPercentage = ReportSheetFormat.Item("Zoom percentage")
     ReportSht.HeadingFontColour = Array( _
-        ReportSheetFormat.item("Heading colour red (0 to 255)"), _
-        ReportSheetFormat.item("Heading colour green (0 to 255)"), _
-        ReportSheetFormat.item("Heading colour blue (0 to 255)"))
-    ReportSht.HeadingFontSize = ReportSheetFormat.item("Heading font size")
+        ReportSheetFormat.Item("Heading colour red (0 to 255)"), _
+        ReportSheetFormat.Item("Heading colour green (0 to 255)"), _
+        ReportSheetFormat.Item("Heading colour blue (0 to 255)"))
+    ReportSht.HeadingFontSize = ReportSheetFormat.Item("Heading font size")
     
     InsertIndexPage ActiveWorkbook
     ReportSht.Sheet.Activate
@@ -59,14 +59,14 @@ Sub ConvertActiveSheetToReportingSheet()
 
     ReportSht.CreateFromExistingSheet ActiveSheet
     Set ReportSheetFormat = GetSavedReportSheetFormat
-    ReportSht.SheetFont = ReportSheetFormat.item("Sheet font")
-    ReportSht.DefaultFontSize = ReportSheetFormat.item("Default font size")
-    ReportSht.ZoomPercentage = ReportSheetFormat.item("Zoom percentage")
+    ReportSht.SheetFont = ReportSheetFormat.Item("Sheet font")
+    ReportSht.DefaultFontSize = ReportSheetFormat.Item("Default font size")
+    ReportSht.ZoomPercentage = ReportSheetFormat.Item("Zoom percentage")
     ReportSht.HeadingFontColour = Array( _
-        ReportSheetFormat.item("Heading colour red (0 to 255)"), _
-        ReportSheetFormat.item("Heading colour green (0 to 255)"), _
-        ReportSheetFormat.item("Heading colour blue (0 to 255)"))
-    ReportSht.HeadingFontSize = ReportSheetFormat.item("Heading font size")
+        ReportSheetFormat.Item("Heading colour red (0 to 255)"), _
+        ReportSheetFormat.Item("Heading colour green (0 to 255)"), _
+        ReportSheetFormat.Item("Heading colour blue (0 to 255)"))
+    ReportSht.HeadingFontSize = ReportSheetFormat.Item("Heading font size")
     
     InsertIndexPage ActiveWorkbook
     ReportSht.Sheet.Activate
@@ -147,65 +147,63 @@ Sub IndexPageNavigation()
 End Sub
 
 
-
 Sub SetReportSheetFormat()
 
-    Dim ReportSheetFormatStorage As ListStorage
-    Dim wkbUserInput As Workbook
-    Dim UserInputSheet As Worksheet
-    Dim UserInputListObj As ListObject
-
+    Dim uf As uf_ReportSheetFormat
+    Dim ReportSheetFormatDict(0 To 6) As Dictionary
+    Dim i As Integer
+    
     StandardEntry
-    Set ReportSheetFormatStorage = New ListStorage
-    ReportSheetFormatStorage.AssignStorage ThisWorkbook, "ReportSheetFormat"
-
-    Set wkbUserInput = Application.Workbooks.Add
-    Set UserInputSheet = wkbUserInput.Sheets(1)
-    FormatSheet UserInputSheet
-    UserInputSheet.Range("SheetHeading") = "Report Sheet Formating --> Run 'Format->" & _
-        "Save default report sheet format"
-    UserInputSheet.Range("SheetCategory") = ""
+    Set uf = New uf_ReportSheetFormat
     
-    ReportSheetFormatStorage.ListObj.Range.Copy
-    UserInputSheet.Activate
-    UserInputSheet.Range("B5").PasteSpecial xlPasteValues
+    uf.tbSheetFont.Value = GetReportSheetFormatItem("Sheet Font")
+    uf.tbDefaultFontSize.Value = GetReportSheetFormatItem("Default font size")
+    uf.tbZoomPercentage.Value = GetReportSheetFormatItem("Zoom percentage")
+    uf.tbHeadingColourRed.Value = GetReportSheetFormatItem("Heading colour red (0 to 255)")
+    uf.tbHeadingColourGreen.Value = GetReportSheetFormatItem("Heading colour green (0 to 255)")
+    uf.tbHeadingColourBlue.Value = GetReportSheetFormatItem("Heading colour blue (0 to 255)")
+    uf.tbHeadingFontSize.Value = GetReportSheetFormatItem("Heading font size")
     
-    Set UserInputListObj = UserInputSheet.ListObjects.Add(xlSrcRange, Range("$B$5").CurrentRegion, , xlYes)
-    FormatTable UserInputListObj
-    UserInputListObj.Name = "tbl_ReportSheetFormat"
+    uf.Show
+    If uf.UserCancelled Then GoTo ExitPoint
+    
+    For i = LBound(ReportSheetFormatDict) To UBound(ReportSheetFormatDict)
+        Set ReportSheetFormatDict(i) = New Dictionary
+    Next i
+    
+    ReportSheetFormatDict(0).Add "Item", "Sheet font"
+    ReportSheetFormatDict(0).Add "Value", uf.tbSheetFont.Value
 
-    ActiveWindow.WindowState = xlMaximized
+    ReportSheetFormatDict(1).Add "Item", "Default font size"
+    ReportSheetFormatDict(1).Add "Value", uf.tbDefaultFontSize.Value
+    
+    ReportSheetFormatDict(2).Add "Item", "Zoom percentage"
+    ReportSheetFormatDict(2).Add "Value", uf.tbZoomPercentage.Value
+
+    ReportSheetFormatDict(3).Add "Item", "Heading colour red (0 to 255)"
+    ReportSheetFormatDict(3).Add "Value", uf.tbHeadingColourRed.Value
+
+    ReportSheetFormatDict(4).Add "Item", "Heading colour green (0 to 255)"
+    ReportSheetFormatDict(4).Add "Value", uf.tbHeadingColourGreen.Value
+
+    ReportSheetFormatDict(5).Add "Item", "Heading colour blue (0 to 255)"
+    ReportSheetFormatDict(5).Add "Value", uf.tbHeadingColourBlue.Value
+    
+    ReportSheetFormatDict(6).Add "Item", "Heading font size"
+    ReportSheetFormatDict(6).Add "Value", uf.tbHeadingFontSize
+
+    WriteReportSheetFormat ReportSheetFormatDict
+    ThisWorkbook.Save
 
 ExitPoint:
-    Set ReportSheetFormatStorage = Nothing
-    StandardExit
-
-End Sub
-
-
-Sub SaveReportSheetFormat()
-
-    Dim i As Integer
-    Dim ReportSheetFormatStorage As ListStorage
-    Dim UserInputListObj As ListObject
-
-    StandardEntry
-    Set ReportSheetFormatStorage = New ListStorage
-    ReportSheetFormatStorage.AssignStorage ThisWorkbook, "ReportSheetFormat"
-    Set UserInputListObj = ActiveWorkbook.Worksheets(1).ListObjects("tbl_ReportSheetFormat")
-    
-    For i = 1 To ReportSheetFormatStorage.NumberOfRecords
-        ReportSheetFormatStorage.ListObj.ListColumns("Value").DataBodyRange.Cells(i) = _
-            UserInputListObj.ListColumns("Value").DataBodyRange.Cells(i)
+    Unload uf
+    Set uf = Nothing
+    For i = LBound(ReportSheetFormatDict) To UBound(ReportSheetFormatDict)
+        Set ReportSheetFormatDict(i) = Nothing
     Next i
-
-    MsgBox ("Report sheet format updated")
-    
-    UserInputListObj.Parent.Parent.Close
-    
-    ThisWorkbook.Save
     StandardExit
 
 End Sub
+
 
 

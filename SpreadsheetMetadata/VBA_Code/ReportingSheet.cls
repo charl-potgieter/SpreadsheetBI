@@ -297,11 +297,11 @@ Private Sub InsertReportingSheet(ByVal wkb As Workbook, _
     
     If lSheetPosition <> 0 Then
         Set this.shtReport = wkb.Sheets.Add _
-            (After:=wkb.Worksheets.item(lSheetPosition))
+            (After:=wkb.Worksheets.Item(lSheetPosition))
     Else
         NumberOfSheetsInWorkbook = wkb.Sheets.Count
         Set this.shtReport = wkb.Sheets.Add _
-            (After:=wkb.Worksheets.item(NumberOfSheetsInWorkbook))
+            (After:=wkb.Worksheets.Item(NumberOfSheetsInWorkbook))
     End If
         
 End Sub

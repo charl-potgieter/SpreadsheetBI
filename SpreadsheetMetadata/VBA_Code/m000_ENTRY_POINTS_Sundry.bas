@@ -50,8 +50,15 @@ Sub InsertStorageSheet()
     Dim SingleCell As Range
     Dim i As Integer
     Dim Headers() As String
+    Dim YesNoResponse As Integer
     
     StandardEntry
+    
+    If Selection.Cells.Count = 1 Then
+        YesNoResponse = MsgBox("Only one cell selected, are you sure you only want one " & _
+            "column in storage", vbYesNo)
+    End If
+    If YesNoResponse = vbNo Then GoTo ExitPoint
     
     StorageName = InputBox("Ensure range containing headers is selected (this can be later " & _
         "deleted)" & vbCrLf & _

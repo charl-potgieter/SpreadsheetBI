@@ -187,8 +187,7 @@ Sub GetPowerQueryFileNamesFromUser(ByRef FilePaths() As String)
         .InitialFileName = ThisWorkbook.Path
         .Filters.Clear
         .Filters.Add "m Power Query Files", "*.m"
-        .InitialFileName = ThisWorkbook.Names("LastUsedDirReferencedPowerQueries"). _
-            RefersToRange.Value
+        .InitialFileName = GetSundryStorageItem("Last used directory text referenced power queries")
     End With
 
     'fDialog.Show value of -1 below means success

@@ -122,9 +122,9 @@ Sub CreatePopUpMenu()
     MenuItem.Caption = "Update default report sheet format"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "SetReportSheetFormat"
     
-    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Save default report sheet format"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "SaveReportSheetFormat"
+'    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
+'    MenuItem.Caption = "Save default report sheet format"
+'    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "SaveReportSheetFormat"
     
     
     'Insert Menu
@@ -176,20 +176,16 @@ Sub CreatePopUpMenu()
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Flatten"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatPivotTableFlatten"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "PivotTableFlatten"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Read pivot tables metadata"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ReadPivotTablesMetadata"
     
     
-    'Data Model Menu
+    'Power Query Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
-    MenuCategory.Caption = "Data model"
-    
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Write data model info sheets"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WriteModelInfoToSheets"
+    MenuCategory.Caption = "Power Queries"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Copy power queries from another workbook"
@@ -230,6 +226,16 @@ Sub CreatePopUpMenu()
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Create power query referenced to text file"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateTextReferencedPowerQueriesInActiveWorkbook"
+    
+        
+    'Data Model Menu
+    Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)
+    MenuCategory.Caption = "Data model"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Write data model info sheets"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "WriteModelInfoToSheets"
+    
     
     
     'Lambda menu
