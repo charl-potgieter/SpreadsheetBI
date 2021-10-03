@@ -427,40 +427,79 @@ End Function
 
 
 
-Function RangeOfStoredData(ByVal ItemDescription As String) As Range
+'Function RangeOfStoredData(ByVal ItemDescription As String) As Range
+'
+'    Dim lo As ListObject
+'    Dim EvaluationFormula As String
+'    Dim ItemIndex As Integer
+'
+'    Set lo = ThisWorkbook.Sheets("XL_Developer").ListObjects("tbl_Data")
+'    On Error Resume Next
+'    ItemIndex = WorksheetFunction.Match(ItemDescription, lo.ListColumns("Item").DataBodyRange, 0)
+'
+'    If Err.Number <> 0 Then
+'        Set RangeOfStoredData = Nothing
+'    Else
+'        Set RangeOfStoredData = lo.ListColumns("Value").DataBodyRange.Cells(ItemIndex)
+'    End If
+'
+'End Function
 
-    Dim lo As ListObject
-    Dim EvaluationFormula As String
-    Dim ItemIndex As Integer
-    
-    Set lo = ThisWorkbook.Sheets("XL_Developer").ListObjects("tbl_Data")
-    On Error Resume Next
-    ItemIndex = WorksheetFunction.Match(ItemDescription, lo.ListColumns("Item").DataBodyRange, 0)
-    
-    If Err.Number <> 0 Then
-        Set RangeOfStoredData = Nothing
-    Else
-        Set RangeOfStoredData = lo.ListColumns("Value").DataBodyRange.Cells(ItemIndex)
-    End If
 
-End Function
+'Sub GetPowerQueryFileNamesFromUser(ByRef FilePaths() As String)
+'
+'    Dim sPowerQueryFilePath As String
+'    Dim sPowerQueryName As String
+'    Dim fDialog As FileDialog
+'    Dim fso As FileSystemObject
+'    Dim i As Integer
+'    Dim LatestSelectedFilePath As String
+'
+'    Set fDialog = Application.FileDialog(msoFileDialogFilePicker)
+'
+'    With fDialog
+'        .AllowMultiSelect = True
+'        .Title = "Select power query / queries"
+'        .InitialFileName = ThisWorkbook.Path
+'        .Filters.Clear
+'        .Filters.Add "m Power Query Files", "*.m"
+'        .InitialFileName = GetSundryStorageItem("Last used directory text referenced power queries")
+'    End With
+'
+'    'fDialog.Show value of -1 below means success
+'    If fDialog.Show = -1 Then
+'        ReDim Preserve FilePaths(0 To fDialog.SelectedItems.Count - 1)
+'        For i = 0 To fDialog.SelectedItems.Count - 1
+'            FilePaths(i) = fDialog.SelectedItems(i + 1)
+'        Next i
+'    End If
+'
+'    Set fso = New FileSystemObject
+'    LatestSelectedFilePath = fso.GetParentFolderName(fDialog.SelectedItems(1))
+'    UpdateSundryStorageValueForGivenItem "Last used directory text referenced power queries", _
+'        LatestSelectedFilePath
+'
+'
+'    ThisWorkbook.Save
+'
+'End Sub
 
 
-Function StoredDataValue(ByVal ItemDescription As String)
-
-    Dim lo As ListObject
-    Dim EvaluationFormula As String
-    Dim ItemIndex As Integer
-    
-    Set lo = ThisWorkbook.Sheets("XL_Developer").ListObjects("tbl_Data")
-    On Error Resume Next
-    ItemIndex = WorksheetFunction.Match(ItemDescription, lo.ListColumns("Item").DataBodyRange, 0)
-    
-    If Err.Number <> 0 Then
-        StoredDataValue = "NULL"
-    Else
-        StoredDataValue = lo.ListColumns("Value").DataBodyRange.Cells(ItemIndex).Value
-    End If
-
-End Function
+'Function StoredDataValue(ByVal ItemDescription As String)
+'
+'    Dim lo As ListObject
+'    Dim EvaluationFormula As String
+'    Dim ItemIndex As Integer
+'
+'    Set lo = ThisWorkbook.Sheets("XL_Developer").ListObjects("tbl_Data")
+'    On Error Resume Next
+'    ItemIndex = WorksheetFunction.Match(ItemDescription, lo.ListColumns("Item").DataBodyRange, 0)
+'
+'    If Err.Number <> 0 Then
+'        StoredDataValue = "NULL"
+'    Else
+'        StoredDataValue = lo.ListColumns("Value").DataBodyRange.Cells(ItemIndex).Value
+'    End If
+'
+'End Function
 

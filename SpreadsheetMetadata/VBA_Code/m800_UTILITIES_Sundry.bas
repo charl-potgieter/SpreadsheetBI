@@ -296,4 +296,85 @@ End Function
 
 
 
+Function UniqueCollectionFromArray(ByVal arr) As Collection
+
+    Dim col As Collection
+    Dim i As Long
+    
+    Set col = New Collection
+
+    On Error Resume Next
+    For i = LBound(arr) To UBound(arr)
+        col.Add Item:=arr(i), Key:=arr(i)
+    Next i
+    
+    On Error GoTo 0
+
+
+    Set UniqueCollectionFromArray = col
+    Set col = Nothing
+
+End Function
+
+
+Sub BubbleSortSortCollection(ByRef col As Collection)
+
+    Dim Item As Variant
+    Dim i As Long
+    Dim TempItem As Variant
+    Dim SwapMade As Boolean
+
+    SwapMade = True
+    Do Until SwapMade = False
+        SwapMade = False
+        For i = 1 To col.Count - 1
+            If col(i) > col(i + 1) Then
+                TempItem = col(i)
+                col.Remove (i)
+                col.Add Item:=TempItem, Key:=TempItem, After:=i
+                SwapMade = True
+            End If
+        Next i
+    Loop
+
+End Sub
+
+
+Function NumberOfSelectedItemsInListBox(ByVal lb As MSForms.ListBox) As Long
+
+    Dim i As Long
+    Dim NumberOfSelections As Long
+
+    For i = 0 To lb.ListCount - 1
+        If lb.Selected(i) = True Then
+            NumberOfSelections = NumberOfSelections + 1
+        End If
+    Next i
+    NumberOfSelectedItemsInListBox = NumberOfSelections
+
+End Function
+
+
+
+
+Function ArrayOfListBoxSelections(ByVal lb As MSForms.ListBox)
+
+    Dim i As Long
+    Dim j As Long
+    Dim ReturnArray() As Variant
+    
+
+    ReDim ReturnArray(0 To lb.ListCount - 1)
+    j = 0
+    For i = 0 To lb.ListCount - 1
+        If lb.Selected(i) Then
+            ReturnArray(j) = lb.List(i)
+            j = j + 1
+        End If
+    Next i
+    ReDim Preserve ReturnArray(0 To j - 1)
+    ArrayOfListBoxSelections = ReturnArray
+
+End Function
+
 

@@ -22,6 +22,18 @@ Private Sub cbCancel_Click()
     Me.Hide
 End Sub
 
+Private Sub UserForm_QueryClose(Cancel As Integer _
+                                       , CloseMode As Integer)
+    
+    If CloseMode = vbFormControlMenu Then
+        Cancel = True
+        Me.Hide
+        UserCancelled = True
+    End If
+    
+End Sub
+
+
 
 
 Private Sub cbOK_Click()

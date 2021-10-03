@@ -229,7 +229,7 @@ End Function
 Public Function InsertFromDictionary(InsertValues As Dictionary) As Boolean
 'Insets one record from dictionary where keys are fieldheaders
 
-    Dim key As Variant
+    Dim Key As Variant
     Dim bKeysAreValid As Boolean
     Dim i As Double
 
@@ -241,19 +241,19 @@ Public Function InsertFromDictionary(InsertValues As Dictionary) As Boolean
     End If
 
     'First test that keys in dictionary correspond to field headers
-    For Each key In InsertValues.Keys
+    For Each Key In InsertValues.Keys
         bKeysAreValid = bKeysAreValid And _
-            (WorksheetFunction.CountIfs(this.ListObj.HeaderRowRange, key) = 1)
-    Next key
+            (WorksheetFunction.CountIfs(this.ListObj.HeaderRowRange, Key) = 1)
+    Next Key
     
     'Insert values
     If bKeysAreValid Then
         InsertFromDictionary = True
         AddOneRowToListObject this.ListObj
         i = this.ListObj.DataBodyRange.Rows.Count
-        For Each key In InsertValues.Keys
-            this.ListObj.ListColumns(key).DataBodyRange(i) = InsertValues.Item(key)
-        Next key
+        For Each Key In InsertValues.Keys
+            this.ListObj.ListColumns(Key).DataBodyRange(i) = InsertValues.Item(Key)
+        Next Key
     Else
         InsertFromDictionary = False
     End If

@@ -23,13 +23,19 @@ Private Type TypePowerFunctionWizard
     LambdaStorage As ListStorage
     LambdaFormulaDetails As Dictionary
     EventsAreEnabled As Boolean
+    UserCancelled As Boolean
 End Type
 Private this As TypePowerFunctionWizard
 
 
-Property Set LambdaStorage(ByRef Storage)
+Public Property Set LambdaStorage(ByRef Storage)
 'cannot pass variables to  userform event so store as a class property (userforms are classes)
     Set this.LambdaStorage = Storage
+End Property
+
+
+Public Property Get UserSelectedCancel() As Boolean
+    UserSelectedCancel = this.UserCancelled
 End Property
 
 
@@ -115,3 +121,14 @@ Private Sub UserForm_Terminate()
    Set this.LambdaStorage = Nothing
 End Sub
 
+
+Private Sub UserForm_QueryClose(Cancel As Integer _
+                                       , CloseMode As Integer)
+    
+    If CloseMode = vbFormControlMenu Then
+        Cancel = True
+        Me.Hide
+        this.UserCancelled = True
+    End If
+    
+End Sub

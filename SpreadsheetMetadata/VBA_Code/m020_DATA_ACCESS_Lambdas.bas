@@ -85,7 +85,7 @@ Sub AddRepoToStorage(ByVal sRepoUrl As String, ByRef GitRepoStorage)
     Dim RepoUrlDictionary As Dictionary
     
     Set RepoUrlDictionary = New Dictionary
-    RepoUrlDictionary.Add key:="RepoURL", Item:=sRepoUrl
+    RepoUrlDictionary.Add Key:="RepoURL", Item:=sRepoUrl
     GitRepoStorage.InsertFromDictionary RepoUrlDictionary
 
 End Sub

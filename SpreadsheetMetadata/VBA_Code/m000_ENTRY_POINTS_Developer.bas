@@ -35,20 +35,23 @@ Sub CreateSpreadsheetFromMetadata()
     Dim TargetSheetStorage As ListStorage
     Dim qry As WorkbookQuery
     Dim cn As WorkbookConnection
+    Dim LastUsedFolder As String
     Const StorageRefOFLastFolder As String = _
         "Last utilised folder for creating spreadsheet from metadata"
 
     StandardEntry
     
     'Get folder containing metadata
-    sFolderPath = GetFolder(StoredDataValue(StorageRefOFLastFolder))
+    LastUsedFolder = GetSundryStorageItem("Last used directory for creating spreadsheet from metadata")
+    sFolderPath = GetFolder(LastUsedFolder)
     If sFolderPath = "" Then
         Exit Sub
     End If
     
     'Save the selected folder for future use
     Set fso = New FileSystemObject
-    RangeOfStoredData(StorageRefOFLastFolder).Value = fso.GetParentFolderName(sFolderPath)
+    UpdateSundryStorageValueForGivenItem "Last used directory for creating spreadsheet from metadata", _
+        fso.GetParentFolderName(sFolderPath)
     ThisWorkbook.Save
 
     Set wkb = CreateNewWorkbookWithOneSheet

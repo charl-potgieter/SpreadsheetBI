@@ -15,7 +15,7 @@ Function GetSavedReportSheetFormat() As Dictionary
     Storage.AssignStorage ThisWorkbook, "ReportSheetFormat"
     For i = 1 To Storage.NumberOfRecords
         dict.Add _
-            key:=Storage.ListObj.ListColumns("Item").DataBodyRange.Cells(i).Value, _
+            Key:=Storage.ListObj.ListColumns("Item").DataBodyRange.Cells(i).Value, _
             Item:=Storage.ListObj.ListColumns("Value").DataBodyRange.Cells(i).Value
     Next i
 

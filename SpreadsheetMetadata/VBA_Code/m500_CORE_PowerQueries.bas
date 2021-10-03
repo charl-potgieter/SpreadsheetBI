@@ -200,7 +200,10 @@ Sub GetPowerQueryFileNamesFromUser(ByRef FilePaths() As String)
 
     Set fso = New FileSystemObject
     LatestSelectedFilePath = fso.GetParentFolderName(fDialog.SelectedItems(1))
-    ThisWorkbook.Names("LastUsedDirReferencedPowerQueries").RefersToRange.Value = LatestSelectedFilePath
+    UpdateSundryStorageValueForGivenItem "Last used directory text referenced power queries", _
+        LatestSelectedFilePath
+    
+    
     ThisWorkbook.Save
 
 End Sub

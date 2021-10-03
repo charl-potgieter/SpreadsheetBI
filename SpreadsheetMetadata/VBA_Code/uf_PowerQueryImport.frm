@@ -1,0 +1,120 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} uf_PowerQueryImport 
+   Caption         =   "Power query import"
+   ClientHeight    =   7170
+   ClientLeft      =   110
+   ClientTop       =   450
+   ClientWidth     =   8060
+   OleObjectBlob   =   "uf_PowerQueryImport.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "uf_PowerQueryImport"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+
+
+Private Type TypeUserFormPowerQueryImport
+    pqDetails As Dictionary
+    UserCancelled As Boolean
+End Type
+Private this As TypeUserFormPowerQueryImport
+
+
+Public Property Set PowerQueryDetails(pqDetails As Dictionary)
+
+    Dim UniqueCategories As Collection
+    Dim QueryName As Variant
+    Dim Category As Variant
+    
+    Set this.pqDetails = pqDetails
+    
+    'Get unique categories
+    Set UniqueCategories = New Collection
+    For Each QueryName In pqDetails.Keys
+        On Error Resume Next
+        UniqueCategories.Add Item:=pqDetails(QueryName).Category, _
+            Key:=pqDetails(QueryName).Category
+        On Error GoTo 0
+    Next QueryName
+    
+    BubbleSortSortCollection UniqueCategories
+    
+    Me.comboCategories.AddItem "All"
+    For Each Category In UniqueCategories
+        Me.comboCategories.AddItem Category
+    Next Category
+
+End Property
+
+
+
+Public Property Get UserSelectedCancel() As Boolean
+    UserSelectedCancel = this.UserCancelled
+End Property
+
+
+Private Sub comboCategories_Change()
+
+    Dim Key As Variant
+
+    If Me.comboCategories.Value = "All" Then
+        For Each Key In this.pqDetails.Keys
+            Me.lbQueries.AddItem Key
+        Next Key
+    Else
+        Me.lbQueries.Clear
+        For Each Key In this.pqDetails.Keys
+            If this.pqDetails.Item(Key).Category = Me.comboCategories.Value Then
+                Me.lbQueries.AddItem Key
+            End If
+        Next Key
+    End If
+
+End Sub
+
+
+Private Sub lbQueries_Change()
+
+    Dim SingleSelectedListboxValue As String
+    Dim QueryDescription As String
+'
+    If NumberOfSelectedItemsInListBox(lbQueries) = 1 Then
+        SingleSelectedListboxValue = ArrayOfListBoxSelections(lbQueries)(0)
+        Me.tblDescription = this.pqDetails.Item(SingleSelectedListboxValue).Description
+    Else
+        Me.tblDescription = ""
+    End If
+
+End Sub
+
+
+Private Sub UserForm_Initialize()
+    this.UserCancelled = False
+End Sub
+
+
+Private Sub cbOK_Click()
+    Me.Hide
+End Sub
+
+
+Private Sub cbCancel_Click()
+    Me.Hide
+    this.UserCancelled = True
+End Sub
+
+
+Private Sub UserForm_QueryClose(Cancel As Integer _
+                                       , CloseMode As Integer)
+    
+    If CloseMode = vbFormControlMenu Then
+        Cancel = True
+        Me.Hide
+        this.UserCancelled = True
+    End If
+    
+End Sub
+

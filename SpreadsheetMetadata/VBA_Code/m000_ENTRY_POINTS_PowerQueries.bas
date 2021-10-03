@@ -2,6 +2,8 @@ Attribute VB_Name = "m000_ENTRY_POINTS_PowerQueries"
 Option Explicit
 
 
+
+
 Sub ExportPowerQueriesInActiveWorkbookToFiles()
 
     Dim sFolderSelected As String
@@ -276,6 +278,7 @@ Sub CreateTextReferencedPowerQueriesInActiveWorkbook()
     Dim QueryText As String
     Dim QueryName As String
     
+    StandardEntry
     Set fso = New FileSystemObject
     Set wkb = ActiveWorkbook
     GetPowerQueryFileNamesFromUser FilePaths
@@ -286,8 +289,10 @@ Sub CreateTextReferencedPowerQueriesInActiveWorkbook()
     Next i
 
     MsgBox ("Queries created")
+    StandardExit
 
 End Sub
+
 
 
 Sub TempDeleteAllPQ()
@@ -302,5 +307,52 @@ Sub TempDeleteAllPQ()
     StandardExit
 
 End Sub
+
+
+Sub ImportPreDefinedPowerQueries()
+
+    Dim qry As WorkbookQuery
+    Dim QueryDetails As Dictionary
+    Dim QueryDetail As PowerQueryImportDetails
+    Dim QueryName As String
+    Dim i As Integer
+    Dim uf As uf_PowerQueryImport
+
+    StandardEntry
+    
+    If ActiveWorkbook.Name = ThisWorkbook.Name Then
+        MsgBox ("Cannot run this sub in current workbook")
+        GoTo ExitPoint
+    End If
+        
+    Set QueryDetails = New Dictionary
+    For i = 1 To ThisWorkbook.Queries.Count
+        Set QueryDetail = New PowerQueryImportDetails
+        Set qry = ThisWorkbook.Queries(i)
+        QueryName = Split(qry.Name, "|")(1)
+        QueryDetail.Category = Split(qry.Name, "|")(0)
+        QueryDetail.Description = qry.Description
+        QueryDetail.Code = qry.Formula
+        QueryDetails.Add Key:=QueryName, Item:=QueryDetail
+    Next i
+        
+    Set uf = New uf_PowerQueryImport
+    Set uf.PowerQueryDetails = QueryDetails
+    'uf.PopulateCategoryDropdown
+    uf.Show
+        
+    'If uf.UserSelectedCancel Then GoTo ExitPoint
+        
+ExitPoint:
+    On Error Resume Next
+    Unload uf
+    On Error GoTo 0
+    Set uf = Nothing
+    Set QueryDetails = Nothing
+    StandardExit
+    
+        
+End Sub
+
 
 

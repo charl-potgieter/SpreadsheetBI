@@ -1,22 +1,14 @@
 TODO
 ------- 
-CreateTextReferencedPowerQueriesInActiveWorkbook is generating an error
- - Need to enable writing last used directory back to SundryStorage
-
-Move the XL Developer tab into SundryStorage
-
-Saving metadata does not save ListStorage -> maybe I should consider
-
 Change tab on XL_Developer to ListStorage
- 
 
+Allow generation of standard power queries
 PowerQueries have already been imported.  
  - Create pipe delimited categorisation (VBA cant pick up folder names)
   - Allow users to add from a userform
   - Add query descriptions
 
 Where is best spot to store 
- * Useful standard power queries
  * Useful standard DAX functions
  * Lambda formulas
 
@@ -42,6 +34,7 @@ TableLooper should be ready for implementation - test out with PowerBI roll forw
 It may be time for a restructure or the Roll forward
  - seperate data and reporting sheets
 
+Generate and import query descriptions with other metadata
 
 
 Lots of the below apply to the pivot report creation which is now sort of abandoned (maybe?) --> rather following approach of having different workbooks picking up shared power quwery text files

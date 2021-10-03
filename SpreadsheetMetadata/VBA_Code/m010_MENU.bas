@@ -188,6 +188,10 @@ Sub CreatePopUpMenu()
     MenuCategory.Caption = "Power Queries"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Import predefined power queries"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ImportPreDefinedPowerQueries"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Copy power queries from another workbook"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CopyPowerQueriesFromWorkbook"
     
@@ -293,14 +297,6 @@ Sub CreatePopUpMenu()
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Export all tables in workbook as pipe delimited text"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportTablesInActiveWorkbookToPipeDelimtedText"
-    
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Generate spreadsheet metadata"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "GenerateSpreadsheetMetaData"
-    
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Export VBA Code excluding module name"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportVBAcodeExModuleName"
     
     
     Set MenuCategory = Nothing
