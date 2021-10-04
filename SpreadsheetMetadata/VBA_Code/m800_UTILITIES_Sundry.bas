@@ -163,6 +163,13 @@ Function UserFormListBoxHasSelectedItems(ByRef lb As MSForms.ListBox) As Boolean
 End Function
 
 
+Function UserFormComboBoxHasSelectedItems(ByRef combo As MSForms.ComboBox) As Boolean
+    UserFormComboBoxHasSelectedItems = (combo.ListIndex <> -1)
+End Function
+
+
+
+
 Public Function ScreenDimensionWidth() As Long
 'https://www.mrexcel.com/board/threads/vba-to-find-screen-size-in-64bit-environment.1018797/
    

@@ -311,16 +311,19 @@ End Sub
 
 Sub ImportPreDefinedPowerQueries()
 
+    Dim wkb As Workbook
     Dim qry As WorkbookQuery
     Dim QueryDetails As Dictionary
     Dim QueryDetail As PowerQueryImportDetails
     Dim QueryName As String
     Dim i As Integer
     Dim uf As uf_PowerQueryImport
+    Dim qryKey As Variant
 
     StandardEntry
     
-    If ActiveWorkbook.Name = ThisWorkbook.Name Then
+    Set wkb = ActiveWorkbook
+    If wkb.Name = ThisWorkbook.Name Then
         MsgBox ("Cannot run this sub in current workbook")
         GoTo ExitPoint
     End If
@@ -338,11 +341,16 @@ Sub ImportPreDefinedPowerQueries()
         
     Set uf = New uf_PowerQueryImport
     Set uf.PowerQueryDetails = QueryDetails
-    'uf.PopulateCategoryDropdown
     uf.Show
-        
-    'If uf.UserSelectedCancel Then GoTo ExitPoint
-        
+            
+    If Not uf.UserSelectedCancel And Not uf.SelectedQueries Is Nothing Then
+        For Each qryKey In uf.SelectedQueries.Keys
+            wkb.Queries.Add Name:=qryKey, _
+                Formula:=uf.SelectedQueries(qryKey).Code, _
+                Description:=uf.SelectedQueries(qryKey).Description
+        Next qryKey
+    End If
+    
 ExitPoint:
     On Error Resume Next
     Unload uf

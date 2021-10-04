@@ -17,26 +17,27 @@ Option Explicit
 
 
 Private Type TypeUserFormPowerQueryImport
-    pqDetails As Dictionary
+    pqDetailsAll As Dictionary
+    pqDetailsSelected As Dictionary
     UserCancelled As Boolean
 End Type
 Private this As TypeUserFormPowerQueryImport
 
 
-Public Property Set PowerQueryDetails(pqDetails As Dictionary)
+Public Property Set PowerQueryDetails(pqDetailsAll As Dictionary)
 
     Dim UniqueCategories As Collection
     Dim QueryName As Variant
     Dim Category As Variant
     
-    Set this.pqDetails = pqDetails
+    Set this.pqDetailsAll = pqDetailsAll
     
     'Get unique categories
     Set UniqueCategories = New Collection
-    For Each QueryName In pqDetails.Keys
+    For Each QueryName In pqDetailsAll.Keys
         On Error Resume Next
-        UniqueCategories.Add Item:=pqDetails(QueryName).Category, _
-            Key:=pqDetails(QueryName).Category
+        UniqueCategories.Add Item:=pqDetailsAll(QueryName).Category, _
+            Key:=pqDetailsAll(QueryName).Category
         On Error GoTo 0
     Next QueryName
     
@@ -56,22 +57,30 @@ Public Property Get UserSelectedCancel() As Boolean
 End Property
 
 
+Public Property Get SelectedQueries() As Dictionary
+
+    Set SelectedQueries = this.pqDetailsSelected
+
+End Property
+
+
 Private Sub comboCategories_Change()
 
     Dim Key As Variant
 
     If Me.comboCategories.Value = "All" Then
-        For Each Key In this.pqDetails.Keys
+        For Each Key In this.pqDetailsAll.Keys
             Me.lbQueries.AddItem Key
         Next Key
     Else
         Me.lbQueries.Clear
-        For Each Key In this.pqDetails.Keys
-            If this.pqDetails.Item(Key).Category = Me.comboCategories.Value Then
+        For Each Key In this.pqDetailsAll.Keys
+            If this.pqDetailsAll.Item(Key).Category = Me.comboCategories.Value Then
                 Me.lbQueries.AddItem Key
             End If
         Next Key
     End If
+    Me.lbQueries.Selected(0) = True
 
 End Sub
 
@@ -83,7 +92,7 @@ Private Sub lbQueries_Change()
 '
     If NumberOfSelectedItemsInListBox(lbQueries) = 1 Then
         SingleSelectedListboxValue = ArrayOfListBoxSelections(lbQueries)(0)
-        Me.tblDescription = this.pqDetails.Item(SingleSelectedListboxValue).Description
+        Me.tblDescription = this.pqDetailsAll.Item(SingleSelectedListboxValue).Description
     Else
         Me.tblDescription = ""
     End If
@@ -93,10 +102,25 @@ End Sub
 
 Private Sub UserForm_Initialize()
     this.UserCancelled = False
+    Set this.pqDetailsSelected = Nothing
 End Sub
 
 
 Private Sub cbOK_Click()
+
+    Dim i As Long
+    Set this.pqDetailsSelected = New Dictionary
+    
+    If UserFormListBoxHasSelectedItems(Me.lbQueries) Then
+        Set this.pqDetailsSelected = New Dictionary
+        For i = 0 To Me.lbQueries.ListCount - 1
+           If Me.lbQueries.Selected(i) Then
+                this.pqDetailsSelected.Add Key:=Me.lbQueries.List(i), _
+                    Item:=this.pqDetailsAll(Me.lbQueries.List(i))
+           End If
+        Next i
+    End If
+
     Me.Hide
 End Sub
 

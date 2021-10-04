@@ -78,6 +78,7 @@ End Sub
 
 
 Sub ToggleErrorCheckRangeVisbilityOnSelectedSheets()
+Attribute ToggleErrorCheckRangeVisbilityOnSelectedSheets.VB_ProcData.VB_Invoke_Func = "H\n14"
 
     Dim sht As Worksheet
     Dim ReportSheet As ReportingSheet
@@ -115,6 +116,7 @@ End Sub
 
 
 Sub IndexPageNavigation()
+Attribute IndexPageNavigation.VB_ProcData.VB_Invoke_Func = "I\n14"
 
     Dim wkb As Workbook
     Dim TargetSheetName As String

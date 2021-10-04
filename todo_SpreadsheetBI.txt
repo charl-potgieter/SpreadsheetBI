@@ -1,12 +1,5 @@
 TODO
-------- 
-Change tab on XL_Developer to ListStorage
-
-Allow generation of standard power queries
-PowerQueries have already been imported.  
- - Create pipe delimited categorisation (VBA cant pick up folder names)
-  - Allow users to add from a userform
-  - Add query descriptions
+-------
 
 Where is best spot to store 
  * Useful standard DAX functions
