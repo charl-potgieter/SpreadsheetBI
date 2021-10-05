@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} uf_LambdaFunctionWizard 
-   Caption         =   "Insert Power Function"
+   Caption         =   "Insert Lambda Function"
    ClientHeight    =   6970
    ClientLeft      =   110
    ClientTop       =   450
@@ -20,18 +20,21 @@ Option Explicit
 'Use "This" declaration as an easy way to get intellisense to the classes private variables
 'https://rubberduckvba.wordpress.com/2020/02/27/vba-classes-gateway-to-solid/
 Private Type TypePowerFunctionWizard
-    LambdaStorage As ListStorage
+    Categories As Variant
     LambdaFormulaDetails As Dictionary
-    EventsAreEnabled As Boolean
     UserCancelled As Boolean
 End Type
 Private this As TypePowerFunctionWizard
 
 
-Public Property Set LambdaStorage(ByRef Storage)
-'cannot pass variables to  userform event so store as a class property (userforms are classes)
-    Set this.LambdaStorage = Storage
-End Property
+
+Private Sub UserForm_Initialize()
+    this.UserCancelled = False
+End Sub
+
+Private Sub UserForm_Terminate()
+   Set this.LambdaFormulaDetails = Nothing
+End Sub
 
 
 Public Property Get UserSelectedCancel() As Boolean
@@ -39,87 +42,24 @@ Public Property Get UserSelectedCancel() As Boolean
 End Property
 
 
-Property Let EnableEvents(Enable As Boolean)
+Public Property Let Categories(ByVal LambdaCategories As Variant)
+    
+    Dim i As Integer
+    
+    this.Categories = LambdaCategories
+    Me.comboCategories.Clear
+    Me.comboCategories.AddItem "All"
+    For i = LBound(LambdaCategories) To UBound(LambdaCategories)
+        Me.comboCategories.AddItem LambdaCategories(i)
+    Next i
+    
+End Property
 
+Public Property Set LambdaDetails(ByVal LambdaDetailDict As Dictionary)
+    Set this.LambdaFormulaDetails = LambdaDetailDict
 End Property
 
 
-Sub RefreshUserFormPropertiesFromStorage()
-
-    Dim i As Integer
-    Dim Categories
-    
-    ReadUniqueLambdaCategories this.LambdaStorage, Categories
-    Me.comboCategories.AddItem "All"
-    For i = LBound(Categories) To UBound(Categories)
-        Me.comboCategories.AddItem Categories(i)
-    Next i
-    Me.comboCategories.Value = "All"
-    
-    ReadLambdaFormulaDetails this.LambdaStorage, this.LambdaFormulaDetails
-
-End Sub
-
-
-
-Private Sub comboCategories_Change()
-
-    Dim LambdaNamesPerCategorySelection
-    Dim i As Integer
-    
-    ReadLambdaNamesPerCategory this.LambdaStorage, LambdaNamesPerCategorySelection, Me.comboCategories.Value
-    
-    Me.lbFunctions.Clear
-    For i = LBound(LambdaNamesPerCategorySelection) To UBound(LambdaNamesPerCategorySelection)
-        Me.lbFunctions.AddItem LambdaNamesPerCategorySelection(i)
-    Next i
-
-End Sub
-
-
-
-
-Private Sub lbFunctions_Click()
-    
-    Dim DisplayString As String
-    Dim FormulaNameSelected As String
-    Dim FormulaDetail As LambdaFormulaDetails
-    Dim ParameterDescriptions As Dictionary
-    Dim Parameter
-    Dim IsFirstParamter As Boolean
-    
-    FormulaNameSelected = Me.lbFunctions.Value
-    Set FormulaDetail = this.LambdaFormulaDetails(FormulaNameSelected)
-    Set ParameterDescriptions = FormulaDetail.ParameterDescriptions
-        
-    DisplayString = FormulaNameSelected & "("
-    
-    IsFirstParamter = True
-    For Each Parameter In ParameterDescriptions.Keys
-        If IsFirstParamter Then
-            DisplayString = DisplayString & Parameter
-        Else
-            DisplayString = DisplayString & ", " & Parameter
-        End If
-    Next Parameter
-    DisplayString = DisplayString & ")"
-    
-    
-    If Len(DisplayString) > 100 Then
-        DisplayString = Left(DisplayString, 98) & "..."
-    End If
-
-    'me.tbFunction.Text.Font =
-    Me.tbFunction.Value = DisplayString
-    
-    Me.tbDescription = FormulaDetail.Description
-    
-    
-End Sub
-
-Private Sub UserForm_Terminate()
-   Set this.LambdaStorage = Nothing
-End Sub
 
 
 Private Sub UserForm_QueryClose(Cancel As Integer _
@@ -132,3 +72,95 @@ Private Sub UserForm_QueryClose(Cancel As Integer _
     End If
     
 End Sub
+
+
+
+
+'Public Property Set LambdaStorage(ByRef Storage)
+''cannot pass variables to  userform event so store as a class property (userforms are classes)
+'    Set this.LambdaStorage = Storage
+'End Property
+
+
+
+
+
+
+'
+'Sub RefreshUserFormPropertiesFromStorage()
+'
+'    Dim i As Integer
+'    Dim Categories
+'
+'    ReadUniqueLambdaCategories this.LambdaStorage, Categories
+'    Me.comboCategories.AddItem "All"
+'    For i = LBound(Categories) To UBound(Categories)
+'        Me.comboCategories.AddItem Categories(i)
+'    Next i
+'    Me.comboCategories.Value = "All"
+'
+'    ReadLambdaFormulaDetails this.LambdaStorage, this.LambdaFormulaDetails
+'
+'End Sub
+'
+'
+'
+'Private Sub comboCategories_Change()
+'
+'    Dim LambdaNamesPerCategorySelection
+'    Dim i As Integer
+'
+'    ReadLambdaNamesPerCategory this.LambdaStorage, LambdaNamesPerCategorySelection, Me.comboCategories.Value
+'
+'    Me.lbFunctions.Clear
+'    For i = LBound(LambdaNamesPerCategorySelection) To UBound(LambdaNamesPerCategorySelection)
+'        Me.lbFunctions.AddItem LambdaNamesPerCategorySelection(i)
+'    Next i
+'
+'End Sub
+'
+'
+'
+'
+'Private Sub lbFunctions_Click()
+'
+'    Dim DisplayString As String
+'    Dim FormulaNameSelected As String
+'    Dim FormulaDetail As LambdaFormulaDetails
+'    Dim ParameterDescriptions As Dictionary
+'    Dim Parameter
+'    Dim IsFirstParamter As Boolean
+'
+'    FormulaNameSelected = Me.lbFunctions.Value
+'    Set FormulaDetail = this.LambdaFormulaDetails(FormulaNameSelected)
+'    Set ParameterDescriptions = FormulaDetail.ParameterDescriptions
+'
+'    DisplayString = FormulaNameSelected & "("
+'
+'    IsFirstParamter = True
+'    For Each Parameter In ParameterDescriptions.Keys
+'        If IsFirstParamter Then
+'            DisplayString = DisplayString & Parameter
+'        Else
+'            DisplayString = DisplayString & ", " & Parameter
+'        End If
+'    Next Parameter
+'    DisplayString = DisplayString & ")"
+'
+'
+'    If Len(DisplayString) > 100 Then
+'        DisplayString = Left(DisplayString, 98) & "..."
+'    End If
+'
+'    'me.tbFunction.Text.Font =
+'    Me.tbFunction.Value = DisplayString
+'
+'    Me.tbDescription = FormulaDetail.Description
+'
+'
+'End Sub
+
+
+
+
+

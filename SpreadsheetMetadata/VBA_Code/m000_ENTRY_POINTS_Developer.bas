@@ -81,7 +81,7 @@ Sub CreateSpreadsheetFromMetadata()
     FileName = GetCreatorFileName(StorageOther)
     FormatCoverSheet InitialSheetOnWorkbookCreation, FileName
     
-    If StorageIsEmpty(StorageListObjFields) Then GoTo ExitPoint
+    If StorageIsEmpty(StorageListObjFields) Then GoTo Exitpoint
     
     'Create table storage and set formulas
     SheetNames = GetSheetNames(StorageListObjFields)
@@ -136,7 +136,7 @@ Sub CreateSpreadsheetFromMetadata()
     Next i
     
 
-ExitPoint:
+Exitpoint:
     'Cleanup
     DeleteStorage StorageListObjFields
     DeleteStorage StorageListObjFieldValues

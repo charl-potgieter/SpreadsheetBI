@@ -1,18 +1,11 @@
 TODO
 -------
+Work on Lambda function wizard (lambdas are now being stored in the add-in)
+ - allow multi-select import
+ - allow indented add-in to be copied for easier analysis (only when single lambda selected)
+ - once clicked ok move into uf_LambdaParameters, similar to what happens with the function wizard
+ - assign a shortcut key
 
-For both PowerQueries in lambdas should I store in git repo (and allow multiple repos) or simply store directly in the Spreadsheet BI add in.
- * Leaning towards save in add-in
- * May also need to add lambda export and import to metadata creation
-
- Attached works pulling a list of files in git folder via power query:
-  Json.Document(Web.Contents("https://api.github.com/repos/ImkeF/M/contents\Library"))
-https://itsallbinary.com/github-rest-api-get-remote-github-repo-files-list-download-file-content-programmatically-without-cloning-in-local/
-
-
-Where is best spot to store 
- * Useful standard DAX functions
- * Lambda formulas
 
 See todos of other projects that have been rolled up into SpreadsheetBI
 

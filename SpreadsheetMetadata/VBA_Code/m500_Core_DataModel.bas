@@ -87,7 +87,7 @@ Sub WriteModelMeasuresToSheet()
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
 
     If UBound(aMeasures) = 0 And aMeasures(0).Name = "NULL" Then
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
 
     With lo
@@ -100,7 +100,7 @@ Sub WriteModelMeasuresToSheet()
         Next i
     End With
 
-ExitPoint:
+Exitpoint:
 
 End Sub
 
@@ -124,7 +124,7 @@ Sub WriteModelMeasuresToPipeDelimtedText(ByRef wkb As Workbook, ByVal sFilePathA
     Print #iFileNo, """Name""|""Visible""|""Unique Name""|""Dax Expression""|""Name and Expression""";
 
     If UBound(aMeasures) = 0 And aMeasures(0).Name = "NULL" Then
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
     
     For i = 0 To UBound(aMeasures)
@@ -140,7 +140,7 @@ Sub WriteModelMeasuresToPipeDelimtedText(ByRef wkb As Workbook, ByVal sFilePathA
         Print #iFileNo, sRowToWrite;
     Next i
 
-ExitPoint:
+Exitpoint:
     Close #iFileNo
 
 
@@ -163,7 +163,7 @@ Sub WriteModelMeasuresToHumanReadableText(ByRef wkb As Workbook, ByVal sFilePath
     Open sFilePathAndName For Output As #iFileNo
 
     If UBound(aMeasures) = 0 And aMeasures(0).Name = "NULL" Then
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
     
     'Write Header
@@ -186,7 +186,7 @@ Sub WriteModelMeasuresToHumanReadableText(ByRef wkb As Workbook, ByVal sFilePath
         Print #iFileNo, sRowToWrite;
     Next i
 
-ExitPoint:
+Exitpoint:
     Close #iFileNo
 
 
@@ -240,7 +240,7 @@ Sub WriteModelCalcColsToPipeDelimitedFile(ByRef wkb As Workbook, ByVal sFilePath
     Print #iFileNo, "Name|Table Name|Expression";
 
     If UBound(aCalcColumns) = 0 And aCalcColumns(0).Name = "NULL" Then
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
     
     For i = 0 To UBound(aCalcColumns)
@@ -251,7 +251,7 @@ Sub WriteModelCalcColsToPipeDelimitedFile(ByRef wkb As Workbook, ByVal sFilePath
             Print #iFileNo, sRowToWrite;
     Next i
 
-ExitPoint:
+Exitpoint:
     Close #iFileNo
 
 
@@ -280,7 +280,7 @@ Sub WriteModelColsToSheet()
 
 
     If UBound(aColumns) = 0 And aColumns(0).Name = "NULL" Then
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
 
     With lo
@@ -293,7 +293,7 @@ Sub WriteModelColsToSheet()
         Next i
     End With
 
-ExitPoint:
+Exitpoint:
 
 End Sub
 
@@ -316,7 +316,7 @@ Sub WriteModelColsToPipeDelimitedFile(ByRef wkb As Workbook, ByVal sFilePathAndN
     Print #iFileNo, "Name|Table Name|Unique Name|Visible";
 
     If UBound(aColumns) = 0 And aColumns(0).Name = "NULL" Then
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
     
     For i = 0 To UBound(aColumns)
@@ -328,7 +328,7 @@ Sub WriteModelColsToPipeDelimitedFile(ByRef wkb As Workbook, ByVal sFilePathAndN
             Print #iFileNo, sRowToWrite;
     Next i
 
-ExitPoint:
+Exitpoint:
     Close #iFileNo
 
 
@@ -357,7 +357,7 @@ Sub WriteModelRelationshipsToSheet()
     lo.DataBodyRange.Offset(1, 0).EntireRow.Delete
 
     If UBound(aModelRelationships) = 0 And aModelRelationships(0).ForeignKeyColumn = "NULL" Then
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
 
     With lo
@@ -370,7 +370,7 @@ Sub WriteModelRelationshipsToSheet()
         Next i
     End With
 
-ExitPoint:
+Exitpoint:
     
 
 End Sub
@@ -394,7 +394,7 @@ Sub WriteModelRelationshipsToPipeDelimitedFile(ByRef wkb As Workbook, ByVal sFil
     Print #iFileNo, "Primary Key Table|Primary Key Column|Foreign Key Table|Foreign Key Column|Active";
 
     If UBound(aRelationships) = 0 And aRelationships(0).PrimaryKeyColumn = "NULL" Then
-        GoTo ExitPoint
+        GoTo Exitpoint
     End If
     
     For i = 0 To UBound(aRelationships)
@@ -407,7 +407,7 @@ Sub WriteModelRelationshipsToPipeDelimitedFile(ByRef wkb As Workbook, ByVal sFil
             Print #iFileNo, sRowToWrite;
     Next i
 
-ExitPoint:
+Exitpoint:
     Close #iFileNo
 
 

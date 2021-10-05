@@ -248,23 +248,23 @@ Sub CreatePopUpMenu()
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Insert lambda"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ShowLambdaUserForm"
-    
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Export lambda functions from active workbook to xml"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportLambdaFunctionsFromActiveWorkbookToXml"
-    
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Add lambda git repo to active workbook"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "AddLambdaGitRepoToActiveWorkbook"
-    
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Refresh formulas"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "RefreshAvailableLambdaFormulas"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertLambda"
 
-    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Create lambda xml generator workbook"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateLambdaXmlGeneratorWorkbook"
+'    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+'    MenuItem.Caption = "Export lambda functions from active workbook to xml"
+'    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportLambdaFunctionsFromActiveWorkbookToXml"
+'
+'    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+'    MenuItem.Caption = "Add lambda git repo to active workbook"
+'    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "AddLambdaGitRepoToActiveWorkbook"
+'
+'    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+'    MenuItem.Caption = "Refresh formulas"
+'    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "RefreshAvailableLambdaFormulas"
+'
+'    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+'    MenuItem.Caption = "Create lambda xml generator workbook"
+'    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateLambdaXmlGeneratorWorkbook"
     
     
     'Developer Menu
