@@ -3,32 +3,35 @@ Option Explicit
 
 
 Public Sub InsertLambda()
+Attribute InsertLambda.VB_ProcData.VB_Invoke_Func = "F\n14"
 
-    Dim uf_Wizard As uf_LambdaFunctionWizard
-    Dim uf_Parameters As uf_LambdaFunctionWizard
-    Dim LambdaCategories As Variant
-    Dim Lambdas As Dictionary
-    Dim Storage
+    Dim SelectedLambda As LambdaFormulaDetails
+    Dim LambdaParameters As Variant
+    Dim wkb As Workbook
     
     StandardEntry
-    Set Storage = AssignLambdaStorage
-    Set uf_Wizard = New uf_LambdaFunctionWizard
-    ReadUniqueLambdaCategories Storage, LambdaCategories
-    Set Lambdas = ReadLambdaFormulaDetails(Storage)
-    Set uf_Wizard.LambdaDetails = Lambdas
-    uf_Wizard.Categories = LambdaCategories
-    uf_Wizard.Show
-
-Exitpoint:
-    On Error Resume Next
-    Unload uf_Wizard
-    Unload uf_Parameters
-    On Error GoTo 0
+    Set wkb = ActiveWorkbook
     
-    Set uf_Wizard = Nothing
-    Set uf_Parameters = Nothing
-    Set Storage = Nothing
-    Set Lambdas = Nothing
+    
+    Set SelectedLambda = GetLambdaFromUser(wkb)
+    
+    If Not SelectedLambda Is Nothing Then
+    
+        'Turn screenupdating on to view "marching ants" around selected range
+        Application.ScreenUpdating = True
+        LambdaParameters = GetLambdaParametersFromUser(SelectedLambda)
+        Application.ScreenUpdating = False
+        
+        If Not IsEmpty(LambdaParameters) Then
+            AddLambdaToWorkbook wkb, SelectedLambda
+            WriteLambdaToCell SelectedLambda, ActiveCell, LambdaParameters
+        End If
+        
+    End If
+    
+Exitpoint:
+    Set SelectedLambda = Nothing
+    Set wkb = Nothing
     StandardExit
 
 End Sub
@@ -194,14 +197,14 @@ End Sub
 'Sub ShowLambdaUserForm()
 '
 '    Dim LambdaStorage
-'    Dim uf As uf_LambdaFunctionWizard
+'    Dim uf As uf
 '    Dim i As Integer
 '    Dim LambdaNames
 '
 '
 '    StandardEntry
 '    Set LambdaStorage = AssignLambdaStorage
-'    Set uf = New uf_LambdaFunctionWizard
+'    Set uf = New uf
 '    Set uf.LambdaStorage = LambdaStorage
 '
 '    uf.RefreshUserFormPropertiesFromStorage

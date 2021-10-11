@@ -1,10 +1,30 @@
 TODO
 -------
+
+Look at mr excel lambdas 
+https://t.co/EIJ0mh1eXq?amp=1
+
+
 Work on Lambda function wizard (lambdas are now being stored in the add-in)
- - allow multi-select import
+ - Transition lambdas to a git repo (each lambda in its own file with header description)
+ - Maybe instead of indented text copy have a link to the github page
+ - Import Standard Power Queries currently broken due to no delimiter in lambda query
+  --> Maybe also transition the standard power queries to a git repo?
+ - When user enters text in wizard the quotes should be auto added (maybe test for formula with evaluate, if it generates an error it is text)
+ - When terminating parameter userform can I loop all controls on frame and set as nothing?
+  - Lambda Paramater form => set tab stops including on the ok and cancel buttons
+  - Lambda Parameter form needs to allow for optional parameters
  - allow indented add-in to be copied for easier analysis (only when single lambda selected)
  - once clicked ok move into uf_LambdaParameters, similar to what happens with the function wizard
  - assign a shortcut key
+ - when generating a text copy ensure that it matches the definition in name manager (if it exists), and if not do not generate
+
+Set RefBox = uf.Frame1.Controls.Add("RefEdit.Ctrl", "blah", True)
+
+May still be worth exploring getting Lambdas and power queries from github?
+
+Look at dynamic array accumulation
+https://techcommunity.microsoft.com/t5/excel/ways-of-performing-accumulation-with-dynamic-arrays/m-p/2329035
 
 
 See todos of other projects that have been rolled up into SpreadsheetBI

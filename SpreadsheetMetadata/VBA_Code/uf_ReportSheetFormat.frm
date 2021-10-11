@@ -34,8 +34,6 @@ Private Sub UserForm_QueryClose(Cancel As Integer _
 End Sub
 
 
-
-
 Private Sub cbOK_Click()
     Me.Hide
 End Sub

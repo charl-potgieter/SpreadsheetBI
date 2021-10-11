@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} uf_LambdaFunctionWizard 
-   Caption         =   "Insert Lambda Function"
+   Caption         =   "Lambda function wizard"
    ClientHeight    =   6970
    ClientLeft      =   110
    ClientTop       =   450
@@ -23,9 +23,95 @@ Private Type TypePowerFunctionWizard
     Categories As Variant
     LambdaFormulaDetails As Dictionary
     UserCancelled As Boolean
+    LambdaDetailsSelected As LambdaFormulaDetails
 End Type
 Private this As TypePowerFunctionWizard
 
+
+Private Sub cbOK_Click()
+
+    Dim LambdaNameSelected
+    
+    LambdaNameSelected = FirstListBoxSelection(Me.lbFunctions)
+    Set this.LambdaDetailsSelected = this.LambdaFormulaDetails(LambdaNameSelected)
+    Me.Hide
+
+End Sub
+
+
+Private Sub cbCancel_Click()
+    Me.Hide
+    this.UserCancelled = True
+End Sub
+
+
+Private Sub cbGetFormulaText_Click()
+    
+    Dim sht As Worksheet
+    
+    Set sht = ActiveWorkbook.Sheets.Add
+    FormatSheet sht
+    
+    With sht.Range("B5")
+       
+    
+    End With
+      
+'        Application.CutCopyMode = False
+'    Selection.NumberFormat = "@"
+'    With Selection
+'        .HorizontalAlignment = xlGeneral
+'        .VerticalAlignment = xlBottom
+'        .WrapText = False
+'        .Orientation = 0
+'        .AddIndent = False
+'        .IndentLevel = 0
+'        .ShrinkToFit = False
+'        .ReadingOrder = xlContext
+'        .MergeCells = False
+'    End With
+'    With Selection
+'        .HorizontalAlignment = xlLeft
+'        .VerticalAlignment = xlTop
+'        .WrapText = True
+'        .Orientation = 0
+'        .AddIndent = False
+'        .IndentLevel = 0
+'        .ShrinkToFit = False
+'        .ReadingOrder = xlContext
+'        .MergeCells = False
+'    End With
+'    Columns("B:B").EntireColumn.AutoFit
+'    Rows("2:2").EntireRow.AutoFit
+'    Columns("B:B").ColumnWidth = 96.91
+'    Rows("2:2").EntireRow.AutoFit
+    Columns("B:B").Select
+    
+    
+End Sub
+
+
+
+Private Sub comboCategories_Change()
+
+    Dim Key As Variant
+    
+    Me.lbFunctions.Clear
+    For Each Key In this.LambdaFormulaDetails.Keys
+        If Me.comboCategories.Value = "All" Or _
+            this.LambdaFormulaDetails(Key).Category = Me.comboCategories.Value Then
+                Me.lbFunctions.AddItem Key
+        End If
+    Next Key
+    Me.lbFunctions.ListIndex = 0
+    
+End Sub
+
+
+
+Private Sub lbFunctions_Change()
+    DisplayLambdaNameParametersAndDescription
+End Sub
 
 
 Private Sub UserForm_Initialize()
@@ -34,6 +120,7 @@ End Sub
 
 Private Sub UserForm_Terminate()
    Set this.LambdaFormulaDetails = Nothing
+   Set this.LambdaDetailsSelected = Nothing
 End Sub
 
 
@@ -52,13 +139,29 @@ Public Property Let Categories(ByVal LambdaCategories As Variant)
     For i = LBound(LambdaCategories) To UBound(LambdaCategories)
         Me.comboCategories.AddItem LambdaCategories(i)
     Next i
+    Me.comboCategories.ListIndex = 0
     
 End Property
 
 Public Property Set LambdaDetails(ByVal LambdaDetailDict As Dictionary)
+    
+    Dim Key As Variant
+    
     Set this.LambdaFormulaDetails = LambdaDetailDict
+    For Each Key In this.LambdaFormulaDetails.Keys
+        Me.lbFunctions.AddItem Key
+    Next Key
+    Me.lbFunctions.ListIndex = 0
+    DisplayLambdaNameParametersAndDescription
+    
 End Property
 
+
+
+
+Public Property Get SelectedLambdaDetails() As LambdaFormulaDetails
+    Set SelectedLambdaDetails = this.LambdaDetailsSelected
+End Property
 
 
 
@@ -73,6 +176,37 @@ Private Sub UserForm_QueryClose(Cancel As Integer _
     
 End Sub
 
+
+Private Sub DisplayLambdaNameParametersAndDescription()
+    
+    Dim LambdaName As String
+    Dim LambdaDetail As LambdaFormulaDetails
+    Dim LambaDisplayString As String
+    Dim DescriptionDisplayString As String
+    Dim Key As Variant
+    Dim IsFirstKeyInDictionary As Boolean
+
+    If NumberOfSelectedItemsInListBox(Me.lbFunctions) = 1 Then
+        LambdaName = Me.lbFunctions.Value
+        Set LambdaDetail = this.LambdaFormulaDetails(LambdaName)
+        LambaDisplayString = LambdaName & "("
+        IsFirstKeyInDictionary = True
+        For Each Key In LambdaDetail.ParameterDescriptions.Keys
+            If Not IsFirstKeyInDictionary Then LambaDisplayString = LambaDisplayString & ", "
+            IsFirstKeyInDictionary = False
+            LambaDisplayString = LambaDisplayString & Key
+        Next Key
+        LambaDisplayString = LambaDisplayString & ")"
+        DescriptionDisplayString = LambdaDetail.Description
+    Else
+        LambaDisplayString = ""
+        DescriptionDisplayString = ""
+    End If
+
+    Me.tbFunction.Value = LambaDisplayString
+    Me.tbDescription = DescriptionDisplayString
+
+End Sub
 
 
 
@@ -124,7 +258,7 @@ End Sub
 '
 'Private Sub lbFunctions_Click()
 '
-'    Dim DisplayString As String
+'    Dim LambaDisplayString As String
 '    Dim FormulaNameSelected As String
 '    Dim FormulaDetail As LambdaFormulaDetails
 '    Dim ParameterDescriptions As Dictionary
@@ -135,25 +269,25 @@ End Sub
 '    Set FormulaDetail = this.LambdaFormulaDetails(FormulaNameSelected)
 '    Set ParameterDescriptions = FormulaDetail.ParameterDescriptions
 '
-'    DisplayString = FormulaNameSelected & "("
+'    LambaDisplayString = FormulaNameSelected & "("
 '
 '    IsFirstParamter = True
 '    For Each Parameter In ParameterDescriptions.Keys
 '        If IsFirstParamter Then
-'            DisplayString = DisplayString & Parameter
+'            LambaDisplayString = LambaDisplayString & Parameter
 '        Else
-'            DisplayString = DisplayString & ", " & Parameter
+'            LambaDisplayString = LambaDisplayString & ", " & Parameter
 '        End If
 '    Next Parameter
-'    DisplayString = DisplayString & ")"
+'    LambaDisplayString = LambaDisplayString & ")"
 '
 '
-'    If Len(DisplayString) > 100 Then
-'        DisplayString = Left(DisplayString, 98) & "..."
+'    If Len(LambaDisplayString) > 100 Then
+'        LambaDisplayString = Left(LambaDisplayString, 98) & "..."
 '    End If
 '
 '    'me.tbFunction.Text.Font =
-'    Me.tbFunction.Value = DisplayString
+'    Me.tbFunction.Value = LambaDisplayString
 '
 '    Me.tbDescription = FormulaDetail.Description
 '

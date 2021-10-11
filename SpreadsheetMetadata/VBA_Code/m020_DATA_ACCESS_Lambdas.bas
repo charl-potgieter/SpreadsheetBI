@@ -50,6 +50,7 @@ Function ReadLambdaFormulaDetails(ByVal LambdaStorage) As Dictionary
     For i = 0 To NumberOfLambdas - 1
         Set LambdaFormulaDetails = New LambdaFormulaDetails
         With LambdaFormulaDetails
+            .Name = Storage.FieldItemByIndex("Name", i + 1)
             .RefersTo = Storage.FieldItemByIndex("RefersTo", i + 1)
             .Category = Storage.FieldItemByIndex("Category", i + 1)
             .Author = Storage.FieldItemByIndex("Author", i + 1)

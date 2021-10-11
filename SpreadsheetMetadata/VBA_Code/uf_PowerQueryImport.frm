@@ -142,3 +142,7 @@ Private Sub UserForm_QueryClose(Cancel As Integer _
     
 End Sub
 
+Private Sub UserForm_Terminate()
+    Set this.pqDetailsAll = Nothing
+    Set this.pqDetailsSelected = Nothing
+End Sub

@@ -32,7 +32,7 @@ End Sub
 
 
 
-Function SheetLevelRangeNameExists(sht As Worksheet, ByRef sRangeName As String)
+Function SheetLevelRangeNameExists(sht As Worksheet, ByVal sRangeName As String)
 'Returns TRUE if sheet level scoped range name exists
 
     Dim sTest As String
@@ -42,6 +42,19 @@ Function SheetLevelRangeNameExists(sht As Worksheet, ByRef sRangeName As String)
     SheetLevelRangeNameExists = (Err.Number = 0)
     On Error GoTo 0
 
+
+End Function
+
+
+Function WorkbookLevelRangeNameExists(ByVal wkb As Workbook, ByVal sRangeName As String)
+'Returns TRUE if sheet level scoped range name exists
+
+    Dim sTest As String
+    
+    On Error Resume Next
+    sTest = wkb.Names(sRangeName).Name
+    WorkbookLevelRangeNameExists = (Err.Number = 0)
+    On Error GoTo 0
 
 End Function
 
@@ -385,3 +398,25 @@ Function ArrayOfListBoxSelections(ByVal lb As MSForms.ListBox)
 End Function
 
 
+
+Function FirstListBoxSelection(ByVal lb As MSForms.ListBox)
+
+    Dim i As Long
+    Dim SelectionFound As Boolean
+    
+    i = 0
+    SelectionFound = False
+    Do While i <= (lb.ListCount - 1) And Not SelectionFound
+        If lb.Selected(i) Then
+            FirstListBoxSelection = lb.List(i)
+            SelectionFound = True
+        End If
+        i = i + 1
+    Loop
+    
+End Function
+
+
+Function CleanTrim(ByVal str As String) As String
+    CleanTrim = WorksheetFunction.Clean(Trim(str))
+End Function
