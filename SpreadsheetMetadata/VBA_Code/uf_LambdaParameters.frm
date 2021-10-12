@@ -132,6 +132,3 @@ Private Function ParamIsOptional(ByVal ParamName As String) As Boolean
 End Function
 
 
-Private Sub FrameParameters_Click()
-
-End Sub

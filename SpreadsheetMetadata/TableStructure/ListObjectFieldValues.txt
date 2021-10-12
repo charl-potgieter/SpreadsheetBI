@@ -1,14 +1,29 @@
-SheetName|ListObjectName|ListObjectHeader|ValueSundryStorage|tbl_SundryStorage|Item|Last used directory text referenced power queriesSundryStorage|tbl_SundryStorage|Value|C:\Users\charl\Dropbox\Dropbox_Charl\Computer_Technical\Programming_GitHub\SpreadsheetPowerLibrary\SpreadsheetMetadata\PowerQueriesSundryStorage|tbl_SundryStorage|Item|Last used directory for creating spreadsheet from metadataSundryStorage|tbl_SundryStorage|Value|C:\Users\charl\Dropbox\TempReportSheetFormat|tbl_ReportSheetFormat|Item|Sheet fontReportSheetFormat|tbl_ReportSheetFormat|Value|CalibriReportSheetFormat|tbl_ReportSheetFormat|Item|Default font sizeReportSheetFormat|tbl_ReportSheetFormat|Value|11ReportSheetFormat|tbl_ReportSheetFormat|Item|Zoom percentageReportSheetFormat|tbl_ReportSheetFormat|Value|80ReportSheetFormat|tbl_ReportSheetFormat|Item|Heading colour red (0 to 255)ReportSheetFormat|tbl_ReportSheetFormat|Value|10ReportSheetFormat|tbl_ReportSheetFormat|Item|Heading colour green (0 to 255)ReportSheetFormat|tbl_ReportSheetFormat|Value|10ReportSheetFormat|tbl_ReportSheetFormat|Item|Heading colour blue (0 to 255)ReportSheetFormat|tbl_ReportSheetFormat|Value|10ReportSheetFormat|tbl_ReportSheetFormat|Item|Heading font sizeReportSheetFormat|tbl_ReportSheetFormat|Value|20Lambdas|tbl_Lambdas|Name|AppendTwoColumnsLambdas|tbl_Lambdas|RefersTo|=LAMBDA(range1,range2,
-  LET(
-          RowsRng1, ROWS(range1),
+SheetName|ListObjectName|ListObjectHeader|ValueSundryStorage|tbl_SundryStorage|Item|Last used directory text referenced power queriesSundryStorage|tbl_SundryStorage|Value|C:\Users\charl\Dropbox\Dropbox_Charl\Computer_Technical\Programming_GitHub\SpreadsheetPowerLibrary\SpreadsheetMetadata\PowerQueriesSundryStorage|tbl_SundryStorage|Item|Last used directory for creating spreadsheet from metadataSundryStorage|tbl_SundryStorage|Value|C:\Users\charl\Dropbox\TempReportSheetFormat|tbl_ReportSheetFormat|Item|Sheet fontReportSheetFormat|tbl_ReportSheetFormat|Value|CalibriReportSheetFormat|tbl_ReportSheetFormat|Item|Default font sizeReportSheetFormat|tbl_ReportSheetFormat|Value|11ReportSheetFormat|tbl_ReportSheetFormat|Item|Zoom percentageReportSheetFormat|tbl_ReportSheetFormat|Value|80ReportSheetFormat|tbl_ReportSheetFormat|Item|Heading colour red (0 to 255)ReportSheetFormat|tbl_ReportSheetFormat|Value|10ReportSheetFormat|tbl_ReportSheetFormat|Item|Heading colour green (0 to 255)ReportSheetFormat|tbl_ReportSheetFormat|Value|10ReportSheetFormat|tbl_ReportSheetFormat|Item|Heading colour blue (0 to 255)ReportSheetFormat|tbl_ReportSheetFormat|Value|10ReportSheetFormat|tbl_ReportSheetFormat|Item|Heading font sizeReportSheetFormat|tbl_ReportSheetFormat|Value|20Lambdas|tbl_Lambdas|Category|Date and timeLambdas|tbl_Lambdas|Name|MonthEndsBetweenDatesLambdas|tbl_Lambdas|Author|Charl Potgieter
+Lambdas|tbl_Lambdas|Description|Returns an array of month ends between start and end dates
+Lambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|DateStart|First of month sequence|DateEnd|Last month of sequence
+Lambdas|tbl_Lambdas|RefersTo|=LAMBDA(DateStart,DateEnd,
+      LET(
+           MonthsBetween, (YEAR(DateEnd) * 12 + MONTH(DateEnd))  - (YEAR(DateStart) * 12 + MONTH(DateStart)) +1,
+           Seq, SEQUENCE(MonthsBetween),
+           EOMONTH(DateStart, Seq-1)
+      )
+)Lambdas|tbl_Lambdas|Category|Joins and data shapesLambdas|tbl_Lambdas|Name|AppendTwoColumnsLambdas|tbl_Lambdas|Author|Charl Potgieter
+Lambdas|tbl_Lambdas|Description|Appends 2 columns, one below the other
+Lambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|range1|First range to append|range2|Second range to append
+Lambdas|tbl_Lambdas|RefersTo|=LAMBDA(range1,range2,
+    LET(
+        RowsRng1, ROWS(range1),
           RowsTotal, ROWS(range1) + ROWS(range2),
           Seq,SEQUENCE(RowsTotal),
           IF(
               Seq<=RowsRng1, INDEX(range1, Seq),
               INDEX(range2, Seq-RowsRng1)
-             )
          )
-)Lambdas|tbl_Lambdas|Category|Joins and data shapesLambdas|tbl_Lambdas|Author|Charl PotgieterLambdas|tbl_Lambdas|Description|Appends 2 columns, one below the otherLambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|range1|First range to append|range2|Second range to appendLambdas|tbl_Lambdas|Name|StackArrayLambdas|tbl_Lambdas|RefersTo|=LAMBDA(ArrayToStack,
+     )
+)Lambdas|tbl_Lambdas|Category|Joins and data shapesLambdas|tbl_Lambdas|Name|StackArrayLambdas|tbl_Lambdas|Author|Charl Potgieter
+Lambdas|tbl_Lambdas|Description|Converts an x by y element array into a single column by stacking all the columns on top of each other
+Lambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|ArrayToStack|Array or selection of cells to be stacked
+Lambdas|tbl_Lambdas|RefersTo|=LAMBDA(ArrayToStack,
      LET(
            ColCount, COLUMNS(ArrayToStack),
            RowCount, ROWS(ArrayToStack),
@@ -21,17 +36,14 @@ SheetName|ListObjectName|ListObjectHeader|ValueSundryStorage|tbl_SundryStorage|
            ArrayInclErrors, IF(ReturnValue = "", ErrorValue, ReturnValue),
            FILTER(ArrayInclErrors, NOT(ISERROR(ArrayInclErrors)))
         )
-)Lambdas|tbl_Lambdas|Category|Joins and data shapesLambdas|tbl_Lambdas|Author|Charl PotgieterLambdas|tbl_Lambdas|Description|Converts an x by y element array into a single column by stacking all the columns on top of each otherLambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|ArrayToStack|Array or selection of cells to be stackedLambdas|tbl_Lambdas|Name|SplitTextLambdas|tbl_Lambdas|RefersTo|=LAMBDA(text,delim,
+    )Lambdas|tbl_Lambdas|Category|TextLambdas|tbl_Lambdas|Name|SplitTextLambdas|tbl_Lambdas|Author|ExcelJet
+Lambdas|tbl_Lambdas|Description|https://exceljet.net/formula/lambda-split-text-to-array
+Lambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|text|Text to be delimited|delim|Characted delimiter
+Lambdas|tbl_Lambdas|RefersTo|=LAMBDA(text,delim,
       TRANSPOSE(
            FILTERXML(
                 "<x><y>" & SUBSTITUTE(text,delim,"</y><y>") & "</y></x>",
                  "//y"
              )
        )
-)Lambdas|tbl_Lambdas|Category|TextLambdas|tbl_Lambdas|Author|ExcelJetLambdas|tbl_Lambdas|Description|https://exceljet.net/formula/lambda-split-text-to-arrayLambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|text|Text to be delimited|delim|Characted delimiterLambdas|tbl_Lambdas|Name|MonthEndsBetweenDatesLambdas|tbl_Lambdas|RefersTo|=LAMBDA(DateStart,DateEnd,
-      LET(
-           MonthsBetween, (YEAR(DateEnd) * 12 + MONTH(DateEnd))  - (YEAR(DateStart) * 12 + MONTH(DateStart)) +1,
-           Seq, SEQUENCE(MonthsBetween),
-           EOMONTH(DateStart, Seq-1)
-      )
-)Lambdas|tbl_Lambdas|Category|Date and timeLambdas|tbl_Lambdas|Author|Charl PotgieterLambdas|tbl_Lambdas|Description|Returns an array of month ends between start and end datesLambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|DateStart|First of month sequence|DateEnd|Last month of sequenceLambdas|tbl_Lambdas|Name|ALotOfParamsLambdas|tbl_Lambdas|RefersTo|=LAMBDA(a,b,c,d,e,f,g,h,I,j,k,l,m,n,o,p, a)Lambdas|tbl_Lambdas|Category|AAALambdas|tbl_Lambdas|Author|MeLambdas|tbl_Lambdas|Description|LotsaLambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|a|param descrip a|b|param descrip b|c|param descrip c|d|param descrip d|e|param descrip e|f|param descrip f|g|param descrip g|h|param descrip h|i|param descrip i|j|param descrip j|k|param descrip k|l|param descrip l|m|param descrip m|n|param descrip n|o|param descrip o|p|param descrip pLambdas|tbl_Lambdas|Name|ALotOfParams up to JLambdas|tbl_Lambdas|RefersTo|=LAMBDA(a,b,c,d,e,f,g,h,I,j)Lambdas|tbl_Lambdas|Category|AAALambdas|tbl_Lambdas|Author|MeLambdas|tbl_Lambdas|Description|LotsaLambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|a|param descrip a|b|param descrip b|c|param descrip c|d|param descrip d|e|param descrip e|f|param descrip f|g|param descrip g|h|param descrip h|i|param descrip i|j|param descrip jLambdas|tbl_Lambdas|Name|ALotOfParams up to kLambdas|tbl_Lambdas|RefersTo|=LAMBDA(a,b,c,d,e,f,g,h,I,j,k)Lambdas|tbl_Lambdas|Category|AAALambdas|tbl_Lambdas|Author|MeLambdas|tbl_Lambdas|Description|LotsaLambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|a|param descrip a|b|param descrip b|c|param descrip c|d|param descrip d|e|param descrip e|f|param descrip f|g|param descrip g|h|param descrip h|i|param descrip i|j|param descrip j|k|param descrip kLambdas|tbl_Lambdas|Name|ALotOfParams up to iLambdas|tbl_Lambdas|RefersTo|=LAMBDA(a,b,c,d,e,f,g,h,I,j,k)Lambdas|tbl_Lambdas|Category|AAALambdas|tbl_Lambdas|Author|MeLambdas|tbl_Lambdas|Description|LotsaLambdas|tbl_Lambdas|PipeDelimitedParameterAndDescription|a|param descrip a|b|param descrip b|c|param descrip c|d|param descrip d|e|param descrip e|f|param descrip f|g|param descrip g|h|param descrip h|i|param descrip i
+)

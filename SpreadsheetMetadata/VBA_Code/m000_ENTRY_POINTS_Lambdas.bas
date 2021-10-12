@@ -1,6 +1,8 @@
 Attribute VB_Name = "m000_ENTRY_POINTS_Lambdas"
 Option Explicit
 
+Public Const gcsLambdaXmlMapName As String = "LambdaMap"
+'Public Const gcsCommentPrefix = "<PowerFormulaImport>"
 
 Public Sub InsertLambda()
 Attribute InsertLambda.VB_ProcData.VB_Invoke_Func = "F\n14"
@@ -29,7 +31,7 @@ Attribute InsertLambda.VB_ProcData.VB_Invoke_Func = "F\n14"
         
     End If
     
-Exitpoint:
+ExitPoint:
     Set SelectedLambda = Nothing
     Set wkb = Nothing
     StandardExit
@@ -38,18 +40,11 @@ End Sub
 
 
 
-
-
-'Public Const gcsLambdaXmlMapName As String = "LambdaMap"
-'Public Const gcsCommentPrefix = "<PowerFormulaImport>"
-'
-'
 '
 'Public Sub CreateLambdaXmlGeneratorWorkbook()
 '
 '    Dim shtCategories As Worksheet
 '    Dim shtLambdas As Worksheet
-'    Dim loCategories As ListObject
 '    Dim loLambdas As ListObject
 '    Dim wkb As Workbook
 '    Dim sht As Worksheet
@@ -64,10 +59,7 @@ End Sub
 '        If sht.Index <> 1 Then sht.Delete
 '    Next sht
 '
-'    Set shtCategories = wkb.Worksheets(1)
-'    SetupGeneratorCategorySheet shtCategories, loCategories
-'    FormatGeneratorListObject loCategories
-'    Set shtLambdas = wkb.Sheets.Add(Before:=wkb.Sheets(1))
+'    Set shtLambdas = wkb.Sheets(1)
 '    SetupGeneratorLambdaSheet shtLambdas, loLambdas
 '    FormatGeneratorListObject loLambdas
 '
@@ -76,11 +68,10 @@ End Sub
 '    'Assign XML map to Lambdas list object
 '    With loLambdas
 '        .ListColumns("Name").XPath.SetValue LambdaXmlMap, "/LambdaDocument/Record/Name"
-'        .ListColumns("RefersTo").XPath.SetValue LambdaXmlMap, "/LambdaDocument/Record/RefersTo"
-'        .ListColumns("Category").XPath.SetValue LambdaXmlMap, "/LambdaDocument/Record/Category"
 '        .ListColumns("Author").XPath.SetValue LambdaXmlMap, "/LambdaDocument/Record/Author"
 '        .ListColumns("Description").XPath.SetValue LambdaXmlMap, "/LambdaDocument/Record/Description"
 '        .ListColumns("ParameterDescription").XPath.SetValue LambdaXmlMap, "/LambdaDocument/Record/ParameterDescription"
+'        .ListColumns("RefersTo").XPath.SetValue LambdaXmlMap, "/LambdaDocument/Record/RefersTo"
 '    End With
 '
 '    wkb.Activate
@@ -90,16 +81,15 @@ End Sub
 'ExitPoint:
 '    Set shtCategories = Nothing
 '    Set shtLambdas = Nothing
-'    Set loCategories = Nothing
 '    Set loLambdas = Nothing
 '    Set wkb = Nothing
 '    Set sht = Nothing
 '    StandardExit
 '
 'End Sub
-'
-'
-'
+
+
+
 'Sub ExportLambdaFunctionsFromActiveWorkbookToXml()
 '
 '    Dim sXmlFileExportPath As String

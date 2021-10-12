@@ -167,7 +167,7 @@ Sub SetReportSheetFormat()
     uf.tbHeadingFontSize.Value = GetReportSheetFormatItem("Heading font size")
     
     uf.Show
-    If uf.UserCancelled Then GoTo Exitpoint
+    If uf.UserCancelled Then GoTo ExitPoint
     
     For i = LBound(ReportSheetFormatDict) To UBound(ReportSheetFormatDict)
         Set ReportSheetFormatDict(i) = New Dictionary
@@ -197,7 +197,7 @@ Sub SetReportSheetFormat()
     WriteReportSheetFormat ReportSheetFormatDict
     ThisWorkbook.Save
 
-Exitpoint:
+ExitPoint:
     Unload uf
     Set uf = Nothing
     For i = LBound(ReportSheetFormatDict) To UBound(ReportSheetFormatDict)

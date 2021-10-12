@@ -24,12 +24,12 @@ Sub RunTableLooperOnActiveSheet()
     
     If Not bReportSheetAssigned Then
         MsgBox ("Not a valid sheet for table looping")
-        GoTo Exitpoint
+        GoTo ExitPoint
     End If
     
     If Not IsTableLooperSheet(ReportSheetSource.Sheet) Then
         MsgBox ("Not a valid sheet for table looping")
-        GoTo Exitpoint
+        GoTo ExitPoint
     End If
     
     Set ReportSheetConsol = InsertConsolLooperSheet(ReportSheetSource)
@@ -37,7 +37,7 @@ Sub RunTableLooperOnActiveSheet()
     FilterOutExcludedItems ReportSheetConsol
     SetLoopTableAndSheetFormat ReportSheetSource, ReportSheetConsol
 
-Exitpoint:
+ExitPoint:
     StandardExit
 
 End Sub
@@ -58,18 +58,18 @@ Sub InsertStorageSheet()
         YesNoResponse = MsgBox("Only one cell selected, are you sure you only want one " & _
             "column in storage", vbYesNo)
     End If
-    If YesNoResponse = vbNo Then GoTo Exitpoint
+    If YesNoResponse = vbNo Then GoTo ExitPoint
     
     StorageName = InputBox("Ensure range containing headers is selected (this can be later " & _
         "deleted)" & vbCrLf & _
         "Enter storage name")
-    If StorageName = "" Then GoTo Exitpoint
+    If StorageName = "" Then GoTo ExitPoint
     
     
     'Convert selected range into a 1 dimensional variant array
     Select Case True
         Case Selection.Columns.Count <> 1 And Selection.Rows.Count <> 1
-            GoTo Exitpoint
+            GoTo ExitPoint
         Case Selection.Rows.Count = 1
             ReDim Headers(1 To Selection.Columns.Count)
             For i = 1 To Selection.Columns.Count
@@ -85,7 +85,7 @@ Sub InsertStorageSheet()
     Set Storage = New ListStorage
     Storage.CreateStorage ActiveWorkbook, StorageName, Headers
     
-Exitpoint:
+ExitPoint:
     StandardExit
 
 End Sub

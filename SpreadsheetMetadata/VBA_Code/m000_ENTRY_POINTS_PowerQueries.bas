@@ -225,7 +225,7 @@ Sub CopyPowerQueriesFromWorkbook()
 
     'Exit sub  if no file is selected
     If fDialog.Show <> -1 Then
-       GoTo Exitpoint
+       GoTo ExitPoint
     End If
 
     sFilePathAndName = fDialog.SelectedItems(1)
@@ -234,7 +234,7 @@ Sub CopyPowerQueriesFromWorkbook()
 
     If sWorkbookName = ActiveWorkbook.Name Then
         MsgBox ("Cannot copy between 2 workbooks with the same name, exiting...")
-        GoTo Exitpoint
+        GoTo ExitPoint
     End If
 
 
@@ -264,7 +264,7 @@ Sub CopyPowerQueriesFromWorkbook()
     wkbTarget.Activate
     MsgBox ("Power Queries copied")
 
-Exitpoint:
+ExitPoint:
     StandardExit
 
 End Sub
@@ -325,7 +325,7 @@ Sub ImportPreDefinedPowerQueries()
     Set wkb = ActiveWorkbook
     If wkb.Name = ThisWorkbook.Name Then
         MsgBox ("Cannot run this sub in current workbook")
-        GoTo Exitpoint
+        GoTo ExitPoint
     End If
         
     Set QueryDetails = New Dictionary
@@ -351,7 +351,7 @@ Sub ImportPreDefinedPowerQueries()
         Next qryKey
     End If
     
-Exitpoint:
+ExitPoint:
     On Error Resume Next
     Unload uf
     On Error GoTo 0

@@ -23,13 +23,13 @@ Function GetLambdaFromUser(ByVal wkb As Workbook) As LambdaFormulaDetails
     
     If uf.UserSelectedCancel Then
         Set GetLambdaFromUser = Nothing
-        GoTo Exitpoint
+        GoTo ExitPoint
     Else
         Set GetLambdaFromUser = uf.SelectedLambdaDetails
     End If
 
     
-Exitpoint:
+ExitPoint:
     On Error Resume Next
     Unload uf
     On Error GoTo 0
@@ -56,7 +56,7 @@ Function GetLambdaParametersFromUser(ByVal SelectedLambda As LambdaFormulaDetail
         GetLambdaParametersFromUser = Empty
     End If
     
-Exitpoint:
+ExitPoint:
     On Error Resume Next
     Unload uf
     On Error GoTo 0
@@ -66,28 +66,28 @@ Exitpoint:
 End Function
 
 
-Sub AddLambdaToWorkbook(ByVal wkb As Workbook, ByVal Lamba As LambdaFormulaDetails)
+Sub AddLambdaToWorkbook(ByVal wkb As Workbook, ByVal Lambda As LambdaFormulaDetails)
 
     Dim nm As Name
     Dim YesNoResponse As Integer
 
     Select Case True
         
-        Case Not WorkbookLevelRangeNameExists(wkb, Lamba.Name)
+        Case Not WorkbookLevelRangeNameExists(wkb, Lambda.Name)
             Set nm = wkb.Names.Add( _
-                Name:=Lamba.Name, _
-                RefersTo:=Lamba.RefersTo)
-            nm.Comment = Lamba.Description
+                Name:=Lambda.Name, _
+                RefersTo:=Lambda.RefersTo)
+            nm.Comment = Lambda.Description
         
-        Case CleanTrim(wkb.Names(Lamba.Name).RefersTo) <> CleanTrim(Lamba.RefersTo)
+        Case CleanTrim(wkb.Names(Lambda.Name).RefersTo) <> CleanTrim(Lambda.RefersTo)
             YesNoResponse = MsgBox( _
                 Prompt:="The stored lambda definition does not match that per workbook. " & vbCrLf & _
                     "Update definition in workbook?", _
                 Buttons:=vbYesNo)
             If YesNoResponse = vbYes Then
-                Set nm = wkb.Names(Lamba.Name)
-                nm.RefersTo = Lamba.RefersTo
-                nm.Comment = Lamba.Description
+                Set nm = wkb.Names(Lambda.Name)
+                nm.RefersTo = Lambda.RefersTo
+                nm.Comment = Lambda.Description
             End If
     
     End Select
@@ -156,106 +156,7 @@ End Sub
 '    End With
 '
 'End Sub
-'
-'
-'
-'Sub SetupGeneratorLambdaSheet(ByRef sht As Worksheet, ByRef lo As ListObject)
-'
-'    Dim wkb As Workbook
-'
-'    sht.Name = "Lambdas"
-'    sht.Range("B5") = "Name"
-'    sht.Range("C5") = "RefersTo"
-'    sht.Range("D5") = "Category"
-'    sht.Range("E5") = "Author"
-'    sht.Range("F5") = "Description"
-'    sht.Range("G5") = "ParameterDescription"
-'
-'    Set lo = sht.ListObjects.Add(xlSrcRange, _
-'        sht.Range("B5").CurrentRegion, , xlYes)
-'    lo.Name = "tbl_Lambdas"
-'
-'    'Force existence of DataBodyRange
-'    lo.HeaderRowRange.Cells(1).Offset(1, 0).Value = " "
-'
-'    With lo
-'        .ListColumns("Name").Range.ColumnWidth = 25
-'        .ListColumns("RefersTo").Range.ColumnWidth = 90
-'        .ListColumns("Category").Range.ColumnWidth = 25
-'        .ListColumns("Author").Range.ColumnWidth = 25
-'        .ListColumns("Description").Range.ColumnWidth = 40
-'        .ListColumns("ParameterDescription").Range.ColumnWidth = 70
-'        .DataBodyRange.HorizontalAlignment = xlLeft
-'        .DataBodyRange.VerticalAlignment = xlTop
-'        .DataBodyRange.WrapText = True
-'        .DataBodyRange.EntireRow.AutoFit
-'    End With
-'
-'
-'    sht.Activate
-'    sht.Cells.Font.Name = "Calibri"
-'    sht.Cells.Font.Size = 11
-'
-'    ActiveWindow.DisplayGridlines = False
-'    ActiveWindow.Zoom = 80
-'    sht.DisplayPageBreaks = False
-'    sht.Columns("A:A").ColumnWidth = 4
-'
-'    sht.Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
-'    sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
-'
-'    With sht.Range("SheetHeading")
-'        .Value = sht.Name
-'        .Font.Bold = True
-'        .Font.Size = 16
-'    End With
-'
-'    With sht.Range("SheetCategory")
-'        .Value = "List Storage"
-'        .Font.Color = RGB(170, 170, 170)
-'        .Font.Size = 8
-'    End With
-'
-'    'Add Comment re Category data validation
-'    With lo.ListColumns("Category").Range.Cells(1)
-'        .AddComment
-'        .Comment.Visible = True
-'        .Comment.Text Text:= _
-'            "Drop down data validation is based on categories as captured " & _
-'            "in the second tab of this workbook."
-'        .Comment.Shape.Left = 500
-'        .Comment.Shape.Top = 10
-'        .Comment.Shape.Width = 200
-'        .Comment.Shape.Height = 40
-'    End With
-'
-'    'Add Comment re ParameterDescription
-'    With lo.ListColumns("ParameterDescription").Range.Cells(1)
-'        .AddComment
-'        .Comment.Visible = True
-'        .Comment.Text Text:= _
-'            "Enter as a pipe delimited string of name description pairs.  e.g." & _
-'            "ParamaterName|Description|ParamaterName|Description"
-'        .Comment.Shape.Left = 1200
-'        .Comment.Shape.Top = 10
-'        .Comment.Shape.Width = 300
-'        .Comment.Shape.Height = 40
-'    End With
-'
-'
-'    'Add validation to categories field on LambaStorage
-'    Set wkb = sht.Parent
-'
-'    wkb.Names.Add Name:="Val_Categories", RefersToR1C1:="=tbl_Categories[Categories]"
-'    lo.ListColumns("Category").DataBodyRange.Validation.Add _
-'        Type:=xlValidateList, Formula1:="=Val_Categories", AlertStyle:=xlValidAlertStop
-'
-'
-'
-'End Sub
-'
-'
-'
+
 'Sub FormatGeneratorListObject(ByRef lo As ListObject)
 '
 '    Dim sty As TableStyle
@@ -301,6 +202,70 @@ End Sub
 '
 '
 '
+'
+'Sub SetupGeneratorLambdaSheet(ByRef sht As Worksheet, ByRef lo As ListObject)
+'
+'    Dim wkb As Workbook
+'
+'    sht.Name = "Lambdas"
+'    sht.Range("B5") = "Name"
+'    sht.Range("C5") = "Author"
+'    sht.Range("D5") = "Description"
+'    sht.Range("E5") = "ParameterDescription"
+'    sht.Range("F5") = "RefersTo"
+'
+'    Set lo = sht.ListObjects.Add(xlSrcRange, _
+'        sht.Range("B5").CurrentRegion, , xlYes)
+'    lo.Name = "tbl_Lambdas"
+'
+'    'Force existence of DataBodyRange
+'    lo.HeaderRowRange.Cells(1).Offset(1, 0).Value = " "
+'
+'    With lo
+'        .ListColumns("Name").Range.ColumnWidth = 25
+'        .ListColumns("Author").Range.ColumnWidth = 25
+'        .ListColumns("Description").Range.ColumnWidth = 40
+'        .ListColumns("ParameterDescription").Range.ColumnWidth = 70
+'        .ListColumns("RefersTo").Range.ColumnWidth = 90
+'        .DataBodyRange.HorizontalAlignment = xlLeft
+'        .DataBodyRange.VerticalAlignment = xlTop
+'        .DataBodyRange.WrapText = True
+'        .DataBodyRange.EntireRow.AutoFit
+'    End With
+'
+'
+'    sht.Activate
+'    sht.Cells.Font.Name = "Calibri"
+'    sht.Cells.Font.Size = 11
+'
+'    ActiveWindow.DisplayGridlines = False
+'    ActiveWindow.Zoom = 80
+'    sht.DisplayPageBreaks = False
+'    sht.Columns("A:A").ColumnWidth = 4
+'
+'    sht.Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
+'    sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
+'
+'    With sht.Range("SheetHeading")
+'        .Value = sht.Name
+'        .Font.Bold = True
+'        .Font.Size = 16
+'    End With
+'
+'    With sht.Range("SheetCategory")
+'        .Value = "List Storage"
+'        .Font.Color = RGB(170, 170, 170)
+'        .Font.Size = 8
+'    End With
+'
+'End Sub
+'
+'
+'
+'
+'
+'
+'
 'Function CreateLambdaXmlMap(ByVal wkb As Workbook) As XmlMap
 '
 '    Dim sMap As String
@@ -314,10 +279,10 @@ End Sub
 '    'Excel needs two elements in map such a below in order to work out the schema
 '    sMap = "<LambdaDocument> " & vbCrLf & _
 '            " <Record> " & vbCrLf & _
-'            "    <Name></Name><RefersTo></RefersTo><Category></Category><Author></Author><Description></Description><ParameterDescription></ParameterDescription> " & vbCrLf & _
+'            "    <Name></Name><RefersTo></RefersTo><Author></Author><Description></Description><ParameterDescription></ParameterDescription> " & vbCrLf & _
 '            " </Record> " & vbCrLf & _
 '            " <Record> " & vbCrLf & _
-'            "    <Name></Name><RefersTo></RefersTo><Category></Category><Author></Author><Description></Description><ParameterDescription></ParameterDescription> " & vbCrLf & _
+'            "    <Name></Name><RefersTo></RefersTo><Author></Author><Description></Description><ParameterDescription></ParameterDescription> " & vbCrLf & _
 '            " </Record> " & vbCrLf & _
 '            "</LambdaDocument>"
 '
@@ -336,21 +301,21 @@ End Sub
 '
 '
 '
-'Function WorkbookIsValidForLambdaXmlExport(ByVal wkb As Workbook) As Boolean
-'
-'    WorkbookIsValidForLambdaXmlExport = True
-'
-'    On Error Resume Next
-'    If Err.Number <> 0 Then
-'        MsgBox ("This workbook is not in the correct format to export lambda functions")
-'        WorkbookIsValidForLambdaXmlExport = False
-'    End If
-'    On Error GoTo 0
-'
-'    If wkb.Path = "" Then
-'        MsgBox ("Workbook needs to be saved before generation of output")
-'        WorkbookIsValidForLambdaXmlExport = False
-'    End If
+''Function WorkbookIsValidForLambdaXmlExport(ByVal wkb As Workbook) As Boolean
+''
+''    WorkbookIsValidForLambdaXmlExport = True
+''
+''    On Error Resume Next
+''    If Err.Number <> 0 Then
+''        MsgBox ("This workbook is not in the correct format to export lambda functions")
+''        WorkbookIsValidForLambdaXmlExport = False
+''    End If
+''    On Error GoTo 0
+''
+''    If wkb.Path = "" Then
+''        MsgBox ("Workbook needs to be saved before generation of output")
+''        WorkbookIsValidForLambdaXmlExport = False
+''    End If
 '
 '
 'End Function

@@ -78,7 +78,7 @@ Public Function CreateStorageFromPowerQuery(ByVal wkb As Workbook, _
         Set this.ListObj = this.Sheet.ListObjects.Add( _
             SourceType:=0, _
             Source:="OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=" & PowerQueryName & ";Extended Properties=""""", _
-            Destination:=Range("$B$5"))
+            Destination:=Range("$B$7"))
             
         With this.ListObj
             .QueryTable.CommandType = xlCmdSql
