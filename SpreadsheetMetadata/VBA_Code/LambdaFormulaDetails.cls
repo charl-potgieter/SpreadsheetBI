@@ -18,4 +18,4 @@ Public Category As String
 Public Author As String
 Public Description As String
 Public ParameterDescriptions As Dictionary
-Public URL As String
+Public GitUrl As String

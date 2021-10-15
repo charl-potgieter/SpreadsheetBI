@@ -81,7 +81,7 @@ Sub CreateSpreadsheetFromMetadata()
     FileName = GetCreatorFileName(StorageOther)
     FormatCoverSheet InitialSheetOnWorkbookCreation, FileName
     
-    If StorageIsEmpty(StorageListObjFields) Then GoTo ExitPoint
+    If StorageIsEmpty(StorageListObjFields) Then GoTo Exitpoint
     
     'Create table storage and set formulas
     SheetNames = GetSheetNames(StorageListObjFields)
@@ -136,7 +136,7 @@ Sub CreateSpreadsheetFromMetadata()
     Next i
     
 
-ExitPoint:
+Exitpoint:
     'Cleanup
     DeleteStorage StorageListObjFields
     DeleteStorage StorageListObjFieldValues
@@ -160,6 +160,67 @@ ExitPoint:
     
 
 End Sub
+
+
+
+Sub ImportVBAModulesFromFolder()
+
+    Dim wkb As Workbook
+    Dim ImportDirectory As String
+
+    StandardEntry
+    Set wkb = ActiveWorkbook
+    
+    If wkb.Name = ThisWorkbook.Name Then
+        MsgBox ("Cannot perform this action in current workbook")
+        GoTo Exitpoint
+    End If
+    
+    ImportDirectory = GetFolder(wkb.Path)
+    ImportVBAModules wkb, ImportDirectory
+
+Exitpoint:
+    StandardExit
+    Set wkb = Nothing
+
+End Sub
+
+
+Sub CleanCode()
+'Cleans code by exporting, deleting and then re-importing
+    
+    Dim Response As Integer
+    Dim VBProj As VBIDE.VBProject
+    Dim VBComp As VBIDE.VBComponent
+    Dim wkb As Workbook
+    Dim TempExportPath As String
+    Const TempExportSubFolder As String = "__Temp_VBA_ExportFolder"
+    
+    StandardEntry
+    Set wkb = ActiveWorkbook
+    If ThisWorkbook.Name = wkb.Name Then
+        MsgBox "Cannot perform this action in current workbook"
+        GoTo Exitpoint
+    End If
+    
+    TempExportPath = wkb.Path & Application.PathSeparator & TempExportSubFolder
+    If FolderExists(TempExportPath) Then
+        On Error Resume Next
+        Kill TempExportPath & Application.PathSeparator & "*.*"
+        On Error GoTo 0
+    Else
+        CreateFolder TempExportPath
+    End If
+    
+    ExportVBAModules wkb, TempExportPath
+    DeleteEntireVbaProject wkb
+    ImportVBAModules wkb, TempExportPath
+    
+Exitpoint:
+    StandardExit
+    
+End Sub
+
 
 
 

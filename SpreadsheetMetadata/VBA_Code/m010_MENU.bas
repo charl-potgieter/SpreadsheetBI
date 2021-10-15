@@ -247,24 +247,13 @@ Sub CreatePopUpMenu()
     MenuCategory.Caption = "Lambdas"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Insert lambda"
+    MenuItem.Caption = "Insert lambda function"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "InsertLambda"
-
-'    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-'    MenuItem.Caption = "Export lambda functions from active workbook to xml"
-'    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ExportLambdaFunctionsFromActiveWorkbookToXml"
-'
-'    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-'    MenuItem.Caption = "Add lambda git repo to active workbook"
-'    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "AddLambdaGitRepoToActiveWorkbook"
-'
-'    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-'    MenuItem.Caption = "Refresh formulas"
-'    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "RefreshAvailableLambdaFormulas"
-'
-'    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-'    MenuItem.Caption = "Create lambda xml generator workbook"
-'    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateLambdaXmlGeneratorWorkbook"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Refresh library from GitHub"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "RefreshLambdaLibraries"
+    
     
     
     'Developer Menu
@@ -279,6 +268,13 @@ Sub CreatePopUpMenu()
     MenuItem.Caption = "Create spreadsheet from metadata"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateSpreadsheetFromMetadata"
     
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Clean code"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CleanCode"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Import VBA modules from folder"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ImportVBAModulesFromFolder"
     
     'Other Menu
     Set MenuCategory = cb.Controls.Add(Type:=msoControlPopup)

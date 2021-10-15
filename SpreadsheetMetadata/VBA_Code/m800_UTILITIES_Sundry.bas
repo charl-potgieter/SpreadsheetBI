@@ -420,3 +420,134 @@ End Function
 Function CleanTrim(ByVal str As String) As String
     CleanTrim = WorksheetFunction.Clean(Trim(str))
 End Function
+
+
+Function StringIsARangeReference(ByVal ReferenceStr As String) As Boolean
+
+    Dim ReferenceAndEquals As String
+    Dim ReferenceWithoutEquals As String
+    
+    If Left(ReferenceStr, 1) <> "=" Then
+        ReferenceAndEquals = "=" & ReferenceStr
+        ReferenceWithoutEquals = ReferenceStr
+    Else
+        ReferenceAndEquals = ReferenceStr
+        ReferenceWithoutEquals = Right(ReferenceStr, Len(ReferenceStr) - 1)
+    End If
+    
+    On Error Resume Next
+    Select Case True
+        Case Not (IsError(Application.Evaluate(ReferenceAndEquals)))
+            StringIsARangeReference = True
+        Case Not (IsError(Application.Evaluate(ReferenceAndEquals)(0)))
+            StringIsARangeReference = True
+        Case Else
+            StringIsARangeReference = False
+    End Select
+    If Err.Number <> 0 Then StringIsARangeReference = False
+    On Error GoTo 0
+
+End Function
+
+
+Function ConvertReferenceToStructuredReference(ByVal CallingCell As Range, ByVal RefStr As String) As String
+'Converts a range reference to a structured table reference if it exists, otherwise leave reference unchanged
+'CallingCell is the cell where the reference will be placed
+
+    Dim TargetTable As ListObject
+    Dim rngCell As Range
+    Dim lo As ListObject
+    Dim ListObjName As String
+    Dim ReferenceRange As Range
+    Dim ReferenceIsInsideSingleListObject As Boolean
+    Dim i As Long
+    Dim TableColumnNumberSelected As Integer
+   
+    On Error Resume Next
+    Set ReferenceRange = Range(RefStr)
+    If Err.Number <> 0 Then
+        ConvertReferenceToStructuredReference = RefStr
+        GoTo Exitpoint
+    End If
+    
+    'Check if entire reference is inside a single listobject
+    i = 1
+    ReferenceIsInsideSingleListObject = True
+    Do While i <= ReferenceRange.Cells.Count And ReferenceIsInsideSingleListObject
+        Select Case True
+            Case ReferenceRange.Cells(i).ListObject Is Nothing
+                ReferenceIsInsideSingleListObject = False
+            Case i = 1
+                ListObjName = ReferenceRange.Cells(i).ListObject.Name
+            Case Else
+                ReferenceIsInsideSingleListObject = ReferenceIsInsideSingleListObject And _
+                    ReferenceRange.Cells(i).ListObject.Name = ListObjName
+        End Select
+        i = i + 1
+    Loop
+    
+    If Not ReferenceIsInsideSingleListObject Then
+        ConvertReferenceToStructuredReference = RefStr
+        GoTo Exitpoint
+    End If
+    
+    Set lo = ReferenceRange.Cells(1).ListObject
+    
+    Select Case True
+    
+        'Entire table selected
+        Case ReferenceRange.Address = lo.Range.Address
+            ConvertReferenceToStructuredReference = lo.Name & "[#All]"
+            
+        'Entire databody range selected
+        Case ReferenceRange.Address = lo.DataBodyRange.Address
+            ConvertReferenceToStructuredReference = lo.Name
+            
+        'Entire columns databody range selected
+        Case (ReferenceRange.Columns.Count = 1) And (ReferenceRange.Rows.Count = lo.DataBodyRange.Rows.Count)
+            TableColumnNumberSelected = ReferenceRange.Column - lo.Range.Cells(1).Column + 1
+            ConvertReferenceToStructuredReference = lo.Name & "[" & _
+                lo.ListColumns(TableColumnNumberSelected).Name & "]"
+                
+        'Entire column selected including heading
+        Case (ReferenceRange.Columns.Count = 1) And (ReferenceRange.Rows.Count = lo.Range.Rows.Count)
+            TableColumnNumberSelected = ReferenceRange.Column - lo.Range.Cells(1).Column + 1
+            ConvertReferenceToStructuredReference = lo.Name & "[[#All],[" & _
+                lo.ListColumns(TableColumnNumberSelected).Name & "]]"
+                
+        'One cell in databodyrange selected adjacent to the cell allowing @ style referencing
+        Case ReferenceRange.Cells.Count = 1 And (CallingCell.Row = ReferenceRange.Row)
+            TableColumnNumberSelected = ReferenceRange.Column - lo.Range.Cells(1).Column + 1
+            ConvertReferenceToStructuredReference = lo.Name & "[@" & _
+                lo.ListColumns(TableColumnNumberSelected).Name & "]"
+        
+        'Single cell in header is selected
+        Case ReferenceRange.Cells.Count = 1 And ReferenceRange.Row = lo.HeaderRowRange.Row
+            TableColumnNumberSelected = ReferenceRange.Column - lo.Range.Cells(1).Column + 1
+            ConvertReferenceToStructuredReference = lo.Name & "[[#Headers],[" & _
+                lo.ListColumns(TableColumnNumberSelected).Name & "]]"
+                
+        'Entire table header is selected
+        Case ReferenceRange.Address = lo.HeaderRowRange.Address
+            ConvertReferenceToStructuredReference = lo.Name & "[#Headers]"
+            
+        'Not a structured reference
+        Case Else
+            ConvertReferenceToStructuredReference = RefStr
+            
+    End Select
+    
+
+Exitpoint:
+    Set TargetTable = Nothing
+    Set lo = Nothing
+    Set ReferenceRange = Nothing
+
+End Function
+
+
+Sub test()
+
+    Debug.Print ConvertReferenceToStructuredReference(ActiveCell, "Sheet1!D10:H10")
+    
+End Sub

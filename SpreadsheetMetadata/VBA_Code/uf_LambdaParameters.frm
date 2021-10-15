@@ -13,11 +13,13 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 
 Private Type TypeUserFromLambdaParameters
     Params As Dictionary
     UserCancelled As Boolean
+    DictionaryOfParamControls As Dictionary
 End Type
 Private this As TypeUserFromLambdaParameters
 
@@ -36,15 +38,16 @@ Public Property Set ParameterDescriptions(ByVal Params As Dictionary)
 
     Dim Key As Variant
     Dim ParamLabel As Control
-    Dim ParamRefBox As Control
+    Dim ParamBox As TextBoxRangeSelector
     Dim i As Integer
     Const ParamLabelWidth As Integer = 125
-    Const ParamRefBoxWidth As Integer = 125
+    Const ParamTextBoxWidth As Integer = 125
     Const SpaceFromSides As Integer = 10
     Const SpaceBetweenParamTops As Integer = 30
     Const ParamHeight As Integer = 18
     
     Set this.Params = Params
+    Set this.DictionaryOfParamControls = New Dictionary
     
     For i = 0 To Params.Count - 1
         
@@ -60,14 +63,14 @@ Public Property Set ParameterDescriptions(ByVal Params As Dictionary)
         If ParamIsOptional(Params.Keys(i)) Then ParamLabel.Caption = _
             ParamLabel.Caption & " (optional)"
               
-        Set ParamRefBox = Me.FrameParameters.Controls.Add( _
-            bstrProgID:="RefEdit.Ctrl", _
-            Name:="re_" & Params.Keys(i), _
-            Visible:=True)
-        ParamRefBox.Width = ParamRefBoxWidth
-        ParamRefBox.Height = ParamHeight
-        ParamRefBox.Left = (Me.FrameParameters.Width - ParamRefBox.Width - SpaceFromSides * 3)
-        ParamRefBox.Top = SpaceFromSides + (i * SpaceBetweenParamTops)
+        Set ParamBox = New TextBoxRangeSelector
+        ParamBox.Add Me.FrameParameters, "param_" & Params.Keys(i)
+        ParamBox.Width = ParamTextBoxWidth
+        ParamBox.Height = ParamHeight
+        ParamBox.Left = (Me.FrameParameters.Width - ParamBox.Width - SpaceFromSides * 3)
+        ParamBox.Top = SpaceFromSides + (i * SpaceBetweenParamTops)
+        this.DictionaryOfParamControls.Add Item:=ParamBox, _
+            Key:=ParamBox.Name
                 
     Next i
     
@@ -86,11 +89,13 @@ Public Property Get OrderedParameterValues() As Variant
     Dim Key As Variant
     Dim ReturnArray As Variant
     Dim i As Integer
+    Dim ParamValue As String
     
     ReDim ReturnArray(0 To this.Params.Count - 1)
     
     For i = 0 To this.Params.Count - 1
-        ReturnArray(i) = Me.FrameParameters.Controls("re_" & this.Params.Keys(i)).Value
+        ParamValue = Me.FrameParameters.Controls("param_" & this.Params.Keys(i)).Value
+        ReturnArray(i) = ParamValue
     Next i
         
     OrderedParameterValues = ReturnArray
@@ -117,9 +122,9 @@ Private Function ParametersAllPopulated() As Boolean
     Dim AllPopulated As Boolean
     
     AllPopulated = True
-    For Each Key In this.Params
+    For Each Key In this.DictionaryOfParamControls.Keys
         AllPopulated = AllPopulated And _
-            (Me.FrameParameters.Controls("re_" & Key).Value <> "" Or ParamIsOptional(Key))
+            (this.DictionaryOfParamControls(Key).Value <> "" Or ParamIsOptional(Key))
     Next Key
     ParametersAllPopulated = AllPopulated
 

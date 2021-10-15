@@ -14,6 +14,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
+
 Option Explicit
 
 
@@ -27,6 +28,17 @@ Private Type TypePowerFunctionWizard
 End Type
 Private this As TypePowerFunctionWizard
 
+
+Private Sub cbGotoGitHub_Click()
+
+    Dim LambdaNameSelected As String
+    
+    LambdaNameSelected = FirstListBoxSelection(Me.lbFunctions)
+    Set this.LambdaDetailsSelected = this.LambdaFormulaDetails(LambdaNameSelected)
+
+    ActiveWorkbook.FollowHyperlink this.LambdaDetailsSelected.GitUrl
+
+End Sub
 
 Private Sub cbOK_Click()
 
@@ -42,52 +54,6 @@ End Sub
 Private Sub cbCancel_Click()
     Me.Hide
     this.UserCancelled = True
-End Sub
-
-
-Private Sub cbGetFormulaText_Click()
-    
-    Dim sht As Worksheet
-    
-    Set sht = ActiveWorkbook.Sheets.Add
-    FormatSheet sht
-    
-    With sht.Range("B5")
-       
-    
-    End With
-      
-'        Application.CutCopyMode = False
-'    Selection.NumberFormat = "@"
-'    With Selection
-'        .HorizontalAlignment = xlGeneral
-'        .VerticalAlignment = xlBottom
-'        .WrapText = False
-'        .Orientation = 0
-'        .AddIndent = False
-'        .IndentLevel = 0
-'        .ShrinkToFit = False
-'        .ReadingOrder = xlContext
-'        .MergeCells = False
-'    End With
-'    With Selection
-'        .HorizontalAlignment = xlLeft
-'        .VerticalAlignment = xlTop
-'        .WrapText = True
-'        .Orientation = 0
-'        .AddIndent = False
-'        .IndentLevel = 0
-'        .ShrinkToFit = False
-'        .ReadingOrder = xlContext
-'        .MergeCells = False
-'    End With
-'    Columns("B:B").EntireColumn.AutoFit
-'    Rows("2:2").EntireRow.AutoFit
-'    Columns("B:B").ColumnWidth = 96.91
-'    Rows("2:2").EntireRow.AutoFit
-    Columns("B:B").Select
-    
-    
 End Sub
 
 
@@ -113,6 +79,16 @@ Private Sub lbFunctions_Change()
     DisplayLambdaNameParametersAndDescription
 End Sub
 
+
+Private Sub lbFunctions_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+'Same behaviour as clicking ok
+    
+    Dim LambdaNameSelected
+    LambdaNameSelected = FirstListBoxSelection(Me.lbFunctions)
+    Set this.LambdaDetailsSelected = this.LambdaFormulaDetails(LambdaNameSelected)
+    Me.Hide
+    
+End Sub
 
 Private Sub UserForm_Initialize()
     this.UserCancelled = False
@@ -157,24 +133,10 @@ Public Property Set LambdaDetails(ByVal LambdaDetailDict As Dictionary)
 End Property
 
 
-
-
 Public Property Get SelectedLambdaDetails() As LambdaFormulaDetails
     Set SelectedLambdaDetails = this.LambdaDetailsSelected
 End Property
 
-
-
-Private Sub UserForm_QueryClose(Cancel As Integer _
-                                       , CloseMode As Integer)
-    
-    If CloseMode = vbFormControlMenu Then
-        Cancel = True
-        Me.Hide
-        this.UserCancelled = True
-    End If
-    
-End Sub
 
 
 Private Sub DisplayLambdaNameParametersAndDescription()
@@ -209,92 +171,14 @@ Private Sub DisplayLambdaNameParametersAndDescription()
 End Sub
 
 
-
-'Public Property Set LambdaStorage(ByRef Storage)
-''cannot pass variables to  userform event so store as a class property (userforms are classes)
-'    Set this.LambdaStorage = Storage
-'End Property
-
-
-
-
-
-
-'
-'Sub RefreshUserFormPropertiesFromStorage()
-'
-'    Dim i As Integer
-'    Dim Categories
-'
-'    ReadUniqueLambdaCategories this.LambdaStorage, Categories
-'    Me.comboCategories.AddItem "All"
-'    For i = LBound(Categories) To UBound(Categories)
-'        Me.comboCategories.AddItem Categories(i)
-'    Next i
-'    Me.comboCategories.Value = "All"
-'
-'    ReadLambdaFormulaDetails this.LambdaStorage, this.LambdaFormulaDetails
-'
-'End Sub
-'
-'
-'
-'Private Sub comboCategories_Change()
-'
-'    Dim LambdaNamesPerCategorySelection
-'    Dim i As Integer
-'
-'    ReadLambdaNamesPerCategory this.LambdaStorage, LambdaNamesPerCategorySelection, Me.comboCategories.Value
-'
-'    Me.lbFunctions.Clear
-'    For i = LBound(LambdaNamesPerCategorySelection) To UBound(LambdaNamesPerCategorySelection)
-'        Me.lbFunctions.AddItem LambdaNamesPerCategorySelection(i)
-'    Next i
-'
-'End Sub
-'
-'
-'
-'
-'Private Sub lbFunctions_Click()
-'
-'    Dim LambaDisplayString As String
-'    Dim FormulaNameSelected As String
-'    Dim FormulaDetail As LambdaFormulaDetails
-'    Dim ParameterDescriptions As Dictionary
-'    Dim Parameter
-'    Dim IsFirstParamter As Boolean
-'
-'    FormulaNameSelected = Me.lbFunctions.Value
-'    Set FormulaDetail = this.LambdaFormulaDetails(FormulaNameSelected)
-'    Set ParameterDescriptions = FormulaDetail.ParameterDescriptions
-'
-'    LambaDisplayString = FormulaNameSelected & "("
-'
-'    IsFirstParamter = True
-'    For Each Parameter In ParameterDescriptions.Keys
-'        If IsFirstParamter Then
-'            LambaDisplayString = LambaDisplayString & Parameter
-'        Else
-'            LambaDisplayString = LambaDisplayString & ", " & Parameter
-'        End If
-'    Next Parameter
-'    LambaDisplayString = LambaDisplayString & ")"
-'
-'
-'    If Len(LambaDisplayString) > 100 Then
-'        LambaDisplayString = Left(LambaDisplayString, 98) & "..."
-'    End If
-'
-'    'me.tbFunction.Text.Font =
-'    Me.tbFunction.Value = LambaDisplayString
-'
-'    Me.tbDescription = FormulaDetail.Description
-'
-'
-'End Sub
-
-
-
-
+Private Sub UserForm_QueryClose(Cancel As Integer _
+                                       , CloseMode As Integer)
+    
+    If CloseMode = vbFormControlMenu Then
+        Cancel = True
+        Me.Hide
+        this.UserCancelled = True
+    End If
+    
+End Sub
 

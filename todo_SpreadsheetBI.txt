@@ -6,13 +6,29 @@ https://t.co/EIJ0mh1eXq?amp=1
 
 
 Work on Lambda function wizard (lambdas are now being stored in the add-in)
- - Create a menu item to refresh Lambda library from Github
- - Maybe instead of indented text copy have a link to the github page
+ - Need to create a class to trap events for added refedits in order to convert ranges
+ - Given that I am going to do that should I go back to using the more reliable inputbox class?
+  - Need to revisit check to ensure all non-optional params are populated given the above
+  - Any way I can convert the ranges to structured references?
+  -  Create option to toggle absolute or relative references (relative as default)
+   - Mayb also toggle option for structured reference (save this + above preferences in the add in storage)
  - Import Standard Power Queries currently broken due to no delimiter in lambda query
   --> Maybe also transition the standard power queries to a git repo? Could potentially just evaluate straight from. Web? 
- - When user enters text in wizard the quotes should be auto added (maybe test for formula with evaluate, if it generates an error it is text)
-  - Lambda Paramater form => set tab stops including on the ok and cancel buttons
-  - Lambda Parameter form needs to allow for optional parameters
+
+Check out https://excelvirtuallyglobal.com/
+ - Sessions should be recorded
+ - In particular Andy Gordon re Lambda editor
+
+
+
+Why does sum StackArray or SUM AppendTwoColumns not work
+
+Can I create a custom ETF data type (via power query)
+ - price history
+ - performance history
+ - holdings
+ - distributions
+ - maybe combine with Lambdas eg to calc cumulative return, value of holding on given date etc?
 
 Look at dynamic array accumulation
 https://techcommunity.microsoft.com/t5/excel/ways-of-performing-accumulation-with-dynamic-arrays/m-p/2329035

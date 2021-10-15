@@ -426,6 +426,27 @@ Function DeleteModule(ByVal wkb As Workbook, ByVal sModuleName As String) As Boo
 End Function
 
 
+Sub DeleteEntireVbaProject(ByVal wkb As Workbook)
+   
+    Dim Response As Integer
+    Dim VBProj As VBIDE.VBProject
+    Dim VBComp As VBIDE.VBComponent
+    
+    Set VBProj = wkb.VBProject
+    
+    For Each VBComp In VBProj.VBComponents
+        If VBComp.Type >= 1 And VBComp.Type <= 3 Then
+            VBProj.VBComponents.Remove VBComp
+        End If
+    Next VBComp
+    
+    Set VBProj = Nothing
+    Set VBComp = Nothing
+    
+    
+End Sub
+
+
 
 'Function RangeOfStoredData(ByVal ItemDescription As String) As Range
 '
