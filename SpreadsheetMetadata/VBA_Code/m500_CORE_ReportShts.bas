@@ -259,6 +259,8 @@ Sub CreateReturnToIndexLink(ByVal sht As Worksheet)
         .Font.Size = 9
     End With
     
+    ReturnToIndexShape.Placement = xlFreeFloating
+    
     sht.Hyperlinks.Add Anchor:=ReturnToIndexShape, _
         Address:="", _
         SubAddress:="Index!DefaultCursorLocation"

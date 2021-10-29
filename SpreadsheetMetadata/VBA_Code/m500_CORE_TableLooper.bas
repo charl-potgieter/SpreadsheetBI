@@ -15,8 +15,8 @@ Function IsTableLooperSheet(ByVal sht As Worksheet) As Boolean
 
     IsTableLooperSheet = False
     If sht.ListObjects.Count = 1 Then
+        iNumberOfNamesWithSelectedInName = 0
         For Each nm In sht.Names
-            iNumberOfNamesWithSelectedInName = 0
             If InStr(UCase(nm.Name), "SELECTED") <> 0 Then
                 iNumberOfNamesWithSelectedInName = iNumberOfNamesWithSelectedInName + 1
             End If
@@ -51,18 +51,33 @@ End Function
 Function InsertConsolLooperSheet(ByVal ReportSheetSource As ReportingSheet) As ReportingSheet
 
     Dim wkb As Workbook
+    Dim ReportSheetFormat As Dictionary
     
     Set wkb = ReportSheetSource.Sheet.Parent
 
     On Error Resume Next
     wkb.Sheets("Consol_" & ReportSheetSource.Name).Delete
+    On Error GoTo 0
+    
     Set InsertConsolLooperSheet = New ReportingSheet
     InsertConsolLooperSheet.Create ActiveWorkbook, ReportSheetSource.Sheet.Index
     InsertConsolLooperSheet.Name = "Consol_" & ReportSheetSource.Name
     InsertConsolLooperSheet.Category = ReportSheetSource.Category
     InsertConsolLooperSheet.Heading = "Consolidated " & ReportSheetSource.Heading
-    On Error GoTo 0
-
+    
+    
+    Set ReportSheetFormat = GetSavedReportSheetFormat
+    InsertConsolLooperSheet.SheetFont = ReportSheetFormat.Item("Sheet font")
+    InsertConsolLooperSheet.DefaultFontSize = ReportSheetFormat.Item("Default font size")
+    InsertConsolLooperSheet.ZoomPercentage = ReportSheetFormat.Item("Zoom percentage")
+    InsertConsolLooperSheet.HeadingFontColour = Array( _
+        ReportSheetFormat.Item("Heading colour red (0 to 255)"), _
+        ReportSheetFormat.Item("Heading colour green (0 to 255)"), _
+        ReportSheetFormat.Item("Heading colour blue (0 to 255)"))
+    InsertConsolLooperSheet.HeadingFontSize = ReportSheetFormat.Item("Heading font size")
+    
+    InsertIndexPage wkb
+    
 End Function
 
 
@@ -78,7 +93,7 @@ Sub LoopSourceAndCopyToConsolSheet(ByVal ReportSheetSource As ReportingSheet, By
     
     Set loSource = ReportSheetSource.Sheet.ListObjects(1)
     Set SelectionCell = GetLooperSelectionCell(ReportSheetSource.Sheet)
-    Set rngStartOfConsolTable = ReportSheetConsol.Sheet.Range("B5")
+    Set rngStartOfConsolTable = ReportSheetConsol.Sheet.Range("J15")
     ValidationItems = GetDataValidationFromRangeReference(SelectionCell)
     
     For i = LBound(ValidationItems) To UBound(ValidationItems)
@@ -121,6 +136,7 @@ Sub FilterOutExcludedItems(ByVal ReportSheetConsol As ReportingSheet)
         lo.DataBodyRange.SpecialCells(xlCellTypeVisible).EntireRow.Delete
         On Error GoTo 0
         
+        lo.Parent.Activate
         lo.Parent.ShowAllData
     End If
 
@@ -143,10 +159,6 @@ Sub SetLoopTableAndSheetFormat(ByVal ReportSheetSource As ReportingSheet, ByVal 
     Next i
 
     FormatTable loConsol
-    
-    ReportSheetConsol.Sheet.Activate
-    ActiveWindow.SplitRow = 5
-    ActiveWindow.FreezePanes = True
 
 End Sub
 

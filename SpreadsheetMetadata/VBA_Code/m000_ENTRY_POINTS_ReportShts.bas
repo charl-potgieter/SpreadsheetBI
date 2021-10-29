@@ -49,27 +49,44 @@ Function InsertReportingSheetSheetIntoActiveWorkbook()
 End Function
 
 
-Sub ConvertActiveSheetToReportingSheet()
+Sub ConvertSelectedSheetsToReportingSheet()
 
     Dim ReportSht As ReportingSheet
     Dim ReportSheetFormat As Dictionary
+    Dim SelectedSheetNames() As String
+    Dim i As Integer
 
     StandardEntry
-    Set ReportSht = New ReportingSheet
-
-    ReportSht.CreateFromExistingSheet ActiveSheet
     Set ReportSheetFormat = GetSavedReportSheetFormat
-    ReportSht.SheetFont = ReportSheetFormat.Item("Sheet font")
-    ReportSht.DefaultFontSize = ReportSheetFormat.Item("Default font size")
-    ReportSht.ZoomPercentage = ReportSheetFormat.Item("Zoom percentage")
-    ReportSht.HeadingFontColour = Array( _
-        ReportSheetFormat.Item("Heading colour red (0 to 255)"), _
-        ReportSheetFormat.Item("Heading colour green (0 to 255)"), _
-        ReportSheetFormat.Item("Heading colour blue (0 to 255)"))
-    ReportSht.HeadingFontSize = ReportSheetFormat.Item("Heading font size")
+    
+    ReDim SelectedSheetNames(1 To ActiveWindow.SelectedSheets.Count)
+    For i = 1 To ActiveWindow.SelectedSheets.Count
+        SelectedSheetNames(i) = ActiveWindow.SelectedSheets(i).Name
+    Next i
+    
+    For i = LBound(SelectedSheetNames) To UBound(SelectedSheetNames)
+    
+        'Difficult to achieve without selecting as sheet needs to be active to set zoom
+        ActiveWorkbook.Sheets(SelectedSheetNames(i)).Select
+        
+        Set ReportSht = New ReportingSheet
+        ReportSht.CreateFromExistingSheet ActiveSheet
+        ReportSht.SheetFont = ReportSheetFormat.Item("Sheet font")
+        ReportSht.DefaultFontSize = ReportSheetFormat.Item("Default font size")
+        ReportSht.ZoomPercentage = ReportSheetFormat.Item("Zoom percentage")
+        ReportSht.HeadingFontColour = Array( _
+            ReportSheetFormat.Item("Heading colour red (0 to 255)"), _
+            ReportSheetFormat.Item("Heading colour green (0 to 255)"), _
+            ReportSheetFormat.Item("Heading colour blue (0 to 255)"))
+        ReportSht.HeadingFontSize = ReportSheetFormat.Item("Heading font size")
+    Next i
     
     InsertIndexPage ActiveWorkbook
     ReportSht.Sheet.Activate
+    
+    Set ReportSht = Nothing
+    Set ReportSheetFormat = Nothing
+    
     StandardExit
 
 End Sub

@@ -6,14 +6,10 @@ https://t.co/EIJ0mh1eXq?amp=1
 
 
 Work on Lambda function wizard (lambdas are now being stored in the add-in)
- - Need to create a class to trap events for added refedits in order to convert ranges
- - Given that I am going to do that should I go back to using the more reliable inputbox class?
-  - Need to revisit check to ensure all non-optional params are populated given the above
-  - Any way I can convert the ranges to structured references?
-  -  Create option to toggle absolute or relative references (relative as default)
-   - Mayb also toggle option for structured reference (save this + above preferences in the add in storage)
+  - Maybe experiment with the refedit in teh class rather than textbox (should be an easy change) and see if any issues
  - Import Standard Power Queries currently broken due to no delimiter in lambda query
   --> Maybe also transition the standard power queries to a git repo? Could potentially just evaluate straight from. Web? 
+
 
 Check out https://excelvirtuallyglobal.com/
  - Sessions should be recorded
@@ -40,6 +36,7 @@ EntryPoints and Core for DataModel not really linked to Menu.  Reconsider best w
 
 Out of memory / crashing
 * If excel remains stable add back other add ins one by one (maybe download latest version)
+* Potenitially issue is with name manager?
    (i) DAX studio
    (ii) Power Pivot Utilities
    (iii) Name manager

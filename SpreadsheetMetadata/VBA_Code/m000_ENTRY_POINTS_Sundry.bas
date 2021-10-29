@@ -37,6 +37,13 @@ Sub RunTableLooperOnActiveSheet()
     FilterOutExcludedItems ReportSheetConsol
     SetLoopTableAndSheetFormat ReportSheetSource, ReportSheetConsol
 
+    With ReportSheetConsol
+        .Sheet.Range("M12").Value = "This sheet is auto produced by run looper by Spreadsheet BI AddIn"
+        .Sheet.Range("M12").Font.Color = RGB(192, 0, 0)
+        .Sheet.Activate
+        .DefaultCursorLocation.Select
+    End With
+
 Exitpoint:
     StandardExit
 

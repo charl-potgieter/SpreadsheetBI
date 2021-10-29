@@ -316,11 +316,13 @@ Private Sub SetRangeNames()
         .Names("HiddenWorkingColumns").Delete
         .Names("ErrorCheckRows").Delete
         .Names("ErrorCheckColumns").Delete
+        .Names("SheetErrorStatus").Delete
+        .Names("WorkbookErrorStatus").Delete
         .Names("Category").Delete
         .Names("Heading").Delete
-        .Names("WorkbookErrorStatus").Delete
         .Names("ReturnToIndex").Delete
         .Names("DefaultCursorLocation").Delete
+        .Names("Notes").Delete
         On Error GoTo 0
         
         .Names.Add Name:="HiddenWorkingRows", RefersTo:="=$1:$" & NumberOfHiddenWorkingRows
