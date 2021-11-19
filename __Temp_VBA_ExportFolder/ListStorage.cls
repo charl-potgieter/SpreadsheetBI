@@ -16,7 +16,7 @@ Option Explicit
 '
 Private Type TypeListStorage
     wkb As Workbook
-    ReportingSheet As ReportingSheet
+    Sheet As Worksheet
     ListObj As ListObject
     FilteredListObj As ListObject
     CreatedFromPowerQuery As Boolean
@@ -39,19 +39,18 @@ Public Function CreateStorage(ByRef wkb As Workbook, ByVal sName As String, Head
         CreateStorage = True
         
         Set this.wkb = wkb
-        Set this.ReportingSheet = CreateListStorageSheet(wkb, sName)
+        Set this.Sheet = CreateListStorageSheet(wkb, sName)
+        FormatListStorageSheet this.Sheet
         
-        Set this.ListObj = CreateListStorageListObject _
-            (this.ReportingSheet.Sheet, Headings)
+        Set this.ListObj = CreateListStorageListObject(this.Sheet, Headings)
         FormatStorageListObject this.ListObj
         
-        Set this.FilteredListObj = CreateFilteredListStorageListObject _
-            (this.ReportingSheet.Sheet, Headings)
+        Set this.FilteredListObj = CreateFilteredListStorageListObject(this.Sheet, Headings)
         FormatStorageListObject this.FilteredListObj
         
         
         this.FilteredListObj.Range.Columns.Group
-        this.ReportingSheet.Sheet.Outline.ShowLevels ColumnLevels:=1
+        this.Sheet.Outline.ShowLevels ColumnLevels:=1
         
         this.CreatedFromPowerQuery = False
         
@@ -72,13 +71,14 @@ Public Function CreateStorageFromPowerQuery(ByVal wkb As Workbook, _
 
         this.CreatedFromPowerQuery = True
         Set this.wkb = wkb
-        Set this.ReportingSheet = CreateListStorageSheet(wkb, sName)
+        Set this.Sheet = CreateListStorageSheet(wkb, sName)
+        FormatListStorageSheet this.Sheet
          
         'Output the Power Query to a worksheet table
-        Set this.ListObj = this.ReportingSheet.Sheet.ListObjects.Add( _
+        Set this.ListObj = this.Sheet.ListObjects.Add( _
             SourceType:=0, _
             Source:="OLEDB;Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=" & PowerQueryName & ";Extended Properties=""""", _
-            Destination:=Range("$J15"))
+            Destination:=Range("$B$7"))
             
         With this.ListObj
             .QueryTable.CommandType = xlCmdSql
@@ -94,11 +94,10 @@ Public Function CreateStorageFromPowerQuery(ByVal wkb As Workbook, _
         Headings = WorksheetFunction.Transpose( _
             WorksheetFunction.Transpose(this.ListObj.HeaderRowRange))
             
-        Set this.FilteredListObj = CreateFilteredListStorageListObject _
-            (this.ReportingSheet.Sheet, Headings)
+        Set this.FilteredListObj = CreateFilteredListStorageListObject(this.Sheet, Headings)
         FormatStorageListObject this.FilteredListObj
         this.FilteredListObj.Range.Columns.Group
-        this.ReportingSheet.Sheet.Outline.ShowLevels ColumnLevels:=1
+        this.Sheet.Outline.ShowLevels ColumnLevels:=1
 
     End If
 
@@ -112,10 +111,9 @@ Public Function AssignStorage(ByRef wkb As Workbook, ByVal sName As String) As B
     On Error Resume Next
     
     Set this.wkb = wkb
-    Set this.ReportingSheet = New ReportingSheet
-    this.ReportingSheet.AssignExistingSheet wkb.Worksheets(sName)
-    Set this.ListObj = this.ReportingSheet.Sheet.ListObjects("tbl_" & sName)
-    Set this.FilteredListObj = this.ReportingSheet.Sheet.ListObjects("tbl_" & sName & "_Filtered")
+    Set this.Sheet = wkb.Worksheets(sName)
+    Set this.ListObj = this.Sheet.ListObjects("tbl_" & sName)
+    Set this.FilteredListObj = this.Sheet.ListObjects("tbl_" & sName & "_Filtered")
     
     this.ListObj.ShowAutoFilter = True
     this.ListObj.AutoFilter.ShowAllData
@@ -129,7 +127,7 @@ End Function
 
 
 Public Property Get Name() As String
-    Name = this.ReportingSheet.Name
+    Name = this.Sheet.Name
 End Property
 
 
@@ -148,7 +146,7 @@ Public Property Get NumberOfRecords(Optional bFiltered As Boolean = False) As Lo
 End Property
 
 Public Property Get Sheet() As Worksheet
-    Set Sheet = this.ReportingSheet.Sheet
+    Set Sheet = this.Sheet
 End Property
 
 
@@ -195,7 +193,7 @@ Public Function ItemsInField(ByVal sFieldName As String, _
     End If
     
     sEvalStr = "=" & sEvalStr
-    ItemsInField = this.ReportingSheet.Sheet.Evaluate(sEvalStr)
+    ItemsInField = this.Sheet.Evaluate(sEvalStr)
        
     'Transpose to allow referncing with single index and utilise ubound and lbound with one dimension
     On Error Resume Next
@@ -301,7 +299,7 @@ Public Function Filter(ByVal sFilterString As String, Optional bSorted As Boolea
     
     sFilterString = "=" & sFilterString
     
-    v = this.ReportingSheet.Sheet.Evaluate(sFilterString)
+    v = this.Sheet.Evaluate(sFilterString)
     
     Select Case NumberOfArrayDimensions(v)
         Case 2
@@ -389,7 +387,7 @@ Public Function Xlookup(ByVal LookupValue As Variant, _
 
     sEvalStr = Replace(sEvalStr, "[", lo.Name & "[")
         
-    vReturnValue = this.ReportingSheet.Sheet.Evaluate(sEvalStr)
+    vReturnValue = this.Sheet.Evaluate(sEvalStr)
     
     'Return null if no value found and not alternative specified
     If WorksheetFunction.IsError(vReturnValue) Then
@@ -405,7 +403,7 @@ End Function
 Public Function Delete() As Boolean
 
     On Error Resume Next
-    this.ReportingSheet.Delete
+    this.Sheet.Delete
     Delete = (Err.Number = 0)
     On Error Resume Next
 
@@ -479,30 +477,55 @@ End Function
 
 
 
-Private Function CreateListStorageSheet(ByRef wkb As Workbook, ByVal sName As String) As ReportingSheet
+Private Function CreateListStorageSheet(ByRef wkb As Workbook, ByVal sName As String) As Worksheet
 
-    Dim RptSheet As ReportingSheet
-    
-    Set RptSheet = New ReportingSheet
-    RptSheet.Create wkb
-    RptSheet.Name = sName
-    RptSheet.Category = "List Storage"
-    RptSheet.Heading = "Report Properties"
-    InsertIndexPage wkb
-    RptSheet.Sheet.Activate
-    Set CreateListStorageSheet = RptSheet
-    Set RptSheet = Nothing
+    Dim sht As Worksheet
+    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+    sht.Name = sName
+    Set CreateListStorageSheet = sht
     
 End Function
 
 
+Private Sub FormatListStorageSheet(ByRef sht As Worksheet)
+'Applies my preferred sheet formattting
+
+    sht.Activate
+    
+    sht.Cells.Font.Name = "Calibri"
+    sht.Cells.Font.Size = 11
+      
+    ActiveWindow.DisplayGridlines = False
+    ActiveWindow.Zoom = 80
+    sht.DisplayPageBreaks = False
+    sht.Columns("A:A").ColumnWidth = 4
+    
+    sht.Names.Add Name:="SheetHeading", RefersTo:="=$B$2"
+    sht.Names.Add Name:="SheetCategory", RefersTo:="=$A$1"
+    sht.Names.Add Name:="ReturnToIndex", RefersTo:="=$B$3"
+    sht.Names.Add Name:="DefaultCursorLocation", RefersTo:="=$A$2"
+    
+    With sht.Range("SheetHeading")
+        .Value = sht.Name
+        .Font.Bold = True
+        .Font.Size = 16
+    End With
+    
+    With sht.Range("SheetCategory")
+        .Value = "List Storage"
+        .Font.Color = RGB(170, 170, 170)
+        .Font.Size = 8
+    End With
+
+
+End Sub
 
 
 Private Function CreateListStorageListObject(ByRef sht As Worksheet, Headings As Variant) As ListObject
 
     Dim i As Integer
-    Const iTableRowStart As Integer = 15
-    Const iTableColStart As Integer = 10
+    Const iTableRowStart As Integer = 7
+    Const iTableColStart As Integer = 2
     Dim lo As ListObject
     
     For i = LBound(Headings) To UBound(Headings)
@@ -527,9 +550,9 @@ End Function
 Private Function CreateFilteredListStorageListObject(ByRef sht As Worksheet, Headings As Variant) As ListObject
 
     Dim i As Integer
-    Const iTableRowStart As Integer = 15
+    Const iTableRowStart As Integer = 7
     Dim iTableColStart As Integer
-    Const iUnfilteredTableColStart As Integer = 10
+    Const iUnfilteredTableColStart As Integer = 2
     Const iGapBetweenTables = 1
     Dim lo As ListObject
     
@@ -667,7 +690,7 @@ End Function
 Private Sub Class_Terminate()
    Set this.FilteredListObj = Nothing
    Set this.ListObj = Nothing
-   Set this.ReportingSheet = Nothing
+   Set this.Sheet = Nothing
    Set this.wkb = Nothing
 End Sub
 

@@ -230,8 +230,7 @@ Public Sub Create(ByVal wkb As Workbook, _
     
     InsertReportingSheet wkb, lSheetPosition
     SetRangeNames
-    FormatSheetFixedFormatting
-    FormatSheetUserSettings
+    FormatSheet
     Me.Category = "Category"
     Me.Heading = "Heading - " & this.shtReport.Name
     
@@ -278,8 +277,7 @@ Public Function CreateFromExistingSheet(ByVal sht As Worksheet) As Boolean
             Insert xlShiftDown
         Set this.shtReport = sht
         SetRangeNames
-        FormatSheetFixedFormatting
-        FormatSheetUserSettings
+        FormatSheet
         If Me.Category = "" Then Me.Category = "Category"
         If Me.Heading = "" Then Me.Heading = "Heading - " & this.shtReport.Name
     End If
@@ -391,8 +389,9 @@ End Sub
 
 
 
-Private Sub FormatSheetFixedFormatting()
-'Formats that are not changeable by the user
+
+
+Private Sub FormatSheet()
 
     Dim wkbReportWorkbook As Workbook
     Dim wkbActivePriorToSub As Workbook
@@ -402,7 +401,6 @@ Private Sub FormatSheetFixedFormatting()
     Set wkbReportWorkbook = this.shtReport.Parent
     wkbReportWorkbook.Activate
     this.shtReport.Select
-
 
     With this.shtReport
         .DisplayPageBreaks = False
@@ -458,26 +456,6 @@ Private Sub FormatSheetFixedFormatting()
     Set wkbActivePriorToSub = Nothing
     
 End Sub
-
-Sub FormatSheetUserSettings()
-'Sets formats that can be controlled and stored by user
-
-    Dim ReportSheetformat As Dictionary
-
-    Set ReportSheetformat = GetSavedReportSheetFormat
-    With Me
-        .SheetFont = ReportSheetformat.item("Sheet font")
-        .DefaultFontSize = ReportSheetformat.item("Default font size")
-        .ZoomPercentage = ReportSheetformat.item("Zoom percentage")
-        .HeadingFontColour = Array( _
-            ReportSheetformat.item("Heading colour red (0 to 255)"), _
-            ReportSheetformat.item("Heading colour green (0 to 255)"), _
-            ReportSheetformat.item("Heading colour blue (0 to 255)"))
-        .HeadingFontSize = ReportSheetformat.item("Heading font size")
-    End With
-    
-End Sub
-
 
 
 

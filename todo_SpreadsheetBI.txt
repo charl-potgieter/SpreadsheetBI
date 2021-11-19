@@ -1,5 +1,12 @@
 TODO
 -------
+Try to generate reports on file Test
+ - > looks as if only final report is being saved - others being overwritten?
+
+
+Test function CreateStorageFromPowerQuery (in ListStorage class)
+
+There are some implied dependencies between ListStorage and ReportingSheet that should be cleaned up, for example the row  / column where to locate the listobject
 
 Look at mr excel lambdas 
 https://t.co/EIJ0mh1eXq?amp=1

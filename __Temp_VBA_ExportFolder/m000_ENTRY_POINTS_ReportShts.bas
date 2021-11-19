@@ -23,9 +23,10 @@ Function InsertReportingSheetSheetIntoActiveWorkbook()
     Dim CurrentSheetAssigned As Boolean
     Dim Category As String
     Dim Header As String
-    Dim SheetName As String
     Dim wkb As Workbook
+    Dim ReportSheetFormat As Dictionary
     
+
     StandardEntry
 
     Set wkb = ActiveWorkbook
@@ -40,15 +41,21 @@ Function InsertReportingSheetSheetIntoActiveWorkbook()
     Set ReportSht = New ReportingSheet
     ReportSht.Create wkb, ActiveSheet.Index
     
+    Set ReportSheetFormat = GetSavedReportSheetFormat
+    ReportSht.SheetFont = ReportSheetFormat.item("Sheet font")
+    ReportSht.DefaultFontSize = ReportSheetFormat.item("Default font size")
+    ReportSht.ZoomPercentage = ReportSheetFormat.item("Zoom percentage")
+    ReportSht.HeadingFontColour = Array( _
+        ReportSheetFormat.item("Heading colour red (0 to 255)"), _
+        ReportSheetFormat.item("Heading colour green (0 to 255)"), _
+        ReportSheetFormat.item("Heading colour blue (0 to 255)"))
+    ReportSht.HeadingFontSize = ReportSheetFormat.item("Heading font size")
+    
     Category = InputBox(Prompt:="Enter sheet category", Default:=Category)
     ReportSht.Category = Category
     
     Header = InputBox(Prompt:="Enter sheet heading")
     ReportSht.Heading = Header
-    
-    SheetName = InputBox(Prompt:="Enter sheet name", _
-        Default:=Replace(WorksheetFunction.Proper(Header), " ", ""))
-    ReportSht.Name = SheetName
     
     InsertIndexPage ActiveWorkbook
     ReportSht.Sheet.Activate
@@ -64,12 +71,12 @@ End Function
 Sub ConvertSelectedSheetsToReportingSheet()
 
     Dim ReportSht As ReportingSheet
-    Dim ReportSheetformat As Dictionary
+    Dim ReportSheetFormat As Dictionary
     Dim SelectedSheetNames() As String
     Dim i As Integer
 
     StandardEntry
-    Set ReportSheetformat = GetSavedReportSheetFormat
+    Set ReportSheetFormat = GetSavedReportSheetFormat
     
     ReDim SelectedSheetNames(1 To ActiveWindow.SelectedSheets.Count)
     For i = 1 To ActiveWindow.SelectedSheets.Count
@@ -83,21 +90,21 @@ Sub ConvertSelectedSheetsToReportingSheet()
         
         Set ReportSht = New ReportingSheet
         ReportSht.CreateFromExistingSheet ActiveSheet
-        ReportSht.SheetFont = ReportSheetformat.item("Sheet font")
-        ReportSht.DefaultFontSize = ReportSheetformat.item("Default font size")
-        ReportSht.ZoomPercentage = ReportSheetformat.item("Zoom percentage")
+        ReportSht.SheetFont = ReportSheetFormat.item("Sheet font")
+        ReportSht.DefaultFontSize = ReportSheetFormat.item("Default font size")
+        ReportSht.ZoomPercentage = ReportSheetFormat.item("Zoom percentage")
         ReportSht.HeadingFontColour = Array( _
-            ReportSheetformat.item("Heading colour red (0 to 255)"), _
-            ReportSheetformat.item("Heading colour green (0 to 255)"), _
-            ReportSheetformat.item("Heading colour blue (0 to 255)"))
-        ReportSht.HeadingFontSize = ReportSheetformat.item("Heading font size")
+            ReportSheetFormat.item("Heading colour red (0 to 255)"), _
+            ReportSheetFormat.item("Heading colour green (0 to 255)"), _
+            ReportSheetFormat.item("Heading colour blue (0 to 255)"))
+        ReportSht.HeadingFontSize = ReportSheetFormat.item("Heading font size")
     Next i
     
     InsertIndexPage ActiveWorkbook
     ReportSht.Sheet.Activate
     
     Set ReportSht = Nothing
-    Set ReportSheetformat = Nothing
+    Set ReportSheetFormat = Nothing
     
     StandardExit
 

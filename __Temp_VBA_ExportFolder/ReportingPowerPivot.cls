@@ -88,7 +88,7 @@ Public Property Let SheetProperties(ByVal Properties As Dictionary)
     Set wkb = shtOriginalSheet.Parent
     Set this.ReportSht = New ReportingSheet
     With this.ReportSht
-        .Create wkb, shtOriginalSheet.Index
+        .Create wkb
         .Name = Properties.item("SheetName")
         .Category = Properties.item("Category")
         .Heading = Properties.item("Heading")
@@ -404,7 +404,7 @@ Public Sub CreateEmptyPowerPivotReport(ByVal wkb As Workbook, ByVal sReportName 
     Dim sht As Worksheet
     Const sInitialFirstCell As String = "A1"
 
-    Set sht = wkb.Sheets.Add(After:=wkb.ActiveSheet)
+    Set sht = wkb.Sheets.Add
     Set this.pvt = wkb.PivotCaches.Create(SourceType:=xlExternal, SourceData:= _
         wkb.Connections("ThisWorkbookDataModel"), Version:=6). _
         CreatePivotTable(sht.Range(sInitialFirstCell))
