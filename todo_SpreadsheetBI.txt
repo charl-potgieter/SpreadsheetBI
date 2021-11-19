@@ -1,5 +1,19 @@
 TODO
 -------
+Create code to Export powerquery library function (only valid in add in) -->  do this when metadata is generated in add in itself
+and import into other workbooks
+
+Some other standard PowerQuery functions potentially to be removed
+
+I have powerqueries both in SpreadsheetBI and SpreadsheetPowerLibrary
+ - potentially out of sync?   for example Tax YE has been added to SpreadsheetBI
+ - Where is best place to store?
+
+The pipe delimited format is also causing issues in SpreadsheetBI
+
+Note generating metadata does not save powerqueries.  I think I have already considered this previously but maybe revisit?
+
+
 Try to generate reports on file Test
  - > looks as if only final report is being saved - others being overwritten?
 
