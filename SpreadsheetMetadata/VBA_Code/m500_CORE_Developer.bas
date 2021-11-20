@@ -14,16 +14,19 @@ Sub GenerateSpreadsheetMetadata(ByVal wkb As Workbook)
 '   - Number of table columns
 '   -  Listobject number format
 '   -  Listobject font colour
+'   - If activeworkbook is this spreadsheet then LibraryPowerQuery is also exported
 
     Dim sMetaDataRootPath As String
     Dim sTableStructurePath As String
     Dim sVbaCodePath As String
     Dim sOtherPath As String
+    Dim sPowerQueryLibraryPath As String
 
     sMetaDataRootPath = wkb.Path & Application.PathSeparator & "SpreadsheetMetadata"
     sTableStructurePath = sMetaDataRootPath & Application.PathSeparator & "TableStructure"
     sVbaCodePath = sMetaDataRootPath & Application.PathSeparator & "VBA_Code"
     sOtherPath = sMetaDataRootPath & Application.PathSeparator & "Other"
+    sPowerQueryLibraryPath = sMetaDataRootPath & Application.PathSeparator & "PowerQueryLibrary"    'Only applies to this workbook
     
 
     'Create folders for storing metadata
@@ -53,6 +56,12 @@ Sub GenerateSpreadsheetMetadata(ByVal wkb As Workbook)
     'Generate other info
     GenerateMetadataOther wkb, _
         sOtherPath & Application.PathSeparator & "OtherData.txt"
+        
+    If wkb.Name = ThisWorkbook.Name Then
+        If Not FolderExists(sPowerQueryLibraryPath) Then CreateFolder sPowerQueryLibraryPath
+        WriteStringToTextFile wkb.Queries("Library").Formula, sPowerQueryLibraryPath & Application.PathSeparator & "Library.m"
+    End If
+    
     
 
 

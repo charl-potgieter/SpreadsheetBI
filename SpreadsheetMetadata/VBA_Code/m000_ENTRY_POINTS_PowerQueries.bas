@@ -364,3 +364,22 @@ End Sub
 
 
 
+Sub ImportPowerQueryLibraryIntoActiveWorkbook()
+'Imports Power Query Library (one query structured as a record) into activeworkbook, sourced from this spreadsheet
+    
+    StandardEntry
+    If ActiveWorkbook.Name = ThisWorkbook.Name Then
+        MsgBox ("This action cannot be performed in the current spreadsehet")
+    Else
+        If QueryExists("Library", ActiveWorkbook) Then
+            ActiveWorkbook.Queries("Library").Formula = ThisWorkbook.Queries("Library").Formula
+        Else
+            ActiveWorkbook.Queries.Add "Library", ThisWorkbook.Queries("Library").Formula
+        End If
+        MsgBox ("Library imported")
+    End If
+
+    StandardExit
+
+End Sub
+
