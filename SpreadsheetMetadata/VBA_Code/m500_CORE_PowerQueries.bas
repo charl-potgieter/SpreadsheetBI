@@ -55,6 +55,40 @@ Sub ExportPowerQueriesToConsolidatedFile(ByVal wkb As Workbook)
 End Sub
 
 
+Sub GenerateConsolidatedPowerQuery(ByVal wkb As Workbook, ByVal ConsolQryName As String)
+
+    Dim qry As WorkbookQuery
+    Dim ExportFileNameAndPath As String
+    Dim QueryString As String
+    Dim isFirstQuery As Boolean
+    
+    ExportFileNameAndPath = wkb.Path & Application.PathSeparator & "ConsolidatedPowerQueries.m"
+    isFirstQuery = True
+    
+    QueryString = "[" & vbCr
+    For Each qry In wkb.Queries
+        If qry.Name <> ConsolQryName And Left(qry.Name, 1) <> "_" Then
+            If isFirstQuery Then
+                QueryString = QueryString & vbCr & vbCr & qry.Name & " = " & vbCr
+            Else
+                QueryString = QueryString & "," & vbCr & vbCr & qry.Name & " = " & vbCr
+            End If
+            QueryString = QueryString & qry.Formula
+            isFirstQuery = False
+        End If
+    Next qry
+    QueryString = QueryString & "]"
+    
+    If QueryExists(ConsolQryName) Then
+        wkb.Queries(ConsolQryName).Formula = QueryString
+    Else
+        wkb.Queries.Add ConsolQryName, QueryString
+    End If
+
+
+End Sub
+
+
 
 Sub ImportOrRefreshSinglePowerQuery(ByVal sQueryPath As String, ByVal sQueryName As String, Optional wkb As Workbook)
 

@@ -29,6 +29,20 @@ Sub ExportPowerQueriesInActiveWorkbookToConsolidatedFile()
 End Sub
 
 
+Sub CreateConsolidatedPowerQuery()
+
+    Dim ConsolQueryName As String
+    
+    StandardEntry
+    ConsolQueryName = InputBox("Enter consol query name")
+    GenerateConsolidatedPowerQuery ActiveWorkbook, ConsolQueryName
+    StandardExit
+    
+
+End Sub
+
+
+
 Sub ExportNonStandardPowerQueriesInActiveWorkbookToFiles()
 'Exports power queries without fn_std or template_std prefix
 

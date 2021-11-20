@@ -1,19 +1,4 @@
-[
-    
-Functions = 
-[
-
-/****************************************************************************************************************************************************
-            Functions --> Data Access
-****************************************************************************************************************************************************/
-
-DataAccess = [
-
-//+++++++++++++++++++++++++++++
-//  ConsolidatedFilesInFolder
-//+++++++++++++++++++++++++++++
-ConsolidatedFilesInFolder = 
-(
+[DataAccess_ConsolidatedFilesInFolder = (
     FolderPath as text, 
     fn_SingleFile as function, 
     LoadData as logical,
@@ -50,28 +35,7 @@ let
     ReturnOnlyOneDataRowIfRequired = if LoadData then Expanded else Table.FirstN(Expanded, 1)
 
 in
-    ReturnOnlyOneDataRowIfRequired
-
-
-],
-
-        
-
-/****************************************************************************************************************************************************
-            Functions --> Dates
-****************************************************************************************************************************************************/
-    
-    
-Dates = [
-    
-    
-//++++++++++++++++++++++
-//  DateTableStandard
-//++++++++++++++++++++++
-
-
-DateTableStandard = 
-(FirstYear, LastYear)=>
+    ReturnOnlyOneDataRowIfRequired,Dates_DateTableStandard = (FirstYear, LastYear)=>
 let
     YearStart = #date(FirstYear, 1, 1),
     YearEnd = #date(LastYear, 12, 31),
@@ -110,17 +74,11 @@ let
     AddDaysInYearCol = Table.AddColumn(InsertDayInWeek, "DaysInYear",each Date.DayOfYear(Date.EndOfYear([Date])), Int64.Type)
     
 in
-    AddDaysInYearCol,
-
-
-
-//+++++++++++++++++++++++++++++++++
-//  DateTableJuneYearEnd
-//+++++++++++++++++++++++++++++++++
-
-DateTableJuneYearEnd  = 
-(FirstYear, LastYear)=>
+    AddDaysInYearCol,Dates_DateTableJuneYearEnd = (FirstYear, LastYear)=>
 let
+
+    //FirstYear = 2010,
+    //LastYear = 2011,
 
     // Get daylist
     YearStart = #date(FirstYear-1,7,1),
@@ -153,7 +111,11 @@ let
             else
                     #date(Date.Year([Date]) +1, 6, 30)
             , type date),
-    InsertEndOfYearCalendar = Table.AddColumn(InsertEndOfYearJune, "EndOfYear_Calendar", each Date.EndOfYear([Date]), type date),
+
+
+    InsertEndOfYearJuneText = Table.AddColumn(InsertEndOfYearJune, "EndOfYear_JuneText", each "YE June " & Text.From(Date.Year([EndOfYear_June])), type text),
+
+    InsertEndOfYearCalendar = Table.AddColumn(InsertEndOfYearJuneText, "EndOfYear_Calendar", each Date.EndOfYear([Date]), type date),
 
     InsertEndOfQtr = Table.AddColumn(InsertEndOfYearCalendar, "EndOfQtr", each Date.EndOfQuarter([Date]), type date),
     InsertEndOfMonth = Table.AddColumn(InsertEndOfQtr, "EndOfMonth", each Date.EndOfMonth([Date]), type date),
@@ -188,15 +150,7 @@ let
     AddDaysInYearCol = Table.AddColumn(InsertDayInWeek, "DaysInTaxYear",each fn_DaysInTaxYear([EndOfYear_June]), Int64.Type)
     
 in
-    AddDaysInYearCol,
-
-
-//+++++++++++++++++++++++++++++++++
-//  fn_DatesBetween
-//+++++++++++++++++++++++++++++++++
-fn_DatesBetween = 
-
-let 
+    AddDaysInYearCol,Dates_DatesBetween = let 
     // Credit for below code = Imke Feldman Imke Feldmann: www.TheBIccountant.com
 
     // ----------------------- Documentation ----------------------- 
@@ -256,26 +210,34 @@ let
  
  in 
 
-    Result,
+    Result,Dates_TimePeriods = let
 
-//+++++++++++++++++++++++++++++++++
-//  fn_FileNameIsInDateRangeYYYY
-//+++++++++++++++++++++++++++++++++    
-FileNameIsInDateRangeYYYY =     
-(FileName as text, YearStart as number, YearEnd as number) =>
+    tbl = Table.FromRecords({
+        [Time Period = "MTD", Time Period Sort By Col = "1"], 
+        [Time Period = "QTD", Time Period Sort By Col = "2"], 
+        [Time Period = "YTD", Time Period Sort By Col = "3"], 
+        [Time Period = "PY", Time Period Sort By Col = "4"], 
+        [Time Period = "Total", Time Period Sort By Col = "5"], 
+        [Time Period = "As at date", Time Period Sort By Col = "6"],
+        [Time Period = "As at month end", Time Period Sort By Col = "7"]
+        }), 
+
+    ChangedType = Table.TransformColumnTypes(
+       tbl, 
+        {
+            {"Time Period", type text},
+            {"Time Period Sort By Col", Int64.Type}
+
+        })
+
+in
+    ChangedType,DataAccess_FileNameIsInDateRangeYYYY = (FileName as text, YearStart as number, YearEnd as number) =>
 let
     //Checks wheter file name is inside date range where file name starts with YYYY
     YearFromFileName = Number.From(Text.Start(FileName, 4)),
     IsInRange = (YearFromFileName >= YearStart) and (YearFromFileName <= YearEnd)    
 in
-    IsInRange,
-
-
-//+++++++++++++++++++++++++++++++++
-//  fn_FileNameIsInDateRangeYYYY
-//+++++++++++++++++++++++++++++++++    
-FileNameIsInDateRangeYYYYMM = 
-(FileName as text, DateStart as date, DateEnd as date) =>
+    IsInRange,DataAccess_FileNameIsInDateRangeYYYYMM = (FileName as text, DateStart as date, DateEnd as date) =>
 let
     //Checks wheter file name is inside date range where file name starts with YYYYMM
     YearFromFileName = Number.From(Text.Start(FileName, 4)),
@@ -283,42 +245,18 @@ let
     MonthEndFromFileName = Date.EndOfMonth(#date(YearFromFileName, MonthFromFileName, 1)),
     IsInRange = (MonthEndFromFileName >= DateStart) and (MonthEndFromFileName <= DateEnd)    
 in
-    IsInRange
-
-
-
-], 
-
-
-/****************************************************************************************************************************************************
-            Functions --> Other
-****************************************************************************************************************************************************/
-
-Other = [
-
-//+++++++++++++++++++++++++++++++++
-//  fn_ConvertAllColumnsToText
-//+++++++++++++++++++++++++++++++++
-fn_ConvertAllColumnsToText = 
-(tbl)=>
+    IsInRange,Sundry_ConvertAllColumnsToText = (tbl)=>
 let
     ConversionList = List.Transform(Table.ColumnNames(tbl), each {_, type text}),
     Converted = Table.TransformColumnTypes(tbl, ConversionList)
 in
-    Converted,
-
-
-//+++++++++++++++++++++++++++++++++
-//  fn_StraightLineAmortisation
-//+++++++++++++++++++++++++++++++++        
-fn_StraightLineAmortisation =         
-(OpeningBalance,AmortisationRatePerYear,StartDate)=>
+    Converted,Sundry_StraightLineAmortisationTable = (OpeningBalance,AmortisationRatePerYear,StartDate)=>
 let
 
     //Uncomment for debugging purposes
-    OpeningBalance = 500000,
-    AmortisationRatePerYear = 0.2,
-    StartDate = #date(2019,1,1),
+    //OpeningBalance = 500000,
+    //AmortisationRatePerYear = 0.2,
+    //StartDate = #date(2019,1,1),
 
     NumberOfMonths = (1 / AmortisationRatePerYear) * 12,
 
@@ -331,14 +269,7 @@ let
     AddClosingBalance = Table.AddColumn(AddAmortisation, "Closing Balance", each [Opening Balance] - [Amortisation], type number),
     DeleteIndex = Table.RemoveColumns(AddClosingBalance,{"Index"})
 in
-    DeleteIndex,
-    
-
-//+++++++++++++++++++++++++++++++++
-//  fn_Parameters
-//+++++++++++++++++++++++++++++++++            
-fn_Parameters = 
-let
+    DeleteIndex,Sundry_Parameters = let
     
     Documentation_ = [
         Documentation.Name =  " fn_std_Parameters", 
@@ -366,34 +297,7 @@ let
     Result =  Value.ReplaceType(fn_, type_)
  
  in 
-    Result
-
-
-        
-        
-]  // End Functions other
-
-
-
-],  // End Functions
-
-
-Tables = 
-[
-
-/****************************************************************************************************************************************************
-            Tables --> Sample data
-****************************************************************************************************************************************************/
-
-
-
-Sample data = [
-
-//+++++++++++++++++++++++++++++++++
-//  SampleDataTable
-//+++++++++++++++++++++++++++++++++
-DataTable = 
-let
+    Result,SampleData_DataTable = let
 
     tbl = Table.FromRecords({
         [Date = "42400", Foreign Key = "blah", SubCategory = "A", Amount = "1234"], 
@@ -419,15 +323,7 @@ let
         })
 
 in
-    ChangedType,
-
-
-
-//+++++++++++++++++++++++++++++++++
-//  SampleLookupTable
-//+++++++++++++++++++++++++++++++++
-LookupTable = 
-let
+    ChangedType,SampleData_LookupTable = let
 
     tbl = Table.FromRecords({
         [Primary Key = "blah", Full Description = "This is blah"], 
@@ -444,26 +340,7 @@ let
         })
 
 in
-    ChangedType
-
-
-
-
-],
- 
-/****************************************************************************************************************************************************
-            Tables --> Other
-****************************************************************************************************************************************************/
- 
- 
-Other = [
-
-
-//+++++++++++++++++++++++++++++++++
-//  NumberScale
-//+++++++++++++++++++++++++++++++++
-NumberScale = 
-let
+    ChangedType,Sundry_NumberScale = let
 
     tbl = Table.FromRecords({
         [ShowValuesAs = "CCY", DivideBy = "1"], 
@@ -480,42 +357,4 @@ let
         })
 
 in
-    ChangedType,
-
-
-
-//+++++++++++++++++++++++++++++++++
-//  TimePeriods
-//+++++++++++++++++++++++++++++++++
-TimePeriods = 
-let
-
-    tbl = Table.FromRecords({
-        [Time Period = "MTD", Time Period Sort By Col = "1"], 
-        [Time Period = "QTD", Time Period Sort By Col = "2"], 
-        [Time Period = "YTD", Time Period Sort By Col = "3"], 
-        [Time Period = "PY", Time Period Sort By Col = "4"], 
-        [Time Period = "Total", Time Period Sort By Col = "5"], 
-        [Time Period = "As at date", Time Period Sort By Col = "6"],
-        [Time Period = "As at month end", Time Period Sort By Col = "7"]
-        }), 
-
-    ChangedType = Table.TransformColumnTypes(
-       tbl, 
-        {
-            {"Time Period", type text},
-            {"Time Period Sort By Col", Int64.Type}
-
-        })
-
-in
-    ChangedType
-
-
-
-]
-            
-]
-
-
-]
+    ChangedType]

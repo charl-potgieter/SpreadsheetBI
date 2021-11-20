@@ -1,6 +1,8 @@
 TODO
 -------
 
+Leaning towards including power query generation in Developer / generate metadata  - especially for PowerQueries in spreadsheetBI
+
 Try to generate reports on file Test
  - > looks as if only final report is being saved - others being overwritten?
 
