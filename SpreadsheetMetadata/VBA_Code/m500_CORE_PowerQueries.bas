@@ -38,12 +38,12 @@ Sub ExportPowerQueriesToConsolidatedFile(ByVal wkb As Workbook)
     ExportFileNameAndPath = wkb.Path & Application.PathSeparator & "ConsolidatedPowerQueries.m"
     isFirstQuery = True
     
-    QueryString = "[" & vbCr
+    QueryString = "[" & vbLf
     For Each qry In wkb.Queries
         If isFirstQuery Then
-            QueryString = QueryString & vbCr & vbCr & qry.Name & " = " & vbCr
+            QueryString = QueryString & vbLf & vbLf & qry.Name & " = " & vbLf
         Else
-            QueryString = QueryString & "," & vbCr & vbCr & qry.Name & " = " & vbCr
+            QueryString = QueryString & "," & vbLf & vbLf & qry.Name & " = " & vbLf
         End If
         QueryString = QueryString & qry.Formula
         isFirstQuery = False
@@ -65,13 +65,13 @@ Sub GenerateConsolidatedPowerQuery(ByVal wkb As Workbook, ByVal ConsolQryName As
     ExportFileNameAndPath = wkb.Path & Application.PathSeparator & "ConsolidatedPowerQueries.m"
     isFirstQuery = True
     
-    QueryString = "[" & vbCr
+    QueryString = "[" & vbLf
     For Each qry In wkb.Queries
         If qry.Name <> ConsolQryName And Left(qry.Name, 1) <> "_" Then
             If isFirstQuery Then
-                QueryString = QueryString & vbCr & vbCr & qry.Name & " = " & vbCr
+                QueryString = QueryString & vbLf & vbLf & qry.Name & " = " & vbLf
             Else
-                QueryString = QueryString & "," & vbCr & vbCr & qry.Name & " = " & vbCr
+                QueryString = QueryString & "," & vbLf & vbLf & qry.Name & " = " & vbLf
             End If
             QueryString = QueryString & qry.Formula
             isFirstQuery = False

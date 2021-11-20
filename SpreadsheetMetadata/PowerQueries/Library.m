@@ -1,4 +1,8 @@
-[DataAccess_ConsolidatedFilesInFolder = (
+[
+
+
+DataAccess_ConsolidatedFilesInFolder = 
+(
     FolderPath as text, 
     fn_SingleFile as function, 
     LoadData as logical,
@@ -35,7 +39,10 @@ let
     ReturnOnlyOneDataRowIfRequired = if LoadData then Expanded else Table.FirstN(Expanded, 1)
 
 in
-    ReturnOnlyOneDataRowIfRequired,Dates_DateTableStandard = (FirstYear, LastYear)=>
+    ReturnOnlyOneDataRowIfRequired,
+
+Dates_DateTableStandard = 
+(FirstYear, LastYear)=>
 let
     YearStart = #date(FirstYear, 1, 1),
     YearEnd = #date(LastYear, 12, 31),
@@ -74,7 +81,10 @@ let
     AddDaysInYearCol = Table.AddColumn(InsertDayInWeek, "DaysInYear",each Date.DayOfYear(Date.EndOfYear([Date])), Int64.Type)
     
 in
-    AddDaysInYearCol,Dates_DateTableJuneYearEnd = (FirstYear, LastYear)=>
+    AddDaysInYearCol,
+
+Dates_DateTableJuneYearEnd = 
+(FirstYear, LastYear)=>
 let
 
     //FirstYear = 2010,
@@ -150,7 +160,10 @@ let
     AddDaysInYearCol = Table.AddColumn(InsertDayInWeek, "DaysInTaxYear",each fn_DaysInTaxYear([EndOfYear_June]), Int64.Type)
     
 in
-    AddDaysInYearCol,Dates_DatesBetween = let 
+    AddDaysInYearCol,
+
+Dates_DatesBetween = 
+let 
     // Credit for below code = Imke Feldman Imke Feldmann: www.TheBIccountant.com
 
     // ----------------------- Documentation ----------------------- 
@@ -210,7 +223,10 @@ in
  
  in 
 
-    Result,Dates_TimePeriods = let
+    Result,
+
+Dates_TimePeriods = 
+let
 
     tbl = Table.FromRecords({
         [Time Period = "MTD", Time Period Sort By Col = "1"], 
@@ -231,13 +247,19 @@ in
         })
 
 in
-    ChangedType,DataAccess_FileNameIsInDateRangeYYYY = (FileName as text, YearStart as number, YearEnd as number) =>
+    ChangedType,
+
+DataAccess_FileNameIsInDateRangeYYYY = 
+(FileName as text, YearStart as number, YearEnd as number) =>
 let
     //Checks wheter file name is inside date range where file name starts with YYYY
     YearFromFileName = Number.From(Text.Start(FileName, 4)),
     IsInRange = (YearFromFileName >= YearStart) and (YearFromFileName <= YearEnd)    
 in
-    IsInRange,DataAccess_FileNameIsInDateRangeYYYYMM = (FileName as text, DateStart as date, DateEnd as date) =>
+    IsInRange,
+
+DataAccess_FileNameIsInDateRangeYYYYMM = 
+(FileName as text, DateStart as date, DateEnd as date) =>
 let
     //Checks wheter file name is inside date range where file name starts with YYYYMM
     YearFromFileName = Number.From(Text.Start(FileName, 4)),
@@ -245,12 +267,18 @@ let
     MonthEndFromFileName = Date.EndOfMonth(#date(YearFromFileName, MonthFromFileName, 1)),
     IsInRange = (MonthEndFromFileName >= DateStart) and (MonthEndFromFileName <= DateEnd)    
 in
-    IsInRange,Sundry_ConvertAllColumnsToText = (tbl)=>
+    IsInRange,
+
+Sundry_ConvertAllColumnsToText = 
+(tbl)=>
 let
     ConversionList = List.Transform(Table.ColumnNames(tbl), each {_, type text}),
     Converted = Table.TransformColumnTypes(tbl, ConversionList)
 in
-    Converted,Sundry_StraightLineAmortisationTable = (OpeningBalance,AmortisationRatePerYear,StartDate)=>
+    Converted,
+
+Sundry_StraightLineAmortisationTable = 
+(OpeningBalance,AmortisationRatePerYear,StartDate)=>
 let
 
     //Uncomment for debugging purposes
@@ -269,7 +297,10 @@ let
     AddClosingBalance = Table.AddColumn(AddAmortisation, "Closing Balance", each [Opening Balance] - [Amortisation], type number),
     DeleteIndex = Table.RemoveColumns(AddClosingBalance,{"Index"})
 in
-    DeleteIndex,Sundry_Parameters = let
+    DeleteIndex,
+
+Sundry_Parameters = 
+let
     
     Documentation_ = [
         Documentation.Name =  " fn_std_Parameters", 
@@ -297,7 +328,10 @@ in
     Result =  Value.ReplaceType(fn_, type_)
  
  in 
-    Result,SampleData_DataTable = let
+    Result,
+
+SampleData_DataTable = 
+let
 
     tbl = Table.FromRecords({
         [Date = "42400", Foreign Key = "blah", SubCategory = "A", Amount = "1234"], 
@@ -323,7 +357,10 @@ in
         })
 
 in
-    ChangedType,SampleData_LookupTable = let
+    ChangedType,
+
+SampleData_LookupTable = 
+let
 
     tbl = Table.FromRecords({
         [Primary Key = "blah", Full Description = "This is blah"], 
@@ -340,7 +377,10 @@ in
         })
 
 in
-    ChangedType,Sundry_NumberScale = let
+    ChangedType,
+
+Sundry_NumberScale = 
+let
 
     tbl = Table.FromRecords({
         [ShowValuesAs = "CCY", DivideBy = "1"], 
