@@ -14,7 +14,7 @@ Sub GenerateSpreadsheetMetadata(ByVal wkb As Workbook)
 '   - Number of table columns
 '   -  Listobject number format
 '   -  Listobject font colour
-'   - If activeworkbook is this spreadsheet then LibraryPowerQuery is also exported
+'   - Poqwe query exports
 
     Dim sMetaDataRootPath As String
     Dim sTableStructurePath As String

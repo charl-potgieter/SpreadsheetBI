@@ -1,8 +1,8 @@
 (FirstYear, LastYear)=>
 let
 
-    //FirstYear = 2010,
-    //LastYear = 2011,
+   // FirstYear = 2010,
+   // LastYear = 2012,
 
     // Get daylist
     YearStart = #date(FirstYear-1,7,1),
@@ -71,7 +71,7 @@ let
     in
             NumDates,
 
-    AddDaysInYearCol = Table.AddColumn(InsertDayInWeek, "DaysInTaxYear",each fn_DaysInTaxYear([EndOfYear_June]), Int64.Type)
-    
+    AddDaysInJuneYearCol = Table.AddColumn(InsertDayInWeek, "DaysInTaxYear",each fn_DaysInTaxYear([EndOfYear_June]), Int64.Type),
+    AddDaysInCalendarYear = Table.AddColumn(AddDaysInJuneYearCol, "DaysInCalendarYear", each Date.DayOfYear([EndOfYear_Calendar]), Int64.Type)
 in
-    AddDaysInYearCol
+    AddDaysInCalendarYear
