@@ -14,16 +14,19 @@ Sub GenerateSpreadsheetMetadata(ByVal wkb As Workbook)
 '   - Number of table columns
 '   -  Listobject number format
 '   -  Listobject font colour
+'   - Poqwe query exports
 
     Dim sMetaDataRootPath As String
     Dim sTableStructurePath As String
     Dim sVbaCodePath As String
     Dim sOtherPath As String
+    Dim sPowerQueryPath As String
 
     sMetaDataRootPath = wkb.Path & Application.PathSeparator & "SpreadsheetMetadata"
     sTableStructurePath = sMetaDataRootPath & Application.PathSeparator & "TableStructure"
     sVbaCodePath = sMetaDataRootPath & Application.PathSeparator & "VBA_Code"
     sOtherPath = sMetaDataRootPath & Application.PathSeparator & "Other"
+    sPowerQueryPath = sMetaDataRootPath & Application.PathSeparator & "PowerQueries"
     
 
     'Create folders for storing metadata
@@ -31,6 +34,7 @@ Sub GenerateSpreadsheetMetadata(ByVal wkb As Workbook)
     If Not FolderExists(sTableStructurePath) Then CreateFolder sTableStructurePath
     If Not FolderExists(sVbaCodePath) Then CreateFolder sVbaCodePath
     If Not FolderExists(sOtherPath) Then CreateFolder sOtherPath
+    If Not FolderExists(sPowerQueryPath) Then CreateFolder sPowerQueryPath
 
     'Delete any old files in above folders
     On Error Resume Next
@@ -50,10 +54,18 @@ Sub GenerateSpreadsheetMetadata(ByVal wkb As Workbook)
     'Export VBA code
     ExportVBAModules wkb, sVbaCodePath
     
+    'Generate a consolidated power query library if this sub is run in this workbook
+    If wkb.Name = ThisWorkbook.Name Then
+        GenerateConsolidatedPowerQuery wkb, "Library"
+    End If
+    
+    'Export Power Queries
+    ExportPowerQueriesToFiles sPowerQueryPath, wkb
+    
     'Generate other info
     GenerateMetadataOther wkb, _
         sOtherPath & Application.PathSeparator & "OtherData.txt"
-    
+        
 
 
 End Sub

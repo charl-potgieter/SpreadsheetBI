@@ -29,6 +29,20 @@ Sub ExportPowerQueriesInActiveWorkbookToConsolidatedFile()
 End Sub
 
 
+Sub CreateConsolidatedPowerQuery()
+
+    Dim ConsolQueryName As String
+    
+    StandardEntry
+    ConsolQueryName = InputBox("Enter consol query name")
+    GenerateConsolidatedPowerQuery ActiveWorkbook, ConsolQueryName
+    StandardExit
+    
+
+End Sub
+
+
+
 Sub ExportNonStandardPowerQueriesInActiveWorkbookToFiles()
 'Exports power queries without fn_std or template_std prefix
 
@@ -309,58 +323,25 @@ Sub TempDeleteAllPQ()
 End Sub
 
 
-Sub ImportPreDefinedPowerQueries()
 
-    Dim wkb As Workbook
-    Dim qry As WorkbookQuery
-    Dim QueryDetails As Dictionary
-    Dim QueryDetail As PowerQueryImportDetails
-    Dim QueryName As String
-    Dim i As Integer
-    Dim uf As uf_PowerQueryImport
-    Dim qryKey As Variant
 
+
+Sub ImportPowerQueryLibraryIntoActiveWorkbook()
+'Imports Power Query Library (one query structured as a record) into activeworkbook, sourced from this spreadsheet
+    
     StandardEntry
-    
-    Set wkb = ActiveWorkbook
-    If wkb.Name = ThisWorkbook.Name Then
-        MsgBox ("Cannot run this sub in current workbook")
-        GoTo Exitpoint
+    If ActiveWorkbook.Name = ThisWorkbook.Name Then
+        MsgBox ("This action cannot be performed in the current spreadsehet")
+    Else
+        If QueryExists("Library", ActiveWorkbook) Then
+            ActiveWorkbook.Queries("Library").Formula = ThisWorkbook.Queries("Library").Formula
+        Else
+            ActiveWorkbook.Queries.Add "Library", ThisWorkbook.Queries("Library").Formula
+        End If
+        MsgBox ("Library imported")
     End If
-        
-    Set QueryDetails = New Dictionary
-    For i = 1 To ThisWorkbook.Queries.Count
-        Set QueryDetail = New PowerQueryImportDetails
-        Set qry = ThisWorkbook.Queries(i)
-        QueryName = Split(qry.Name, "|")(1)
-        QueryDetail.Category = Split(qry.Name, "|")(0)
-        QueryDetail.Description = qry.Description
-        QueryDetail.Code = qry.Formula
-        QueryDetails.Add key:=QueryName, item:=QueryDetail
-    Next i
-        
-    Set uf = New uf_PowerQueryImport
-    Set uf.PowerQueryDetails = QueryDetails
-    uf.Show
-            
-    If Not uf.UserSelectedCancel And Not uf.SelectedQueries Is Nothing Then
-        For Each qryKey In uf.SelectedQueries.Keys
-            wkb.Queries.Add Name:=qryKey, _
-                Formula:=uf.SelectedQueries(qryKey).Code, _
-                Description:=uf.SelectedQueries(qryKey).Description
-        Next qryKey
-    End If
-    
-Exitpoint:
-    On Error Resume Next
-    Unload uf
-    On Error GoTo 0
-    Set uf = Nothing
-    Set QueryDetails = Nothing
+
     StandardExit
-    
-        
+
 End Sub
-
-
 

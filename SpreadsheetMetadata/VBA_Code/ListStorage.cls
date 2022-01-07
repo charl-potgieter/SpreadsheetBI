@@ -452,10 +452,10 @@ End Function
 
 Public Function IsEmpty(Optional ByVal bFiltered As Boolean = False) As Boolean
 
-    Dim test As Double
+    Dim TEst As Double
     On Error Resume Next
     
-    test = SelectedListObject(bFiltered).DataBodyRange.Rows.Count
+    TEst = SelectedListObject(bFiltered).DataBodyRange.Rows.Count
     IsEmpty = (Err.Number <> 0)
     On Error GoTo 0
     

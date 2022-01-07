@@ -242,18 +242,18 @@ Public Function AssignExistingSheet(ByVal sht As Worksheet) As Boolean
 'Only assigns sheet if it already meets reporting sheet criteria
     
     Dim bValidSheet As Boolean
-    Dim test As Variant
+    Dim TEst As Variant
     
     On Error Resume Next
-    test = sht.Range("HiddenWorkingRows").Address
-    test = sht.Range("HiddenWorkingColumns").Address
-    test = sht.Range("ErrorCheckColumns").Address
-    test = sht.Range("ErrorCheckRows").Address
-    test = sht.Range("WorkbookErrorStatus").Address
-    test = sht.Range("Category").Address
-    test = sht.Range("Heading").Address
-    test = sht.Range("ReturnToIndex").Address
-    test = sht.Range("DefaultCursorLocation").Address
+    TEst = sht.Range("HiddenWorkingRows").Address
+    TEst = sht.Range("HiddenWorkingColumns").Address
+    TEst = sht.Range("ErrorCheckColumns").Address
+    TEst = sht.Range("ErrorCheckRows").Address
+    TEst = sht.Range("WorkbookErrorStatus").Address
+    TEst = sht.Range("Category").Address
+    TEst = sht.Range("Heading").Address
+    TEst = sht.Range("ReturnToIndex").Address
+    TEst = sht.Range("DefaultCursorLocation").Address
     bValidSheet = (Err.Number = 0)
     On Error GoTo 0
     

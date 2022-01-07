@@ -230,7 +230,8 @@ Public Sub Create(ByVal wkb As Workbook, _
     
     InsertReportingSheet wkb, lSheetPosition
     SetRangeNames
-    FormatSheet
+    FormatSheetFixedFormatting
+    FormatSheetUserSettings
     Me.Category = "Category"
     Me.Heading = "Heading - " & this.shtReport.Name
     
@@ -241,18 +242,18 @@ Public Function AssignExistingSheet(ByVal sht As Worksheet) As Boolean
 'Only assigns sheet if it already meets reporting sheet criteria
     
     Dim bValidSheet As Boolean
-    Dim test As Variant
+    Dim TEst As Variant
     
     On Error Resume Next
-    test = sht.Range("HiddenWorkingRows").Address
-    test = sht.Range("HiddenWorkingColumns").Address
-    test = sht.Range("ErrorCheckColumns").Address
-    test = sht.Range("ErrorCheckRows").Address
-    test = sht.Range("WorkbookErrorStatus").Address
-    test = sht.Range("Category").Address
-    test = sht.Range("Heading").Address
-    test = sht.Range("ReturnToIndex").Address
-    test = sht.Range("DefaultCursorLocation").Address
+    TEst = sht.Range("HiddenWorkingRows").Address
+    TEst = sht.Range("HiddenWorkingColumns").Address
+    TEst = sht.Range("ErrorCheckColumns").Address
+    TEst = sht.Range("ErrorCheckRows").Address
+    TEst = sht.Range("WorkbookErrorStatus").Address
+    TEst = sht.Range("Category").Address
+    TEst = sht.Range("Heading").Address
+    TEst = sht.Range("ReturnToIndex").Address
+    TEst = sht.Range("DefaultCursorLocation").Address
     bValidSheet = (Err.Number = 0)
     On Error GoTo 0
     
@@ -277,7 +278,8 @@ Public Function CreateFromExistingSheet(ByVal sht As Worksheet) As Boolean
             Insert xlShiftDown
         Set this.shtReport = sht
         SetRangeNames
-        FormatSheet
+        FormatSheetFixedFormatting
+        FormatSheetUserSettings
         If Me.Category = "" Then Me.Category = "Category"
         If Me.Heading = "" Then Me.Heading = "Heading - " & this.shtReport.Name
     End If
@@ -389,9 +391,8 @@ End Sub
 
 
 
-
-
-Private Sub FormatSheet()
+Private Sub FormatSheetFixedFormatting()
+'Formats that are not changeable by the user
 
     Dim wkbReportWorkbook As Workbook
     Dim wkbActivePriorToSub As Workbook
@@ -401,6 +402,7 @@ Private Sub FormatSheet()
     Set wkbReportWorkbook = this.shtReport.Parent
     wkbReportWorkbook.Activate
     this.shtReport.Select
+
 
     With this.shtReport
         .DisplayPageBreaks = False
@@ -456,6 +458,26 @@ Private Sub FormatSheet()
     Set wkbActivePriorToSub = Nothing
     
 End Sub
+
+Sub FormatSheetUserSettings()
+'Sets formats that can be controlled and stored by user
+
+    Dim ReportSheetformat As Dictionary
+
+    Set ReportSheetformat = GetSavedReportSheetFormat
+    With Me
+        .SheetFont = ReportSheetformat.item("Sheet font")
+        .DefaultFontSize = ReportSheetformat.item("Default font size")
+        .ZoomPercentage = ReportSheetformat.item("Zoom percentage")
+        .HeadingFontColour = Array( _
+            ReportSheetformat.item("Heading colour red (0 to 255)"), _
+            ReportSheetformat.item("Heading colour green (0 to 255)"), _
+            ReportSheetformat.item("Heading colour blue (0 to 255)"))
+        .HeadingFontSize = ReportSheetformat.item("Heading font size")
+    End With
+    
+End Sub
+
 
 
 

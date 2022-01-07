@@ -1,23 +1,13 @@
 Attribute VB_Name = "m000_ENTRY_POINTS_PpReporting"
 Option Explicit
 
-Public Enum EnumReportType
-    PowerPivotSource
-    ExcelTableOnly
-End Enum
+Public Const cPR_MaxStorageRecords As Long = 1000000  'PR  = PowerReport
 
-Public Type TypeReportRecord
-    ReportName As String
-    ReportType As EnumReportType
-End Type
 
 Public Type TypeReportUserSelection
     SelectionMade As Boolean
-    ReportList() As TypeReportRecord
+    ReportNames() As String
     NumberOfSelectedReports As Long
-    SaveInNewWorkbook As Boolean
-    GenerateIndex As Boolean
-    NumberOfReportsForIndexGeneration As Integer
 End Type
 
 
@@ -26,9 +16,9 @@ Sub SaveReportMetadataInActiveWorkbook()
 
     StandardEntry
     SaveReportingPowerPivotMetaData ActiveWorkbook
-    SaveReportingTableMetadata ActiveWorkbook
+    InsertIndexPage ActiveWorkbook
     StandardExit
-
+    
 End Sub
 
 
@@ -39,10 +29,8 @@ Sub CreateReportFromMetadata()
     Dim UserReportSelection As TypeReportUserSelection
     Dim i As Long
     Dim PwrPvtReport As ReportingPowerPivot
-    Dim TableReport As ReportingTable
     Dim sReportName As String
-    Dim wkbSource As Workbook
-    Dim wkbTarget As Workbook
+    Dim wkb As Workbook
     Dim sDaxTableQueryPath As String
     Const csSubDirectory As String = "DaxTableQueries"
 
@@ -58,48 +46,25 @@ Sub CreateReportFromMetadata()
     End If
 
     UserReportSelection = GetUserReportSelection
-    Set wkbSource = ActiveWorkbook
-    Set wkbTarget = AssignReportWorkbook(wkbSource, UserReportSelection.SaveInNewWorkbook)
+    Set wkb = ActiveWorkbook
 
     With UserReportSelection
 
         If .SelectionMade = False Then GoTo Exitpoint
 
-        For i = LBound(.ReportList) To UBound(.ReportList)
-            sReportName = .ReportList(i).ReportName
-            Select Case .ReportList(i).ReportType
-                Case PowerPivotSource
-                    Set PwrPvtReport = New ReportingPowerPivot
-                    PwrPvtReport.CreateEmptyPowerPivotReport wkbTarget, sReportName
-                    DesignPowerPivotReportBasedOnStoredData _
-                        vStorageObjReportStructure, PwrPvtReport
-                Case ExcelTableOnly
-                    sDaxTableQueryPath = wkbSource.Path & Application.PathSeparator & _
-                        csSubDirectory & Application.PathSeparator & sReportName & ".dax"
-                    Set TableReport = New ReportingTable
-                    TableReport.CreateEmptyReportingTable wkbTarget, sReportName
-                    DesignPowerTableReportBasedOnStoredData vStorageObjReportStructure, _
-                        TableReport, sDaxTableQueryPath
-                    TableReport.ApplyColourFormatting
-            End Select
+        For i = LBound(.ReportNames) To UBound(.ReportNames)
+            sReportName = .ReportNames(i)
+                Set PwrPvtReport = New ReportingPowerPivot
+                PwrPvtReport.CreateEmptyPowerPivotReport wkb, sReportName
+                DesignPowerPivotReportBasedOnStoredData _
+                    vStorageObjReportStructure, PwrPvtReport
         Next i
-
-        If .SaveInNewWorkbook Then
-            DeleteNonReportSheets wkbTarget, .ReportList
-            If Not vStorageObjQueriesForSelectedReports Is Nothing Then
-                DeleteUnusedDataModelTables vStorageObjQueriesForSelectedReports, wkbTarget, .ReportList
-            End If
-            If .GenerateIndex And (UBound(.ReportList) - LBound(.ReportList) + 1) _
-                >= .NumberOfReportsForIndexGeneration Then
-                    InsertIndexPage wkbTarget
-            End If
-
-            wkbTarget.Save
-        End If
 
     End With
 
+
 Exitpoint:
+    InsertIndexPage ActiveWorkbook
     StandardExit
 
 End Sub

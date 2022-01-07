@@ -38,12 +38,12 @@ Sub ExportPowerQueriesToConsolidatedFile(ByVal wkb As Workbook)
     ExportFileNameAndPath = wkb.Path & Application.PathSeparator & "ConsolidatedPowerQueries.m"
     isFirstQuery = True
     
-    QueryString = "[" & vbCr
+    QueryString = "[" & vbLf
     For Each qry In wkb.Queries
         If isFirstQuery Then
-            QueryString = QueryString & vbCr & vbCr & qry.Name & " = " & vbCr
+            QueryString = QueryString & vbLf & vbLf & qry.Name & " = " & vbLf
         Else
-            QueryString = QueryString & "," & vbCr & vbCr & qry.Name & " = " & vbCr
+            QueryString = QueryString & "," & vbLf & vbLf & qry.Name & " = " & vbLf
         End If
         QueryString = QueryString & qry.Formula
         isFirstQuery = False
@@ -51,6 +51,40 @@ Sub ExportPowerQueriesToConsolidatedFile(ByVal wkb As Workbook)
     QueryString = QueryString & "]"
 
     WriteStringToTextFile QueryString, ExportFileNameAndPath
+
+End Sub
+
+
+Sub GenerateConsolidatedPowerQuery(ByVal wkb As Workbook, ByVal ConsolQryName As String)
+
+    Dim qry As WorkbookQuery
+    Dim ExportFileNameAndPath As String
+    Dim QueryString As String
+    Dim isFirstQuery As Boolean
+    
+    ExportFileNameAndPath = wkb.Path & Application.PathSeparator & "ConsolidatedPowerQueries.m"
+    isFirstQuery = True
+    
+    QueryString = "[" & vbLf
+    For Each qry In wkb.Queries
+        If qry.Name <> ConsolQryName And Left(qry.Name, 1) <> "_" Then
+            If isFirstQuery Then
+                QueryString = QueryString & vbLf & vbLf & qry.Name & " = " & vbLf
+            Else
+                QueryString = QueryString & "," & vbLf & vbLf & qry.Name & " = " & vbLf
+            End If
+            QueryString = QueryString & qry.Formula
+            isFirstQuery = False
+        End If
+    Next qry
+    QueryString = QueryString & "]"
+    
+    If QueryExists(ConsolQryName) Then
+        wkb.Queries(ConsolQryName).Formula = QueryString
+    Else
+        wkb.Queries.Add ConsolQryName, QueryString
+    End If
+
 
 End Sub
 

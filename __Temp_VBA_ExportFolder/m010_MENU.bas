@@ -188,8 +188,12 @@ Sub CreatePopUpMenu()
     MenuCategory.Caption = "Power Queries"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Import predefined power queries"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ImportPreDefinedPowerQueries"
+    MenuItem.Caption = "Import or refresh Power Query Library"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "ImportPowerQueryLibraryIntoActiveWorkbook"
+    
+    Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
+    MenuItem.Caption = "Create consolidated power query"
+    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "CreateConsolidatedPowerQuery"
     
     Set MenuItem = MenuCategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Copy power queries from another workbook"

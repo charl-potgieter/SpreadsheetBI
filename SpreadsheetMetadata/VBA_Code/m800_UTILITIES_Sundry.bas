@@ -546,8 +546,14 @@ Exitpoint:
 End Function
 
 
-Sub test()
+Function ListObjHasQueryTable(ByVal lo As ListObject) As Boolean
 
-    Debug.Print ConvertReferenceToStructuredReference(ActiveCell, "Sheet1!D10:H10")
+    Dim i As Integer
     
-End Sub
+    On Error Resume Next
+    i = lo.QueryTable.CommandType
+    ListObjHasQueryTable = (Err.Number = 0)
+    On Error GoTo 0
+
+End Function
+

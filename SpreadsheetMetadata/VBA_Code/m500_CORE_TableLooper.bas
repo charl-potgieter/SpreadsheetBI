@@ -98,6 +98,11 @@ Sub LoopSourceAndCopyToConsolSheet(ByVal ReportSheetSource As ReportingSheet, By
     
     For i = LBound(ValidationItems) To UBound(ValidationItems)
         SelectionCell.Value = ValidationItems(i)
+        
+        If ListObjHasQueryTable(loSource) Then
+            loSource.QueryTable.Refresh BackgroundQuery:=False
+        End If
+        
         Application.Calculate
         If i = 0 Then
             loSource.Range.Copy

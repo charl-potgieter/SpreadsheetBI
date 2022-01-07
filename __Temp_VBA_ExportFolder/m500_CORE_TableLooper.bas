@@ -51,7 +51,7 @@ End Function
 Function InsertConsolLooperSheet(ByVal ReportSheetSource As ReportingSheet) As ReportingSheet
 
     Dim wkb As Workbook
-    Dim ReportSheetFormat As Dictionary
+    Dim ReportSheetformat As Dictionary
     
     Set wkb = ReportSheetSource.Sheet.Parent
 
@@ -66,15 +66,15 @@ Function InsertConsolLooperSheet(ByVal ReportSheetSource As ReportingSheet) As R
     InsertConsolLooperSheet.Heading = "Consolidated " & ReportSheetSource.Heading
     
     
-    Set ReportSheetFormat = GetSavedReportSheetFormat
-    InsertConsolLooperSheet.SheetFont = ReportSheetFormat.item("Sheet font")
-    InsertConsolLooperSheet.DefaultFontSize = ReportSheetFormat.item("Default font size")
-    InsertConsolLooperSheet.ZoomPercentage = ReportSheetFormat.item("Zoom percentage")
+    Set ReportSheetformat = GetSavedReportSheetFormat
+    InsertConsolLooperSheet.SheetFont = ReportSheetformat.item("Sheet font")
+    InsertConsolLooperSheet.DefaultFontSize = ReportSheetformat.item("Default font size")
+    InsertConsolLooperSheet.ZoomPercentage = ReportSheetformat.item("Zoom percentage")
     InsertConsolLooperSheet.HeadingFontColour = Array( _
-        ReportSheetFormat.item("Heading colour red (0 to 255)"), _
-        ReportSheetFormat.item("Heading colour green (0 to 255)"), _
-        ReportSheetFormat.item("Heading colour blue (0 to 255)"))
-    InsertConsolLooperSheet.HeadingFontSize = ReportSheetFormat.item("Heading font size")
+        ReportSheetformat.item("Heading colour red (0 to 255)"), _
+        ReportSheetformat.item("Heading colour green (0 to 255)"), _
+        ReportSheetformat.item("Heading colour blue (0 to 255)"))
+    InsertConsolLooperSheet.HeadingFontSize = ReportSheetformat.item("Heading font size")
     
     InsertIndexPage wkb
     
@@ -98,6 +98,12 @@ Sub LoopSourceAndCopyToConsolSheet(ByVal ReportSheetSource As ReportingSheet, By
     
     For i = LBound(ValidationItems) To UBound(ValidationItems)
         SelectionCell.Value = ValidationItems(i)
+        
+        If ListObjHasQueryTable(loSource) Then
+            loSource.QueryTable.Refresh BackgroundQuery:=False
+        End If
+        
+        Application.Calculate
         If i = 0 Then
             loSource.Range.Copy
             rngStartOfConsolTable.PasteSpecial Paste:=xlPasteValues
