@@ -104,17 +104,20 @@ Sub LoopSourceAndCopyToConsolSheet(ByVal ReportSheetSource As ReportingSheet, By
         End If
         
         Application.Calculate
-        If i = 0 Then
-            loSource.Range.Copy
-            rngStartOfConsolTable.PasteSpecial Paste:=xlPasteValues
-            rngStartOfConsolTable.PasteSpecial Paste:=xlPasteFormats
-        Else
-            Set rngPasteTarget = rngStartOfConsolTable.CurrentRegion _
-                .Offset(rngStartOfConsolTable.CurrentRegion.Rows.Count, 0).Resize(1, 1)
-            loSource.DataBodyRange.Copy
-            rngPasteTarget.PasteSpecial Paste:=xlPasteValues
-            rngPasteTarget.PasteSpecial Paste:=xlPasteFormats
+        If Not (loSource.DataBodyRange Is Nothing) Then
+            If i = 0 Then
+                loSource.Range.Copy
+                rngStartOfConsolTable.PasteSpecial Paste:=xlPasteValues
+                rngStartOfConsolTable.PasteSpecial Paste:=xlPasteFormats
+            Else
+                Set rngPasteTarget = rngStartOfConsolTable.CurrentRegion _
+                    .Offset(rngStartOfConsolTable.CurrentRegion.Rows.Count, 0).Resize(1, 1)
+                loSource.DataBodyRange.Copy
+                rngPasteTarget.PasteSpecial Paste:=xlPasteValues
+                rngPasteTarget.PasteSpecial Paste:=xlPasteFormats
+            End If
         End If
+        
     Next i
 
     Set loTarget = ReportSheetConsol.Sheet.ListObjects.Add(xlSrcRange, rngStartOfConsolTable.CurrentRegion, , xlYes)
@@ -160,9 +163,11 @@ Sub SetLoopTableAndSheetFormat(ByVal ReportSheetSource As ReportingSheet, ByVal 
     
     loConsol.HeaderRowRange.RowHeight = loSource.HeaderRowRange.RowHeight
     
-    For i = 1 To loSource.ListColumns.Count
-        loConsol.ListColumns(i).DataBodyRange.EntireColumn.ColumnWidth = loSource.ListColumns(i).DataBodyRange.EntireColumn.ColumnWidth
-    Next i
+    If Not (loSource.DataBodyRange Is Nothing) Then
+        For i = 1 To loSource.ListColumns.Count
+            loConsol.ListColumns(i).DataBodyRange.EntireColumn.ColumnWidth = loSource.ListColumns(i).DataBodyRange.EntireColumn.ColumnWidth
+        Next i
+    End If
 
     FormatTable loConsol
 
