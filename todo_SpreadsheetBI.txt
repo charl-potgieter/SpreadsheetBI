@@ -1,6 +1,14 @@
 TODO
 -------
 
+Instead of referencing power query text files how about
+ - Creating a master file with queries
+ - Queries get imported into SpreadsheetBI itself so that the are always available ---> bit messy as difficult to see --< maybe just keep as exported text files
+ - Spreadsheets that import these queries are marked (with some sort of hidden property) and get checked each open whether the queries are still in sync with an option to sync
+ 
+
+When returning to index from another sheet it would be good to go to that sheets listing on the index  
+
 Tempted to move Return to Index button (on reporting Sheets) slightly to the right
 
 
@@ -21,10 +29,6 @@ Work on Lambda function wizard (lambdas are now being stored in the add-in)
  - Import Standard Power Queries currently broken due to no delimiter in lambda query
   --> Maybe also transition the standard power queries to a git repo? Could potentially just evaluate straight from. Web? 
 
-
-Check out https://excelvirtuallyglobal.com/
- - Sessions should be recorded
- - In particular Andy Gordon re Lambda editor
 
 
 
