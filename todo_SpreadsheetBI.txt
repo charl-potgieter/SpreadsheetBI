@@ -1,19 +1,17 @@
 TODO
 -------
 
-Instead of referencing power query text files how about
- - Creating a master file with queries
- - Queries get imported into SpreadsheetBI itself so that the are always available ---> bit messy as difficult to see --< maybe just keep as exported text files
- - Spreadsheets that import these queries are marked (with some sort of hidden property) and get checked each open whether the queries are still in sync with an option to sync
- 
-
 When returning to index from another sheet it would be good to go to that sheets listing on the index  
+
+InsertIndex page gets slowas workbook grows - any way to improve?
 
 Tempted to move Return to Index button (on reporting Sheets) slightly to the right
 
 
 Try to generate reports on file Test
  - > looks as if only final report is being saved - others being overwritten?
+
+I have noticed SpeadsheetBI file itself being saved down in same folder where power querie files are exported?
 
 
 Test function CreateStorageFromPowerQuery (in ListStorage class)
