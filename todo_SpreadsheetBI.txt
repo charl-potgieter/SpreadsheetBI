@@ -3,7 +3,7 @@ TODO
 
 When returning to index from another sheet it would be good to go to that sheets listing on the index  
 
-InsertIndex page gets slowas workbook grows - any way to improve?
+InsertIndex page gets slow as workbook grows - any way to improve?
 
 Tempted to move Return to Index button (on reporting Sheets) slightly to the right
 
