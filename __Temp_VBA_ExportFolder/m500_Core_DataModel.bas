@@ -1,4 +1,5 @@
 Attribute VB_Name = "m500_Core_DataModel"
+'@Folder "SpreadsheetBI"
 Option Explicit
 Option Private Module
 
@@ -769,7 +770,5 @@ Sub CreateModelRelationshipsSheet(ByRef wkb As Workbook)
 
 
 End Sub
-
-
 
 

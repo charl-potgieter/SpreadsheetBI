@@ -242,18 +242,18 @@ Public Function AssignExistingSheet(ByVal sht As Worksheet) As Boolean
 'Only assigns sheet if it already meets reporting sheet criteria
     
     Dim bValidSheet As Boolean
-    Dim TEst As Variant
+    Dim test As Variant
     
     On Error Resume Next
-    TEst = sht.Range("HiddenWorkingRows").Address
-    TEst = sht.Range("HiddenWorkingColumns").Address
-    TEst = sht.Range("ErrorCheckColumns").Address
-    TEst = sht.Range("ErrorCheckRows").Address
-    TEst = sht.Range("WorkbookErrorStatus").Address
-    TEst = sht.Range("Category").Address
-    TEst = sht.Range("Heading").Address
-    TEst = sht.Range("ReturnToIndex").Address
-    TEst = sht.Range("DefaultCursorLocation").Address
+    test = sht.Range("HiddenWorkingRows").Address
+    test = sht.Range("HiddenWorkingColumns").Address
+    test = sht.Range("ErrorCheckColumns").Address
+    test = sht.Range("ErrorCheckRows").Address
+    test = sht.Range("WorkbookErrorStatus").Address
+    test = sht.Range("Category").Address
+    test = sht.Range("Heading").Address
+    test = sht.Range("ReturnToIndex").Address
+    test = sht.Range("DefaultCursorLocation").Address
     bValidSheet = (Err.Number = 0)
     On Error GoTo 0
     
@@ -299,11 +299,11 @@ Private Sub InsertReportingSheet(ByVal wkb As Workbook, _
     
     If lSheetPosition <> 0 Then
         Set this.shtReport = wkb.Sheets.Add _
-            (After:=wkb.Worksheets.item(lSheetPosition))
+            (After:=wkb.Worksheets.Item(lSheetPosition))
     Else
         NumberOfSheetsInWorkbook = wkb.Sheets.Count
         Set this.shtReport = wkb.Sheets.Add _
-            (After:=wkb.Worksheets.item(NumberOfSheetsInWorkbook))
+            (After:=wkb.Worksheets.Item(NumberOfSheetsInWorkbook))
     End If
         
 End Sub
@@ -466,14 +466,14 @@ Sub FormatSheetUserSettings()
 
     Set ReportSheetformat = GetSavedReportSheetFormat
     With Me
-        .SheetFont = ReportSheetformat.item("Sheet font")
-        .DefaultFontSize = ReportSheetformat.item("Default font size")
-        .ZoomPercentage = ReportSheetformat.item("Zoom percentage")
+        .SheetFont = ReportSheetformat.Item("Sheet font")
+        .DefaultFontSize = ReportSheetformat.Item("Default font size")
+        .ZoomPercentage = ReportSheetformat.Item("Zoom percentage")
         .HeadingFontColour = Array( _
-            ReportSheetformat.item("Heading colour red (0 to 255)"), _
-            ReportSheetformat.item("Heading colour green (0 to 255)"), _
-            ReportSheetformat.item("Heading colour blue (0 to 255)"))
-        .HeadingFontSize = ReportSheetformat.item("Heading font size")
+            ReportSheetformat.Item("Heading colour red (0 to 255)"), _
+            ReportSheetformat.Item("Heading colour green (0 to 255)"), _
+            ReportSheetformat.Item("Heading colour blue (0 to 255)"))
+        .HeadingFontSize = ReportSheetformat.Item("Heading font size")
     End With
     
 End Sub

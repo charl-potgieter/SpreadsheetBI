@@ -1,6 +1,7 @@
 Attribute VB_Name = "m000_ENTRY_POINTS_Lambdas"
+'@Folder "SpreadsheetBI"
 Option Explicit
-
+Option Private Module
 
 Public Sub RefreshLambdaLibraries()
 
@@ -44,7 +45,3 @@ Exitpoint:
     StandardExit
 
 End Sub
-
-
-
-

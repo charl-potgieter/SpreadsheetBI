@@ -1,15 +1,9 @@
 Attribute VB_Name = "m000_ENTRY_POINTS_Sundry"
+'@Folder "SpreadsheetBI"
 Option Explicit
+Option Private Module
 Global Const gcsMenuName As String = "SpreadsheetBI"
 
-Sub DisplayPopUpMenu()
-Attribute DisplayPopUpMenu.VB_ProcData.VB_Invoke_Func = "M\n14"
-
-    DeletePopUpMenu
-    CreatePopUpMenu
-    Application.CommandBars(gcsMenuName).ShowPopup
-
-End Sub
 
 
 

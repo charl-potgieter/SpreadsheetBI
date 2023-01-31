@@ -1,4 +1,5 @@
-Attribute VB_Name = "m800_UTILITIES_ArrayS"
+Attribute VB_Name = "ArrayUtilities"
+'@Folder "Utilities"
 Option Explicit
 Option Compare Text
 Option Private Module
@@ -3828,6 +3829,5 @@ End If
 
 
 End Function
-
 
 

@@ -14,6 +14,8 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
+'@Folder "SpreadsheetBI"
+
 
 
 
@@ -184,4 +186,5 @@ Private Sub UserForm_QueryClose(Cancel As Integer _
     End If
     
 End Sub
+
 

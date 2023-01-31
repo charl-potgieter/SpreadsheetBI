@@ -1,6 +1,9 @@
 Attribute VB_Name = "m500_CORE_PowerQueries"
+'@Folder "SpreadsheetBI"
 Option Explicit
 Option Private Module
+
+
 
 
 Sub ExportPowerQueriesToFiles(ByVal sFolderPath As String, wkb As Workbook)
@@ -142,65 +145,65 @@ End Sub
 
 
 
-Sub CreateTableGeneratorSheet(ByRef wkb As Workbook)
-
-    Dim sht As Worksheet
-    Dim lo As ListObject
-
-    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
-    FormatSheet sht
-    sht.Name = "PqTableGenerator"
-    sht.Range("SheetHeading") = "Power query table generator"
-    sht.Range("SheetCategory") = "Setup"
-   
-    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B11:F12"), XlListObjectHasHeaders:=xlYes)
-    FormatTable lo
-    
-    With lo
-        .Name = "tbl_PqTableGenerator"
-        .HeaderRowRange.Cells(1) = "Column_1"
-        .HeaderRowRange.Cells(2) = "Column_2"
-        .HeaderRowRange.Cells(3) = "Column_3"
-        .HeaderRowRange.Cells(4) = "Column_4"
-        .HeaderRowRange.Cells(5) = "Column_5"
-    End With
-    FormatTable lo
-    sht.Range("B:B").ColumnWidth = 20
-    sht.Range("C:C").ColumnWidth = 20
-    sht.Range("D:D").ColumnWidth = 20
-    sht.Range("E:E").ColumnWidth = 20
-    sht.Range("F:F").ColumnWidth = 20
-
-
-    'Add various formatted text to the sheet
-    sht.Range("B5") = "Generates a power query with hardcoded values and field types as below, using the GeneratePowerQuery code"
-    sht.Range("B7") = "Query Name"
-    sht.Range("C7") = "TestTable"
-    sht.Range("B7").Font.Bold = True
-    sht.Range("C7,B9:F9").Interior.Color = RGB(242, 242, 242)
-    sht.Range("C7,B9:F9").Font.Color = RGB(0, 112, 192)
-    sht.Range("B9:F9").HorizontalAlignment = xlCenter
-    sht.Range("B9:F9") = "type text"
-    
-    'Add data validation for field types
-    sht.Range("B9:F9").Validation.Add _
-        Type:=xlValidateList, _
-        AlertStyle:=xlValidAlertStop, _
-        Operator:=xlBetween, _
-        Formula1:="type any,type binary,type date,type datetime,type datetimezone,type duration,Int64.Type," & _
-            "type logical,type none,type number,type text,type time"
-  
-    'Create Named Range
-    sht.Names.Add Name:="TableName", RefersToR1C1:="=R7C3"
-  
-
-    'Freeze Panes
-    sht.Activate
-    ActiveWindow.SplitRow = 11
-    ActiveWindow.FreezePanes = True
-
-
-End Sub
+'Sub CreateTableGeneratorSheet(ByRef wkb As Workbook)
+'
+'    Dim sht As Worksheet
+'    Dim lo As ListObject
+'
+'    Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
+'    FormattingCoreOutdated.FormatSheet sht
+'    sht.Name = "PqTableGenerator"
+'    sht.Range("SheetHeading") = "Power query table generator"
+'    sht.Range("SheetCategory") = "Setup"
+'
+'    Set lo = sht.ListObjects.Add(SourceType:=xlSrcRange, Source:=Range("B11:F12"), XlListObjectHasHeaders:=xlYes)
+'    FormatTable lo
+'
+'    With lo
+'        .Name = "tbl_PqTableGenerator"
+'        .HeaderRowRange.Cells(1) = "Column_1"
+'        .HeaderRowRange.Cells(2) = "Column_2"
+'        .HeaderRowRange.Cells(3) = "Column_3"
+'        .HeaderRowRange.Cells(4) = "Column_4"
+'        .HeaderRowRange.Cells(5) = "Column_5"
+'    End With
+'    FormatTable lo
+'    sht.Range("B:B").ColumnWidth = 20
+'    sht.Range("C:C").ColumnWidth = 20
+'    sht.Range("D:D").ColumnWidth = 20
+'    sht.Range("E:E").ColumnWidth = 20
+'    sht.Range("F:F").ColumnWidth = 20
+'
+'
+'    'Add various formatted text to the sheet
+'    sht.Range("B5") = "Generates a power query with hardcoded values and field types as below, using the GeneratePowerQuery code"
+'    sht.Range("B7") = "Query Name"
+'    sht.Range("C7") = "TestTable"
+'    sht.Range("B7").Font.Bold = True
+'    sht.Range("C7,B9:F9").Interior.Color = RGB(242, 242, 242)
+'    sht.Range("C7,B9:F9").Font.Color = RGB(0, 112, 192)
+'    sht.Range("B9:F9").HorizontalAlignment = xlCenter
+'    sht.Range("B9:F9") = "type text"
+'
+'    'Add data validation for field types
+'    sht.Range("B9:F9").Validation.Add _
+'        Type:=xlValidateList, _
+'        AlertStyle:=xlValidAlertStop, _
+'        Operator:=xlBetween, _
+'        Formula1:="type any,type binary,type date,type datetime,type datetimezone,type duration,Int64.Type," & _
+'            "type logical,type none,type number,type text,type time"
+'
+'    'Create Named Range
+'    sht.Names.Add Name:="TableName", RefersToR1C1:="=R7C3"
+'
+'
+'    'Freeze Panes
+'    sht.Activate
+'    ActiveWindow.SplitRow = 11
+'    ActiveWindow.FreezePanes = True
+'
+'
+'End Sub
 
 
 
@@ -326,3 +329,5 @@ Function QueryExists(ByVal sQryName As String, Optional wkb As Workbook) As Bool
     On Error GoTo 0
     
 End Function
+
+

@@ -1,41 +1,46 @@
-Attribute VB_Name = "m000_ENTRY_POINTS_Formatting"
+Attribute VB_Name = "Formatting"
+'@Folder "Formatting"
 Option Explicit
+'Option Private Module
 
 
-Sub FormatZeroDecimalNumberFormat()
-    SetNumberFormat "#,##0_);(#,##0);-??"
+'@EntryPoint
+Public Sub FormatZeroDecimalNumberFormat()
+    ApplyNumberFormattingToSelectedDisplayObject "#,##0_);(#,##0);-??"
 End Sub
 
 
-
-Sub FormatOneDecimalNumberFormat()
-    SetNumberFormat "#,##0.0_);(#,##0.0);-??"
+'@EntryPoint
+Public Sub FormatOneDecimalNumberFormat()
+    ApplyNumberFormattingToSelectedDisplayObject "#,##0.0_);(#,##0.0);-??"
 End Sub
 
 
-
-Sub FormatTwoDecimalsNumberFormat()
-    SetNumberFormat "#,##0.00_);(#,##0.00);-??"
+'@EntryPoint
+Public Sub FormatTwoDecimalsNumberFormat()
+    ApplyNumberFormattingToSelectedDisplayObject "#,##0.00_);(#,##0.00);-??"
 End Sub
 
 
-
-Sub FormatTwoDigitPercentge()
-    SetNumberFormat "0.00%"
+'@EntryPoint
+Public Sub FormatTwoDigitPercentge()
+    ApplyNumberFormattingToSelectedDisplayObject "0.00%"
 End Sub
 
 
-Sub FormatFourDigitPercentge()
-    SetNumberFormat "0.0000%"
+'@EntryPoint
+Public Sub FormatFourDigitPercentge()
+    ApplyNumberFormattingToSelectedDisplayObject "0.0000%"
 End Sub
 
 
-Sub FormatDate()
-    SetNumberFormat "dd-mmm-yy"
+'@EntryPoint
+Public Sub FormatDate()
+    ApplyNumberFormattingToSelectedDisplayObject "dd-mmm-yy"
 End Sub
 
-
-Sub FormatDashboardIconStyle()
+'@EntryPoint
+Public Sub FormatDashboardIconStyle()
 'Creates custom formatting to displat different dashboard style icons, for positive, negative, zero and text values
 'Can be used in conjuction with Power Pivot measures  designed to generate numbers to achieve desired icon style
 'Note that Hex character codes are obtained by using excel menu, insert -> symbol
@@ -47,15 +52,16 @@ Sub FormatDashboardIconStyle()
 '   https://www.xelplus.com/smart-uses-of-custom-formatting/
 '   https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2007/cc296089(v=office.12)?redirectedfrom=MSDN
 
-    SetNumberFormat "[Color 10] " & ChrW(&H25B2) & "_);" & _
-        "[Red] " & ChrW(&H25BC) & "_);" & _
-        "[Color 46] " & ChrW(&H2666) & " ;" & _
-        "[Blue] * " & ChrW(&H25BA) & "_ "
+    ApplyNumberFormattingToSelectedDisplayObject " [Color 10] " & ChrW$(&H25B2) & "_);" & _
+        "[Red] " & ChrW$(&H25BC) & "_);" & _
+        "[Color 46] " & ChrW$(&H2666) & " ;" & _
+        "[Blue] * " & ChrW$(&H25BA) & "_ "
 
 End Sub
 
 
-Sub FormatZeroDecimalAndArrows()
+'@EntryPoint
+Public Sub FormatZeroDecimalAndArrows()
 'Custom formatting displays numbers and up and down arrows as appropriate
 'Can be used in conjuction with Power Pivot measures  designed to generate numbers to achieve desired icon style
 'Note that Hex character codes are obtained by using excel menu, insert -> symbol
@@ -67,14 +73,16 @@ Sub FormatZeroDecimalAndArrows()
 '   https://www.xelplus.com/smart-uses-of-custom-formatting/
 '   https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2007/cc296089(v=office.12)?redirectedfrom=MSDN
 
-    SetNumberFormat "[Color10]#,##0_) " & ChrW(&H25B2) & "_);" & _
-        "[Red] (#,##0) " & ChrW(&H25BC) & "_);" & _
+    ApplyNumberFormattingToSelectedDisplayObject "[Color10]#,##0_) " & ChrW$(&H25B2) & "_);" & _
+        "[Red] (#,##0) " & ChrW$(&H25BC) & "_);" & _
         "-????;" & _
         "General"
 
 End Sub
 
-Sub FormatOneDecimalAndArrow()
+
+'@EntryPoint
+Public Sub FormatOneDecimalAndArrow()
 'Custom formatting displays numbers and up and down arrows as appropriate
 'Can be used in conjuction with Power Pivot measures  designed to generate numbers to achieve desired icon style
 'Note that Hex character codes are obtained by using excel menu, insert -> symbol
@@ -86,14 +94,16 @@ Sub FormatOneDecimalAndArrow()
 '   https://www.xelplus.com/smart-uses-of-custom-formatting/
 '   https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2007/cc296089(v=office.12)?redirectedfrom=MSDN
 
-    SetNumberFormat "[Color10]#,##0.0_) " & ChrW(&H25B2) & "_);" & _
-        "[Red] (#,##0.0) " & ChrW(&H25BC) & "_);" & _
+    ApplyNumberFormattingToSelectedDisplayObject "[Color10]#,##0.0_) " & ChrW$(&H25B2) & "_);" & _
+        "[Red] (#,##0.0) " & ChrW$(&H25BC) & "_);" & _
         "-????;" & _
         "General"
 
 End Sub
 
-Sub FormatTwoDecimalsAndArrow()
+
+'@EntryPoint
+Public Sub FormatTwoDecimalsAndArrow()
 'Custom formatting displays numbers and up and down arrows as appropriate
 'Can be used in conjuction with Power Pivot measures  designed to generate numbers to achieve desired icon style
 'Note that Hex character codes are obtained by using excel menu, insert -> symbol
@@ -105,14 +115,16 @@ Sub FormatTwoDecimalsAndArrow()
 '   https://www.xelplus.com/smart-uses-of-custom-formatting/
 '   https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2007/cc296089(v=office.12)?redirectedfrom=MSDN
 
-    SetNumberFormat "[Color10]#,##0.00_) " & ChrW(&H25B2) & "_);" & _
-        "[Red] (#,##0.00) " & ChrW(&H25BC) & "_);" & _
+    ApplyNumberFormattingToSelectedDisplayObject "[Color10]#,##0.00_) " & ChrW$(&H25B2) & "_);" & _
+        "[Red] (#,##0.00) " & ChrW$(&H25BC) & "_);" & _
         "-????;" & _
         "General"
 
 End Sub
 
-Sub FormatZeroDigitPercentageAndArrow()
+
+'@EntryPoint
+Public Sub FormatZeroDigitPercentageAndArrow()
 'Custom formatting displays numbers and up and down arrows as appropriate
 'Can be used in conjuction with Power Pivot measures  designed to generate numbers to achieve desired icon style
 'Note that Hex character codes are obtained by using excel menu, insert -> symbol
@@ -124,14 +136,15 @@ Sub FormatZeroDigitPercentageAndArrow()
 '   https://www.xelplus.com/smart-uses-of-custom-formatting/
 '   https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2007/cc296089(v=office.12)?redirectedfrom=MSDN
 
-    SetNumberFormat "[Color10] 0% " & ChrW(&H25B2) & "_);" & _
-        "[Red] -0% " & ChrW(&H25BC) & "_);" & _
+    ApplyNumberFormattingToSelectedDisplayObject "[Color10] 0% " & ChrW$(&H25B2) & "_);" & _
+        "[Red] -0% " & ChrW$(&H25BC) & "_);" & _
         "0%??;" & _
         "General"
 
 End Sub
 
-Sub FormatTwoDigitPercentageAndArrow()
+'@EntryPoint
+Public Sub FormatTwoDigitPercentageAndArrow()
 'Custom formatting displays numbers and up and down arrows as appropriate
 'Can be used in conjuction with Power Pivot measures  designed to generate numbers to achieve desired icon style
 'Note that Hex character codes are obtained by using excel menu, insert -> symbol
@@ -143,14 +156,16 @@ Sub FormatTwoDigitPercentageAndArrow()
 '   https://www.xelplus.com/smart-uses-of-custom-formatting/
 '   https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2007/cc296089(v=office.12)?redirectedfrom=MSDN
 
-    SetNumberFormat "[Color10] 0.00% " & ChrW(&H25B2) & "_);" & _
-        "[Red] -0.00% " & ChrW(&H25BC) & "_);" & _
+    ApplyNumberFormattingToSelectedDisplayObject "[Color10] 0.00% " & ChrW$(&H25B2) & "_);" & _
+        "[Red] -0.00% " & ChrW$(&H25BC) & "_);" & _
         "0.00%??;" & _
         "General"
 
 End Sub
 
-Sub FormatFourDigitPercentageAndArrow()
+
+'@EntryPoint
+Public Sub FormatFourDigitPercentageAndArrow()
 'Custom formatting displays numbers and up and down arrows as appropriate
 'Can be used in conjuction with Power Pivot measures  designed to generate numbers to achieve desired icon style
 'Note that Hex character codes are obtained by using excel menu, insert -> symbol
@@ -162,89 +177,39 @@ Sub FormatFourDigitPercentageAndArrow()
 '   https://www.xelplus.com/smart-uses-of-custom-formatting/
 '   https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2007/cc296089(v=office.12)?redirectedfrom=MSDN
 
-    SetNumberFormat "[Color10] 0.0000% " & ChrW(&H25B2) & "_);" & _
-        "[Red] -0.0000% " & ChrW(&H25BC) & "_);" & _
+    ApplyNumberFormattingToSelectedDisplayObject "[Color10] 0.0000% " & ChrW$(&H25B2) & "_);" & _
+        "[Red] -0.0000% " & ChrW$(&H25BC) & "_);" & _
         "0.0000%??;" & _
         "General"
 
 End Sub
 
-Sub FormatOkError()
-'1 Displays OK in green, zero ERROR in red.  Negatives adn text are hidden
+
+'@EntryPoint
+Public Sub FormatOkError()
+'1 Displays OK in green, zero ERROR in red.  Negatives and text are hidden
 'Can be used in conjuction with Power Pivot measures  designed to generate numbers to achieve desired icon style
 'Useful links and inspiration
 '   https://www.youtube.com/watch?v=tGY70sdpaLc&t=14s
 '   https://www.xelplus.com/smart-uses-of-custom-formatting/
 '   https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2007/cc296089(v=office.12)?redirectedfrom=MSDN
 
-    SetNumberFormat "[Color10]OK ;;[Red]\E\R\RO\R;"
-
-End Sub
-
-
-Sub FormatActiveSheet()
-
-    FormatSheet ActiveSheet
+    ApplyNumberFormattingToSelectedDisplayObject "[Color10]OK ;;[Red]\E\R\RO\R;"
 
 End Sub
 
 
 
-Sub FormatHeadings()
+Private Sub ApplyNumberFormattingToSelectedDisplayObject(ByVal NumberFormat As String)
 
-    StandardEntry
-
-    'Remove all current borders
-    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-    Selection.Borders(xlEdgeLeft).LineStyle = xlNone
-    Selection.Borders(xlEdgeTop).LineStyle = xlNone
-    Selection.Borders(xlEdgeBottom).LineStyle = xlNone
-    Selection.Borders(xlEdgeRight).LineStyle = xlNone
-    Selection.Borders(xlInsideVertical).LineStyle = xlNone
-    Selection.Borders(xlInsideHorizontal).LineStyle = xlNone
-
-    'Set new borders
-    With Selection.Borders(xlEdgeLeft)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-        .ColorIndex = xlAutomatic
-    End With
-
-    With Selection.Borders(xlEdgeRight)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-        .ColorIndex = xlAutomatic
-    End With
-
-    With Selection.Borders(xlEdgeTop)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-        .ColorIndex = xlAutomatic
-    End With
-
-    With Selection.Borders(xlEdgeBottom)
-        .LineStyle = xlContinuous
-        .Weight = xlThin
-        .ColorIndex = xlAutomatic
-    End With
-
-    'Set header colour
-    With Selection.Interior
-        .Color = RGB(217, 225, 242)
-        .Pattern = xlSolid
-    End With
-
-    Selection.Font.Bold = True
-
-    'Set Text allignment
-    With Selection
-        .HorizontalAlignment = xlCenter
-        .VerticalAlignment = xlTop
-        .WrapText = True
-    End With
-
-    StandardExit
+    If TypeName(Selection) = "Range" Then
+        Dim SelectedDisplayObject As DisplayObject
+        Set SelectedDisplayObject = New DisplayObject
+        SelectedDisplayObject.CreateFromRange Selection
+        SelectedDisplayObject.SetNumberFormat (NumberFormat)
+    Else
+        MsgBox ("Please ensure a range is selected")
+    End If
 
 End Sub
 
@@ -252,10 +217,8 @@ End Sub
 
 
 
-
-Sub FormatActiveTable()
-
-    FormatTable ActiveCell.ListObject
-
-End Sub
-
+'
+''@EntryPoint
+'Public Sub FormatActiveSheet()
+'    FormatSheet ActiveSheet
+'End Sub

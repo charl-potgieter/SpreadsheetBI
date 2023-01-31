@@ -13,6 +13,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'@Folder "SpreadsheetBI"
+
 
 
 
@@ -45,3 +47,5 @@ End Sub
 Private Sub UserForm_Initialize()
     UserCancelled = False
 End Sub
+
+

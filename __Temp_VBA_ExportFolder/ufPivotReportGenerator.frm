@@ -16,6 +16,7 @@ Attribute VB_Exposed = False
 
 
 
+
 '@Folder "Storage.Reporting"
 Option Explicit
 
@@ -78,15 +79,15 @@ End Sub
 
 Private Sub RefreshCategories()
 
-    Dim item As Variant
+    Dim Item As Variant
 
 
     With Me.lbCategories
         .Clear
         .AddItem "All"
-        For Each item In vAllCategories
-            .AddItem item
-        Next item
+        For Each Item In vAllCategories
+            .AddItem Item
+        Next Item
     End With
 
     Me.lbCategories.ListIndex = 0

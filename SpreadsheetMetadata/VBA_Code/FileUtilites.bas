@@ -1,4 +1,5 @@
-Attribute VB_Name = "m800_UTILITIES_File"
+Attribute VB_Name = "FileUtilites"
+'@Folder "Utilities"
 Option Explicit
 Option Private Module
 
@@ -515,4 +516,5 @@ Function GetBaseFileNamesInFolder(ByVal FolderPath As String, ByRef BaseFileName
     Next i
 
 End Function
+
 

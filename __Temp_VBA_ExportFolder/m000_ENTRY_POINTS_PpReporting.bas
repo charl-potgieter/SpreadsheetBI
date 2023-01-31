@@ -1,5 +1,7 @@
 Attribute VB_Name = "m000_ENTRY_POINTS_PpReporting"
+'@Folder "SpreadsheetBI"
 Option Explicit
+Option Private Module
 
 Public Const cPR_MaxStorageRecords As Long = 1000000  'PR  = PowerReport
 
@@ -68,4 +70,5 @@ Exitpoint:
     StandardExit
 
 End Sub
+
 

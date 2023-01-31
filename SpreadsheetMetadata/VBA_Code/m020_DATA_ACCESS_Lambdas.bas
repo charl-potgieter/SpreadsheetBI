@@ -1,4 +1,5 @@
 Attribute VB_Name = "m020_DATA_ACCESS_Lambdas"
+'@Folder "SpreadsheetBI"
 Option Explicit
 Option Private Module
 

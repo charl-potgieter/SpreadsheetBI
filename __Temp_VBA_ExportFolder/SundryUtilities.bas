@@ -1,4 +1,5 @@
-Attribute VB_Name = "m800_UTILITIES_Sundry"
+Attribute VB_Name = "SundryUtilities"
+'@Folder "Utilities"
 Option Explicit
 Option Private Module
 
@@ -82,18 +83,6 @@ Function WorkbookIsOpen(ByVal sWbkName As String) As Boolean
 End Function
 
 
-Function ActiveCellIsInPivotTable() As Boolean
-
-    Dim pvt As PivotTable
-    
-    On Error Resume Next
-    Set pvt = ActiveCell.PivotTable
-    ActiveCellIsInPivotTable = Len(pvt.Name) <> 0
-    On Error GoTo 0
-    
-End Function
-
-
 
 
 Function TableExistsInWorkbook(ByVal sTableName As String, Optional wkb As Workbook) As Boolean
@@ -152,15 +141,15 @@ End Sub
 
 Function ValueIsInStringArray(ByVal aValueToTest As Variant, ByRef aArray() As String) As Boolean
 
-    Dim item As Variant
+    Dim Item As Variant
     
     ValueIsInStringArray = False
-    For Each item In aArray
-        If item = aValueToTest Then
+    For Each Item In aArray
+        If Item = aValueToTest Then
             ValueIsInStringArray = True
             Exit Function
         End If
-    Next item
+    Next Item
 
 End Function
 
@@ -325,7 +314,7 @@ Function UniqueCollectionFromArray(ByVal arr) As Collection
 
     On Error Resume Next
     For i = LBound(arr) To UBound(arr)
-        col.Add item:=arr(i), key:=arr(i)
+        col.Add Item:=arr(i), key:=arr(i)
     Next i
     
     On Error GoTo 0
@@ -339,7 +328,7 @@ End Function
 
 Sub BubbleSortSortCollection(ByRef col As Collection)
 
-    Dim item As Variant
+    Dim Item As Variant
     Dim i As Long
     Dim TempItem As Variant
     Dim SwapMade As Boolean
@@ -351,7 +340,7 @@ Sub BubbleSortSortCollection(ByRef col As Collection)
             If col(i) > col(i + 1) Then
                 TempItem = col(i)
                 col.Remove (i)
-                col.Add item:=TempItem, key:=TempItem, After:=i
+                col.Add Item:=TempItem, key:=TempItem, After:=i
                 SwapMade = True
             End If
         Next i

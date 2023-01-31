@@ -1,27 +1,36 @@
-Attribute VB_Name = "m010_MENU"
+Attribute VB_Name = "Menu"
+'@Folder "Menu"
 Option Explicit
-Option Private Module
+Global Const MenuName As String = "SpreadsheetBI"
 
 
-Sub DeletePopUpMenu()
+Public Sub DeleteAndDisplayPopupMenu()
+Attribute DeleteAndDisplayPopupMenu.VB_ProcData.VB_Invoke_Func = "M\n14"
+    DeletePopUpMenu
+    CreatePopUpMenu
+    Application.CommandBars(MenuName).ShowPopup
+End Sub
+
+Private Sub DeletePopUpMenu()
 'Delete PopUp menu if it exists
     
     On Error Resume Next
-    Application.CommandBars(gcsMenuName).Delete
+    Application.CommandBars(MenuName).Delete
     On Error GoTo 0
     
 End Sub
 
 
 
-Sub CreatePopUpMenu()
+Private Sub CreatePopUpMenu()
+Attribute CreatePopUpMenu.VB_ProcData.VB_Invoke_Func = "M\n14"
 
     Dim cb As CommandBar
     Dim MenuCategory As CommandBarPopup
     Dim MenuSubcategory As CommandBarPopup
     Dim MenuItem As CommandBarControl
     
-    Set cb = Application.CommandBars.Add(Name:=gcsMenuName, Position:=msoBarPopup, _
+    Set cb = Application.CommandBars.Add(Name:=MenuName, Position:=msoBarPopup, _
                                      MenuBar:=False, Temporary:=True)
     
     'Format main Menu
@@ -109,10 +118,6 @@ Sub CreatePopUpMenu()
     Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "OK Error"
     MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatOkError"
-    
-    Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
-    MenuItem.Caption = "Active table"
-    MenuItem.OnAction = "'" & ThisWorkbook.Name & "'!" & "FormatActiveTable"
     
     Set MenuItem = MenuSubcategory.Controls.Add(Type:=msoControlButton)
     MenuItem.Caption = "Headings"
@@ -305,4 +310,3 @@ Sub CreatePopUpMenu()
     
     
 End Sub
-

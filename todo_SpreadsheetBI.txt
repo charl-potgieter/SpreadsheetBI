@@ -1,5 +1,26 @@
 TODO
 -------
+Onedrive is causing issues with VBA file exports!
+Below potential solution looks very complex!   https://stackoverflow.com/questions/33734706/excels-fullname-property-with-onedrive
+For metadata exports maybe use a folder picker as temporary workaround
+
+
+Work on powerquery - fn_Headings
+Work on powerQuery  = fn_Consolidate
+
+How do I get these P
+
+Remove table formatting - best handled via book.xlsxt template
+
+When formatting pivot allow selections of one of the custom styles
+
+Also add to template ?
+https://www.xelplus.com/smart-uses-of-custom-formatting/
+
+
+Maybe also link the ReportSheet design to cell styles (rather than capturing details in a userform)
+
+When formatting numbers etc and cells in a table are selected, format the entire column in that table   
 
 When returning to index from another sheet it would be good to go to that sheets listing on the index  
 

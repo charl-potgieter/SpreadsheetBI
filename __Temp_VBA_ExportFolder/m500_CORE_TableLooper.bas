@@ -1,4 +1,5 @@
 Attribute VB_Name = "m500_CORE_TableLooper"
+'@Folder "SpreadsheetBI"
 Option Explicit
 Option Private Module
 
@@ -67,14 +68,14 @@ Function InsertConsolLooperSheet(ByVal ReportSheetSource As ReportingSheet) As R
     
     
     Set ReportSheetformat = GetSavedReportSheetFormat
-    InsertConsolLooperSheet.SheetFont = ReportSheetformat.item("Sheet font")
-    InsertConsolLooperSheet.DefaultFontSize = ReportSheetformat.item("Default font size")
-    InsertConsolLooperSheet.ZoomPercentage = ReportSheetformat.item("Zoom percentage")
+    InsertConsolLooperSheet.SheetFont = ReportSheetformat.Item("Sheet font")
+    InsertConsolLooperSheet.DefaultFontSize = ReportSheetformat.Item("Default font size")
+    InsertConsolLooperSheet.ZoomPercentage = ReportSheetformat.Item("Zoom percentage")
     InsertConsolLooperSheet.HeadingFontColour = Array( _
-        ReportSheetformat.item("Heading colour red (0 to 255)"), _
-        ReportSheetformat.item("Heading colour green (0 to 255)"), _
-        ReportSheetformat.item("Heading colour blue (0 to 255)"))
-    InsertConsolLooperSheet.HeadingFontSize = ReportSheetformat.item("Heading font size")
+        ReportSheetformat.Item("Heading colour red (0 to 255)"), _
+        ReportSheetformat.Item("Heading colour green (0 to 255)"), _
+        ReportSheetformat.Item("Heading colour blue (0 to 255)"))
+    InsertConsolLooperSheet.HeadingFontSize = ReportSheetformat.Item("Heading font size")
     
     InsertIndexPage wkb
     
@@ -104,17 +105,20 @@ Sub LoopSourceAndCopyToConsolSheet(ByVal ReportSheetSource As ReportingSheet, By
         End If
         
         Application.Calculate
-        If i = 0 Then
-            loSource.Range.Copy
-            rngStartOfConsolTable.PasteSpecial Paste:=xlPasteValues
-            rngStartOfConsolTable.PasteSpecial Paste:=xlPasteFormats
-        Else
-            Set rngPasteTarget = rngStartOfConsolTable.CurrentRegion _
-                .Offset(rngStartOfConsolTable.CurrentRegion.Rows.Count, 0).Resize(1, 1)
-            loSource.DataBodyRange.Copy
-            rngPasteTarget.PasteSpecial Paste:=xlPasteValues
-            rngPasteTarget.PasteSpecial Paste:=xlPasteFormats
+        If Not (loSource.DataBodyRange Is Nothing) Then
+            If i = 0 Then
+                loSource.Range.Copy
+                rngStartOfConsolTable.PasteSpecial Paste:=xlPasteValues
+                rngStartOfConsolTable.PasteSpecial Paste:=xlPasteFormats
+            Else
+                Set rngPasteTarget = rngStartOfConsolTable.CurrentRegion _
+                    .Offset(rngStartOfConsolTable.CurrentRegion.Rows.Count, 0).Resize(1, 1)
+                loSource.DataBodyRange.Copy
+                rngPasteTarget.PasteSpecial Paste:=xlPasteValues
+                rngPasteTarget.PasteSpecial Paste:=xlPasteFormats
+            End If
         End If
+        
     Next i
 
     Set loTarget = ReportSheetConsol.Sheet.ListObjects.Add(xlSrcRange, rngStartOfConsolTable.CurrentRegion, , xlYes)
@@ -160,9 +164,11 @@ Sub SetLoopTableAndSheetFormat(ByVal ReportSheetSource As ReportingSheet, ByVal 
     
     loConsol.HeaderRowRange.RowHeight = loSource.HeaderRowRange.RowHeight
     
-    For i = 1 To loSource.ListColumns.Count
-        loConsol.ListColumns(i).DataBodyRange.EntireColumn.ColumnWidth = loSource.ListColumns(i).DataBodyRange.EntireColumn.ColumnWidth
-    Next i
+    If Not (loSource.DataBodyRange Is Nothing) Then
+        For i = 1 To loSource.ListColumns.Count
+            loConsol.ListColumns(i).DataBodyRange.EntireColumn.ColumnWidth = loSource.ListColumns(i).DataBodyRange.EntireColumn.ColumnWidth
+        Next i
+    End If
 
     FormatTable loConsol
 
@@ -181,3 +187,5 @@ Function LooperValue(ByVal sItem As String) As String
 
 
 End Function
+
+

@@ -1,10 +1,11 @@
-Attribute VB_Name = "m500_CORE_Formatting"
+Attribute VB_Name = "FormattingCoreOutdated"
+'@Folder "Formatting"
 Option Explicit
-Option Private Module
+'Option Private Module
 
+    
 
-
-Sub FormatSheet(ByRef sht As Worksheet)
+Public Sub FormatSheet(ByRef sht As Worksheet)
 'TODO  - consider removing and replacing with creation of ReportSheet object
 'Applies my preferred sheet formattting
 
@@ -42,9 +43,8 @@ Sub FormatSheet(ByRef sht As Worksheet)
 End Sub
 
 
-'TODO consider moving into the ReportingTable class
 
-Sub FormatTable(lo As ListObject)
+Public Sub FormatTable(lo As ListObject)
 
     Dim sty As TableStyle
     Dim wkb As Workbook
@@ -61,10 +61,10 @@ Sub FormatTable(lo As ListObject)
         .Interior.Color = RGB(68, 114, 196)
         .Font.Color = RGB(255, 255, 255)
         .Font.Bold = True
-        .Borders.item(xlEdgeTop).LineStyle = xlSolid
-        .Borders.item(xlEdgeTop).Weight = xlMedium
-        .Borders.item(xlEdgeBottom).LineStyle = xlSolid
-        .Borders.item(xlEdgeBottom).Weight = xlMedium
+        .Borders.Item(xlEdgeTop).LineStyle = xlSolid
+        .Borders.Item(xlEdgeTop).Weight = xlMedium
+        .Borders.Item(xlEdgeBottom).LineStyle = xlSolid
+        .Borders.Item(xlEdgeBottom).Weight = xlMedium
     End With
 
     'Set row stripe format
@@ -72,8 +72,8 @@ Sub FormatTable(lo As ListObject)
     sty.TableStyleElements(xlRowStripe2).Interior.Color = RGB(255, 255, 255)
     
     'Set whole table bottom edge format
-    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).LineStyle = xlSolid
-    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).Weight = xlMedium
+    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).LineStyle = xlSolid
+    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).Weight = xlMedium
 
     
     'Apply custom style and set other attributes
@@ -92,47 +92,16 @@ Sub FormatTable(lo As ListObject)
 End Sub
 
 
-
-Sub SetNumberFormat(sNumberFormat)
-
-    If ActiveCellIsInPivotTable Then
-        ActiveCell.PivotField.NumberFormat = sNumberFormat
-    Else
-        Selection.NumberFormat = sNumberFormat
-    End If
-
-End Sub
-
-
-
-Sub SetOuterBorders(ByRef rng As Range)
-
-    With rng.Borders(xlEdgeLeft)
-        .LineStyle = xlContinuous
-        .ColorIndex = xlAutomatic
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With rng.Borders(xlEdgeTop)
-        .LineStyle = xlContinuous
-        .ColorIndex = xlAutomatic
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With rng.Borders(xlEdgeBottom)
-        .LineStyle = xlContinuous
-        .ColorIndex = xlAutomatic
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With rng.Borders(xlEdgeRight)
-        .LineStyle = xlContinuous
-        .ColorIndex = xlAutomatic
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-
-
-End Sub
-
+'
+'Public Sub SetNumberFormat(sNumberFormat)
+'
+'    If ActiveCellIsInPivotTable Then
+'        ActiveCell.PivotField.NumberFormat = sNumberFormat
+'    Else
+'        Selection.NumberFormat = sNumberFormat
+'    End If
+'
+'    ActiveCell.PivotField.LabelRange.Addr
+'
+'End Sub
 

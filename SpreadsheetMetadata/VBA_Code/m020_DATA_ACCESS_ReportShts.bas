@@ -1,4 +1,5 @@
 Attribute VB_Name = "m020_DATA_ACCESS_ReportShts"
+'@Folder "SpreadsheetBI"
 Option Explicit
 Option Private Module
 
@@ -16,7 +17,7 @@ Function GetSavedReportSheetFormat() As Dictionary
     For i = 1 To Storage.NumberOfRecords
         dict.Add _
             key:=Storage.ListObj.ListColumns("Item").DataBodyRange.Cells(i).Value, _
-            item:=Storage.ListObj.ListColumns("Value").DataBodyRange.Cells(i).Value
+            Item:=Storage.ListObj.ListColumns("Value").DataBodyRange.Cells(i).Value
     Next i
 
     Set GetSavedReportSheetFormat = dict
@@ -25,13 +26,13 @@ End Function
 
 
 
-Function GetReportSheetFormatItem(ByVal item As String) As Variant
+Function GetReportSheetFormatItem(ByVal Item As String) As Variant
 
     Dim Storage As ListStorage
     
     Set Storage = New ListStorage
     Storage.AssignStorage ThisWorkbook, "ReportSheetFormat"
-    GetReportSheetFormatItem = Storage.Xlookup(item, "[Item]", "[Value]")
+    GetReportSheetFormatItem = Storage.Xlookup(Item, "[Item]", "[Value]")
 
 End Function
 

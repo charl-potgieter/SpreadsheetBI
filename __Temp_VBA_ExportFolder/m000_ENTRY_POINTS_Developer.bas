@@ -1,5 +1,8 @@
 Attribute VB_Name = "m000_ENTRY_POINTS_Developer"
+'@Folder "SpreadsheetBI"
 Option Explicit
+Option Private Module
+
 
 Sub GenerateSpreadsheetMetadataActiveWorkbook()
 
@@ -220,7 +223,5 @@ Exitpoint:
     StandardExit
     
 End Sub
-
-
 
 

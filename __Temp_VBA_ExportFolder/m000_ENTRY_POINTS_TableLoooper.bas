@@ -1,5 +1,8 @@
 Attribute VB_Name = "m000_ENTRY_POINTS_TableLoooper"
+'@Folder "SpreadsheetBI"
 Option Explicit
+Option Private Module
+
 
 Sub RunTableLooperOnActiveSheet()
 

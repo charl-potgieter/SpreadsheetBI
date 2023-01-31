@@ -567,4 +567,191 @@ let
  
  in 
 
-    Result]
+    Result,
+
+fn_HeadingConsistency = 
+(Folder as text, optional SourceFileType as text, optional fn_CustomHeaderFunction as function)=>
+let
+
+/*
+    Checks for consistency of file headers for all files in folder by generating the column headings by file
+    SourceFileType paramater can be
+     - Excel Data (data ion first tab of Excel sheet starting in row 1)
+     - Excel Table (first table in first sheet of Excel file)
+     - Csv
+     - Other
+    If Other is selected then fn_CustomHeaderFunction must be passed as a paramater taking Folder and
+    Filename as its parameters and returning a list of column names
+    This list can then be rolled up into Power BI or Power Pivot for reporting
+*/
+
+        
+    fn_ColumnHeadersExcelData = 
+    (Folder, FName)=>
+    let
+        Source = Excel.Workbook(File.Contents(Folder & FName), null, true),
+        FirstSheet = Source[Data]{0},
+        PromoteHeaders = Table.PromoteHeaders(FirstSheet, [PromoteAllScalars = true]), 
+        ColumnNames = Table.ColumnNames(PromoteHeaders)
+    in
+        ColumnNames,
+        
+
+    fn_ColumnHeadersExcelTable = 
+    (Folder, FName)=>
+    let
+        Source = Excel.Workbook(File.Contents(Folder & FName), null, true),
+        FilteredOnTables = Table.SelectRows(Source, each ([Kind] = "Table")),
+        FirstTable = FilteredOnTables[Data]{0},
+        ColumnNames = Table.ColumnNames(FirstTable)
+    in
+        ColumnNames,
+
+
+    fn_ColumnHeadersCSV = 
+    (Folder, FName)=>
+    let
+        Source = Csv.Document(File.Contents(Folder & FName),[Delimiter=",", Encoding=1252, QuoteStyle=QuoteStyle.None]),
+        PromoteHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+        ColumnNames = Table.ColumnNames(PromoteHeaders)
+    in
+        ColumnNames,
+
+        
+    // Function to get column headers depends on source file type as set in parameter
+    fn_SelectedColumnHeaderFunction = if SourceFileType = "Excel Data" then
+            fn_ColumnHeadersExcelData
+        else if Text.Upper(SourceFileType) = "EXCEL DATA" then
+            fn_ColumnHeadersExcelData
+        else if Text.Upper(SourceFileType) = "EXCEL TABLE" then
+            fn_ColumnHeadersExcelTable
+        else if Text.Upper(SourceFileType) = "CSV" then
+            fn_ColumnHeadersCSV
+        else
+            fn_CustomHeaderFunction,
+        
+    
+    //Get folder contents and filter out non-data files
+    FolderContents = Folder.Files(Folder),
+    FilterOutNonData = Table.SelectRows(FolderContents, each
+        Text.Upper([Name]) <> "README.TXT" and
+        Text.Upper([Name]) <> "THUMBS.DB" and
+        Text.Upper([Extension]) <> ".SQL" and
+        Text.Start([Name], 1) <> "~"
+        ),
+        
+        
+    AddColumnNameList = Table.AddColumn(FilterOutNonData, "ColumnName", each fn_SelectedColumnHeaderFunction([Folder Path], [Name]), type list),
+    SelectCols = Table.SelectColumns (AddColumnNameList, {"Folder Path", "Name", "ColumnName"}),
+    Expand = Table.ExpandListColumn(SelectCols, "ColumnName"),
+    ChangedType = Table.TransformColumnTypes(Expand,{{"Folder Path", type text}, {"Name", type text}, {"ColumnName", type text}})
+    
+in
+    ChangedType,
+
+HeadingConsisency_TestCustomFunction = 
+(Folder, FName)=>
+let
+    Source = Excel.Workbook(File.Contents(Folder & FName), null, true),
+    Sheet1_Sheet = Source{[Item="Sheet1",Kind="Sheet"]}[Data],
+    RemovedTopRows = Table.Skip(Sheet1_Sheet,4),
+    PromotedHeaders = Table.PromoteHeaders(RemovedTopRows, [PromoteAllScalars=true]),
+    ColumnNames = Table.ColumnNames(PromotedHeaders)
+in
+    ColumnNames,
+
+HeadingConsistency_TestOutput = 
+let
+    ExcelData = fn_HeadingConsistency("D:\Onedrive\Documents_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\Testing\Test_HeadingConsistency\Test_ExcelData","Excel Data"),
+    ExcelTable = fn_HeadingConsistency("D:\Onedrive\Documents_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\Testing\Test_HeadingConsistency\Test_ExcelTable","Excel Table"),
+    Custom = fn_HeadingConsistency("D:\Onedrive\Documents_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\Testing\Test_HeadingConsistency\Test_ExcelCustom","other", HeadingConsisency_TestCustomFunction),
+
+    CombinedTables = Table.Combine({ExcelData, ExcelTable, Custom})
+in
+    CombinedTables,
+
+Query1 = 
+let
+    Source = Text.From("2017")
+in
+    Source,
+
+fn_Consolidate = 
+(fn_Single as function, SourceFolder as text, optional FilterFileNameFrom, optional FilterFileNameTo, optional IsDevMode as logical)=>
+let
+    
+    /* 
+        Consolidates files in SourceFolder with each file being read using fn_Single
+        fn_Single needs to take 2 parameters, the file path and the file name
+        The files are filtered based on file names using parameters FilterFileNameFrom and FilterFileNameTo
+        These parameters need to be the same length and file names are truncated to this length for filtering purposes
+    */
+
+
+    //Get folder contents and filter out non-data files
+    FolderContents = Folder.Files(SourceFolder),
+    FilterOutNonData = Table.SelectRows(FolderContents, each
+        Text.Upper([Name]) <> "README.TXT" and
+        Text.Upper([Name]) <> "THUMBS.DB" and
+        Text.Upper([Extension]) <> ".SQL" and
+        Text.Start([Name], 1) <> "~"
+        ),
+        
+    //Custom table type avoids types being lost on table expansion
+    FirstTable = fn_Single(FilterOutNonData[Folder Path]{0}, FilterOutNonData[Name]{0}),
+    CustomTableType = Value.Type(FirstTable),
+    AddTableCol = Table.AddColumn(FilterOutNonData, "tbl", each fn_Single([Folder Path], [Name]), CustomTableType),
+    
+    //Filter data per parameters (using same number of characters)
+    FilterFileNameFromText = Text.From(FilterFileNameFrom),
+    FilterFileNameToText = Text.From(FilterFileNameTo),
+    FilterCharacterLength = Text.Length(FilterFileNameFromText),
+    AddFilterCol = Table.AddColumn(AddTableCol, "FilterCol", each Text.Start([Name], FilterCharacterLength), type text),
+    FilterFiles = Table.SelectRows(AddFilterCol, each ([FilterCol] >= FilterFileNameFromText) and ([FilterCol] <= FilterFileNameToText)), 
+    DevMode_FilterOneFile = if IsDevMode is null then
+            FilterFiles
+        else if IsDevMode then 
+            Table.FirstN(FilterFiles, 1) 
+        else 
+            FilterFiles,
+    
+    SelectTableCol = Table.SelectColumns(DevMode_FilterOneFile, {"tbl"}),
+    
+    //If no file exists return an empty table to prevent an expand error
+    Expand = if Table.RowCount(SelectTableCol) = 0 then
+            #table({},{})
+        else
+            Table.ExpandTableColumn(
+                SelectTableCol, 
+                "tbl", 
+                Table.ColumnNames(SelectTableCol[tbl]{0}),
+                Table.ColumnNames(SelectTableCol[tbl]{0})),
+                
+                
+    CheckForMismatchParameterLenghth = if Text.Length(Text.From(FilterFileNameFrom)) <> Text.Length(Text.From(FilterFileNameTo)) then 
+            error [
+                Reason = "Business Rule Violated", 
+                Message = "Item codes must start with a letter", 
+                Detail = "Non-conforming Item Code: 456"
+            ]
+        else
+            Expand
+
+in
+    CheckForMismatchParameterLenghth,
+
+fn_SingleTestConsolidationYears = 
+(Folder, FName)=>
+let
+    Source = Excel.Workbook(File.Contents(Folder & FName), null, true),
+    Sheet1_Sheet = Source{[Item="Sheet1",Kind="Sheet"]}[Data],
+    RemovedTopRows = Table.Skip(Sheet1_Sheet,4),
+    PromotedHeaders = Table.PromoteHeaders(RemovedTopRows, [PromoteAllScalars=true])
+in
+    PromotedHeaders,
+
+TestConsolidate = 
+let
+    Source = fn_Consolidate(fn_SingleTestConsolidationYears, "D:\Onedrive\Documents_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\Testing\Test_Consolidation\Test_Consolidation_Years\",2017,2019, false)
+in
+    Source]

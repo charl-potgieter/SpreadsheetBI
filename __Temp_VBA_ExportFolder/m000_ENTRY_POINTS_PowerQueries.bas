@@ -1,7 +1,7 @@
 Attribute VB_Name = "m000_ENTRY_POINTS_PowerQueries"
+'@Folder "SpreadsheetBI"
 Option Explicit
-
-
+Option Private Module
 
 
 Sub ExportPowerQueriesInActiveWorkbookToFiles()
@@ -344,4 +344,5 @@ Sub ImportPowerQueryLibraryIntoActiveWorkbook()
     StandardExit
 
 End Sub
+
 
