@@ -581,7 +581,7 @@ let
      - Csv
      - Other
     If Other is selected then fn_CustomHeaderFunction must be passed as a paramater taking Folder and
-    Filename as its parameters and returning a list of column names
+    Filename as its parameters and returning a list of field names
     This list can then be rolled up into Power BI or Power Pivot for reporting
 */
 
@@ -641,10 +641,18 @@ let
         ),
         
         
-    AddColumnNameList = Table.AddColumn(FilterOutNonData, "ColumnName", each fn_SelectedColumnHeaderFunction([Folder Path], [Name]), type list),
-    SelectCols = Table.SelectColumns (AddColumnNameList, {"Folder Path", "Name", "ColumnName"}),
-    Expand = Table.ExpandListColumn(SelectCols, "ColumnName"),
-    ChangedType = Table.TransformColumnTypes(Expand,{{"Folder Path", type text}, {"Name", type text}, {"ColumnName", type text}})
+    AddColumnNameList = Table.AddColumn(FilterOutNonData, "Field Name", each fn_SelectedColumnHeaderFunction([Folder Path], [Name]), type list),
+
+    //Need to capture the Folder parameter as a column as it is possible the source folder contains subfolder and consistency of headers needs to be 
+    //determined ad the source folder level not sub folder
+    AddParentFolderColumn = Table.AddColumn(AddColumnNameList, "Parent Path", each Folder, type text),
+    AddSubFolderColumn = Table.AddColumn(AddParentFolderColumn, "Sub Folder Path", each Text.Replace([Folder Path], [Parent Path], "")),
+
+
+    SelectCols = Table.SelectColumns (AddSubFolderColumn, {"Parent Path", "Sub Folder Path", "Name", "Field Name"}),
+    RenameNameCol = Table.RenameColumns(SelectCols,{{"Name", "File Name"}}),
+    Expand = Table.ExpandListColumn(RenameNameCol, "Field Name"),
+    ChangedType = Table.TransformColumnTypes(Expand,{{"Parent Path", type text}, {"Sub Folder Path", type text}, {"File Name", type text}, {"Field Name", type text}})
     
 in
     ChangedType,
@@ -660,21 +668,16 @@ let
 in
     ColumnNames,
 
-HeadingConsistency_TestOutput = 
+HeadingConsistencyData = 
 let
     ExcelData = fn_HeadingConsistency("D:\Onedrive\Documents_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\Testing\Test_HeadingConsistency\Test_ExcelData","Excel Data"),
     ExcelTable = fn_HeadingConsistency("D:\Onedrive\Documents_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\Testing\Test_HeadingConsistency\Test_ExcelTable","Excel Table"),
+    CSV_Data= fn_HeadingConsistency("D:\Onedrive\Documents_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\Testing\Test_HeadingConsistency\Test_CSV","CSV"),
     Custom = fn_HeadingConsistency("D:\Onedrive\Documents_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\Testing\Test_HeadingConsistency\Test_ExcelCustom","other", HeadingConsisency_TestCustomFunction),
 
-    CombinedTables = Table.Combine({ExcelData, ExcelTable, Custom})
+    CombinedTables = Table.Combine({ExcelData, ExcelTable,CSV_Data, Custom})
 in
     CombinedTables,
-
-Query1 = 
-let
-    Source = Text.From("2017")
-in
-    Source,
 
 fn_Consolidate = 
 (fn_Single as function, SourceFolder as text, optional FilterFileNameFrom, optional FilterFileNameTo, optional IsDevMode as logical)=>
@@ -753,5 +756,41 @@ in
 TestConsolidate = 
 let
     Source = fn_Consolidate(fn_SingleTestConsolidationYears, "D:\Onedrive\Documents_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\Testing\Test_Consolidation\Test_Consolidation_Years\",2017,2019, false)
+in
+    Source,
+
+Test_Consolidation_Years = 
+let
+    Source = Folder.Files("D:\Onedrive\Documents_Charl\Computer_Technical\Programming_GitHub\SpreadsheetBI\Testing\Test_Consolidation\Test_Consolidation_Years")
+in
+    Source,
+
+Query1 = 
+let
+    Source = Text.End("blah", 1)
+in
+    Source,
+
+HeadingConsistencyParentPath = 
+let
+    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"Parent Path"}))
+in
+    Source,
+
+HeadingConsistencySubfolderPath = 
+let
+    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"Sub Folder Path"}))
+in
+    Source,
+
+HeadingConsitencyFileNames = 
+let
+    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"File Name"}))
+in
+    Source,
+
+HeadingConsistencyFieldNames = 
+let
+    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"Field Name"}))
 in
     Source]

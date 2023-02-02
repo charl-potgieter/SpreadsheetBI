@@ -1,4 +1,4 @@
 let
-    Source = Text.From("2017")
+    Source = Text.End("blah", 1)
 in
     Source
