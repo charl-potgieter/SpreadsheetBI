@@ -1,13 +1,9 @@
 HeadingConsistency:=IF(
-    HASONEVALUE(HeadingConsistencyParentPath[Parent Path])
-    && HASONEVALUE(HeadingConsistencySubfolderPath[Sub Folder Path]) 
-    && HASONEVALUE(HeadingConsitencyFileNames[File Name]) 
-    && HASONEVALUE(HeadingConsistencyFieldNames[Field Name]
-    ),
+    HASONEVALUE(HeadingConsistencyParentPath[Parent Path]) && HASONEVALUE(HeadingConsistencySubfolderPath[Sub Folder Path]) && HASONEVALUE(HeadingConsistencyFileNames[File Name]) && HASONEVALUE(HeadingConsistencyFieldNames[Field Name]),
     
     VAR _CurrentParentPath  = VALUES(HeadingConsistencyParentPath[Parent Path])
     VAR _CurrrentSubfolderPath  = VALUES(HeadingConsistencySubfolderPath[Sub Folder Path])
-    VAR _CurrentFileName = VALUES(HeadingConsitencyFileNames[File Name])
+    VAR _CurrentFileName = VALUES(HeadingConsistencyFileNames[File Name])
     VAR _CurrentFieldName = VALUES(HeadingConsistencyFieldNames[Field Name])
 
    VAR _CurrentFileNameIsInSubfolder =  CALCULATE(
@@ -18,8 +14,7 @@ HeadingConsistency:=IF(
         HeadingConsistencyData[File Name] = _CurrentFileName
     ) =1
    
-    //Parent path is contains the grouping of files to be consolidated that require to be tested for consistency.
-    //Subfolders are for convenience / organisation purposes only
+    //Parent path is contains the grouping of files to be consolidated that require to be tested for consistency, subfolders are for convenience / organisation purposes only
     VAR _CurrentFieldNameIsInParentPath = CALCULATE(
         COUNTROWS(VALUES(HeadingConsistencyData[Field Name])),
         ALL(HeadingConsistencyData),

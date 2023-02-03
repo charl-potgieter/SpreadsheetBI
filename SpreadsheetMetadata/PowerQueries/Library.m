@@ -773,24 +773,24 @@ in
 
 HeadingConsistencyParentPath = 
 let
-    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"Parent Path"}))
+    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"Parent Path"}), Comparer.OrdinalIgnoreCase)
 in
     Source,
 
 HeadingConsistencySubfolderPath = 
 let
-    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"Sub Folder Path"}))
+    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"Sub Folder Path"}), Comparer.OrdinalIgnoreCase)
 in
     Source,
 
-HeadingConsitencyFileNames = 
+HeadingConsistencyFileNames = 
 let
-    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"File Name"}))
+    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"File Name"}), Comparer.OrdinalIgnoreCase)
 in
     Source,
 
 HeadingConsistencyFieldNames = 
 let
-    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"Field Name"}))
+    Source = Table.Distinct(Table.SelectColumns(HeadingConsistencyData, {"Field Name"}), Comparer.OrdinalIgnoreCase)
 in
     Source]
