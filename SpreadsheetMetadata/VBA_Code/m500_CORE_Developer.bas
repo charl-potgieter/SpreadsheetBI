@@ -23,7 +23,7 @@ Sub GenerateSpreadsheetMetadata(ByVal wkb As Workbook)
     Dim sOtherPath As String
     Dim sPowerQueryPath As String
 
-    sMetaDataRootPath = wkb.Path & Application.PathSeparator & "SpreadsheetMetadata"
+    sMetaDataRootPath = GetFolder
     sTableStructurePath = sMetaDataRootPath & Application.PathSeparator & "TableStructure"
     sVbaCodePath = sMetaDataRootPath & Application.PathSeparator & "VBA_Code"
     sOtherPath = sMetaDataRootPath & Application.PathSeparator & "Other"
