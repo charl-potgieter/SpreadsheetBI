@@ -1,9 +1,55 @@
-TODO
--------
+Today
+------
+
+Need to fix metadata generation - file path issue with Onedrive
+
+
+
+ReportingSheet and Index
+---------------------------
+ - There is duplication in ReportingSheet.Create and ReportingSheet.CreateFromExistingSheet --> look into combining in one sub
+
+ - Instead of referencing range names (previously set) would it be bettter to get the range by set as a class property get?
+ 
+
+ 
+
+
+TODO - OTHER
+---------------
+
+
+Maybe forget about schema files as there are too many other operations regularly performed on files eg add dates joins etc. 
+Still worth considering storing single power query along with data though .
+Create schema file from PowerBI add in?
+ - Create new file
+ - Store schema sheets in PowerBi file and then copy across to the new file
+
+
+The power query library is buried in the code - wondering if I need to go back to moving into its own clearly lableled repository again
+ - It would also be better to get the power queries organised into folders
+
+
+Work on powerquery - fn_Headings
+Work on powerQuery  = fn_Consolidate
+
+How do I get these P
+
+Remove table formatting - best handled via book.xlsxt template
+
+When formatting pivot allow selections of one of the custom styles
+
+Also add to template ?
+https://www.xelplus.com/smart-uses-of-custom-formatting/
+
+
+Maybe also link the ReportSheet design to cell styles (rather than capturing details in a userform)
+
+When formatting numbers etc and cells in a table are selected, format the entire column in that table   
 
 When returning to index from another sheet it would be good to go to that sheets listing on the index  
 
-InsertIndex page gets slowas workbook grows - any way to improve?
+InsertIndex page gets slow as workbook grows - any way to improve?
 
 Tempted to move Return to Index button (on reporting Sheets) slightly to the right
 
@@ -210,9 +256,4 @@ Website  / Twitter
  -------------------
  
  * Excel meets Lambda (Andy Gordon)
- https://www.youtube.com/watch?v=7tFq-9Zvk3M&t=720s
-  - Any news on Excel Lambda playground release - around 34 minutes
-  - Also around 52 minutes re discussion on broader availability
-   - Comments re adding to list for lambda playground
-  
-  
+ https://www.youtube.com/watch?v=7tFq-9Zvk3M&t=

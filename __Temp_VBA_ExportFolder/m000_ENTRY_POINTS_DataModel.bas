@@ -1,5 +1,7 @@
 Attribute VB_Name = "m000_ENTRY_POINTS_DataModel"
+'@Folder "SpreadsheetBI"
 Option Explicit
+Option Private Module
 
 Public Type TypeModelMeasures
     Name As String
@@ -86,4 +88,5 @@ Sub WriteModelInfoToSheets()
 
     StandardExit
 End Sub
+
 

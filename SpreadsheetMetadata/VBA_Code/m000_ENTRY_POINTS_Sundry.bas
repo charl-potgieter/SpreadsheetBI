@@ -59,3 +59,22 @@ Exitpoint:
     StandardExit
 
 End Sub
+
+
+
+
+
+Sub ToggleRowAndColumnGroupVisibility()
+Attribute ToggleRowAndColumnGroupVisibility.VB_ProcData.VB_Invoke_Func = "H\n14"
+
+    StandardEntry
+    If SheetContainsGroupedHiddenColumns(ActiveSheet) Or SheetContainsGroupedHiddenRows(ActiveSheet) Then
+        ActiveSheet.Outline.ShowLevels RowLevels:=8, ColumnLevels:=8
+    Else
+        ActiveSheet.Outline.ShowLevels RowLevels:=1, ColumnLevels:=1
+    End If
+    ActivateAndScrollToFirstVisibleCell ActiveSheet
+    StandardExit
+    
+
+End Sub

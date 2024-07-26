@@ -13,6 +13,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'@Folder "SpreadsheetBI"
+
 
 
 
@@ -71,7 +73,7 @@ Public Property Set ParameterDescriptions(ByVal Params As Dictionary)
         ParamBox.Height = ParamHeight
         ParamBox.Left = (Me.FrameParameters.Width - ParamBox.Width - SpaceFromSides * 3)
         ParamBox.Top = SpaceFromSides + (i * SpaceBetweenParamTops)
-        this.DictionaryOfParamControls.Add item:=ParamBox, _
+        this.DictionaryOfParamControls.Add Item:=ParamBox, _
             key:=ParamBox.Name
                 
     Next i

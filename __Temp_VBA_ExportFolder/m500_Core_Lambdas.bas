@@ -1,4 +1,5 @@
 Attribute VB_Name = "m500_Core_Lambdas"
+'@Folder "SpreadsheetBI"
 Option Explicit
 Option Private Module
 
@@ -119,3 +120,5 @@ Sub WriteLambdaToCell(ByVal Lambda As LambdaFormulaDetails, ByVal rng As Range, 
     rng.Formula2 = FormulaStr
 
 End Sub
+
+

@@ -557,3 +557,64 @@ Function ListObjHasQueryTable(ByVal lo As ListObject) As Boolean
 
 End Function
 
+
+
+Function SheetContainsGroupedHiddenColumns(sht As Worksheet) As Boolean
+
+    Dim CurrentColumnNumber As Integer
+    Dim FirstUsedRangeColumnNumber As Long
+    Dim LastUsedRangeColumnNumber As Long
+    Dim NumberOfCellsInUsedRange As Long
+    Dim CurrentColumn As Range
+
+    
+    NumberOfCellsInUsedRange = sht.UsedRange.Cells.Count
+    FirstUsedRangeColumnNumber = sht.UsedRange.Cells(1).Column
+    LastUsedRangeColumnNumber = sht.UsedRange.Cells(NumberOfCellsInUsedRange).Column
+    CurrentColumnNumber = FirstUsedRangeColumnNumber
+    SheetContainsGroupedHiddenColumns = False
+    
+    While CurrentColumnNumber <= LastUsedRangeColumnNumber And Not SheetContainsGroupedHiddenColumns
+        Set CurrentColumn = sht.Columns(CurrentColumnNumber)
+        SheetContainsGroupedHiddenColumns = (CurrentColumn.OutlineLevel > 1) And CurrentColumn.Hidden
+        CurrentColumnNumber = CurrentColumnNumber + 1
+    Wend
+
+End Function
+
+
+Function SheetContainsGroupedHiddenRows(sht As Worksheet) As Boolean
+
+    Dim CurrentRowNumber As Integer
+    Dim FirstUsedRangeRowNumber As Long
+    Dim LastUsedRangeRowNumber As Long
+    Dim NumberOfCellsInUsedRange As Long
+    Dim CurrentRow As Range
+
+    
+    NumberOfCellsInUsedRange = sht.UsedRange.Cells.Count
+    FirstUsedRangeRowNumber = sht.UsedRange.Cells(1).Row
+    LastUsedRangeRowNumber = sht.UsedRange.Cells(NumberOfCellsInUsedRange).Row
+    CurrentRowNumber = FirstUsedRangeRowNumber
+    SheetContainsGroupedHiddenRows = False
+    
+    While CurrentRowNumber <= LastUsedRangeRowNumber And Not SheetContainsGroupedHiddenRows
+        Set CurrentRow = sht.Rows(CurrentRowNumber)
+        SheetContainsGroupedHiddenRows = (CurrentRow.OutlineLevel > 1) And CurrentRow.Hidden
+        CurrentRowNumber = CurrentRowNumber + 1
+    Wend
+
+End Function
+
+
+Sub ActivateAndScrollToFirstVisibleCell(ByVal sht As Worksheet)
+
+    Dim FirstVisibleCell As Range
+
+    sht.Activate
+    Set FirstVisibleCell = sht.Cells.SpecialCells(xlVisible)(1)
+    sht.Cells.SpecialCells(xlVisible)(1).Select
+    ActiveWindow.ScrollRow = FirstVisibleCell.Row
+    ActiveWindow.ScrollColumn = FirstVisibleCell.Column
+
+End Sub

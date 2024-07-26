@@ -1,6 +1,9 @@
 Attribute VB_Name = "m500_CORE_PowerQueries"
+'@Folder "SpreadsheetBI"
 Option Explicit
 Option Private Module
+
+
 
 
 Sub ExportPowerQueriesToFiles(ByVal sFolderPath As String, wkb As Workbook)
@@ -148,7 +151,7 @@ Sub CreateTableGeneratorSheet(ByRef wkb As Workbook)
     Dim lo As ListObject
 
     Set sht = wkb.Sheets.Add(After:=wkb.Sheets(wkb.Sheets.Count))
-    FormatSheet sht
+    FormattingCoreOutdated.FormatSheet sht
     sht.Name = "PqTableGenerator"
     sht.Range("SheetHeading") = "Power query table generator"
     sht.Range("SheetCategory") = "Setup"
@@ -326,3 +329,5 @@ Function QueryExists(ByVal sQryName As String, Optional wkb As Workbook) As Bool
     On Error GoTo 0
     
 End Function
+
+

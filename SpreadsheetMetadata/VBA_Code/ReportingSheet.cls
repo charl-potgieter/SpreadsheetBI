@@ -51,68 +51,52 @@ Public Property Let Category(ByVal sCategory As String)
 End Property
 
 
-Public Property Get WorkbookErrorStatusFormula() As String
-    WorkbookErrorStatusFormula = this.shtReport.Names("WorkbookErrorStatus").RefersToRange.Formula
+Public Property Get ErrorStatusRangeAddress() As String
+    ErrorStatusRangeAddress = Me.Name & "!SheetErrorStatus"
 End Property
-
-
-Public Property Let WorkbookErrorStatusFormula(ByVal sFormula As String)
-    this.shtReport.Names("WorkbookErrorStatus").RefersToRange.Formula = sFormula
-End Property
-
-
-Public Property Get SheetErrorStatusFormula() As String
-    SheetErrorStatusFormula = this.shtReport.Names("SheetErrorStatus").RefersToRange.Formula
-End Property
-
-
-Public Property Let SheetErrorStatusFormula(ByVal sFormula As String)
-    this.shtReport.Names("SheetErrorStatus").RefersToRange.Formula = sFormula
-End Property
-
 
 
 Public Property Get FreezePaneRow() As Long
-    
+
     Dim WorkbookSelectedBeforeSub As Workbook
     Dim SelectedSheetOnReportingWorkbookBeforeSub As Worksheet
-    
+
     Set WorkbookSelectedBeforeSub = ActiveWorkbook
     this.shtReport.Parent.Activate
     Set SelectedSheetOnReportingWorkbookBeforeSub = ActiveSheet
     this.shtReport.Activate
-    
+
     FreezePaneRow = ActiveWindow.SplitRow
-    
+
     SelectedSheetOnReportingWorkbookBeforeSub.Activate
     WorkbookSelectedBeforeSub.Activate
-    
+
 End Property
 
 
 Public Property Let FreezePaneRow(ByVal lFreezeRow As Long)
-    
+
     Dim WorkbookSelectedBeforeSub As Workbook
     Dim SelectedSheetOnReportingWorkbookBeforeSub As Worksheet
     Dim lFreezeCol As Long
     Dim wkbToFreeze As Workbook
-    
+
     Set WorkbookSelectedBeforeSub = ActiveWorkbook
     Set wkbToFreeze = this.shtReport.Parent
     wkbToFreeze.Activate
     Set SelectedSheetOnReportingWorkbookBeforeSub = ActiveSheet
     this.shtReport.Activate
-    
+
     With ActiveWindow
         lFreezeCol = ActiveWindow.SplitColumn
         .FreezePanes = False
         .Split = False
         FreezeActiveWindowPanes lFreezeRow, lFreezeCol
     End With
-    
+
     SelectedSheetOnReportingWorkbookBeforeSub.Activate
     WorkbookSelectedBeforeSub.Activate
-    
+
 End Property
 
 
@@ -157,18 +141,15 @@ Public Property Let FreezePaneCol(ByVal lFreezeColumn As Long)
 End Property
 
 
+
 Public Property Get Sheet() As Worksheet
     Set Sheet = this.shtReport
 End Property
 
 
+
 Public Property Get Name() As String
     Name = this.shtReport.Name
-End Property
-
-
-Public Property Get HiddenRangesAreVisible() As Boolean
-    HiddenRangesAreVisible = this.shtReport.Range("HiddenWorkingRows").EntireRow.Hidden = False
 End Property
 
 
@@ -238,31 +219,6 @@ Public Sub Create(ByVal wkb As Workbook, _
 End Sub
 
 
-Public Function AssignExistingSheet(ByVal sht As Worksheet) As Boolean
-'Only assigns sheet if it already meets reporting sheet criteria
-    
-    Dim bValidSheet As Boolean
-    Dim TEst As Variant
-    
-    On Error Resume Next
-    TEst = sht.Range("HiddenWorkingRows").Address
-    TEst = sht.Range("HiddenWorkingColumns").Address
-    TEst = sht.Range("ErrorCheckColumns").Address
-    TEst = sht.Range("ErrorCheckRows").Address
-    TEst = sht.Range("WorkbookErrorStatus").Address
-    TEst = sht.Range("Category").Address
-    TEst = sht.Range("Heading").Address
-    TEst = sht.Range("ReturnToIndex").Address
-    TEst = sht.Range("DefaultCursorLocation").Address
-    bValidSheet = (Err.Number = 0)
-    On Error GoTo 0
-    
-    If bValidSheet Then Set this.shtReport = sht
-    AssignExistingSheet = bValidSheet
-
-End Function
-
-
 
 Public Function CreateFromExistingSheet(ByVal sht As Worksheet) As Boolean
 'Converts sht to a reporting sheet
@@ -287,9 +243,37 @@ Public Function CreateFromExistingSheet(ByVal sht As Worksheet) As Boolean
 End Function
 
 
+
+Public Function AssignExistingSheet(ByVal sht As Worksheet) As Boolean
+'Only assigns sheet if it already meets reporting sheet criteria
+    
+    Dim bValidSheet As Boolean
+    Dim Test As Variant
+    
+    On Error Resume Next
+    Test = sht.Range("HiddenWorkingRows").Address
+    Test = sht.Range("HiddenWorkingColumns").Address
+    Test = sht.Range("ErrorCheckColumns").Address
+    Test = sht.Range("ErrorCheckRows").Address
+    Test = sht.Range("WorkbookErrorStatus").Address
+    Test = sht.Range("Category").Address
+    Test = sht.Range("Heading").Address
+    Test = sht.Range("ReturnToIndex").Address
+    Test = sht.Range("DefaultCursorLocation").Address
+    bValidSheet = (Err.Number = 0)
+    On Error GoTo 0
+    
+    If bValidSheet Then Set this.shtReport = sht
+    AssignExistingSheet = bValidSheet
+
+End Function
+
+
+
 Public Sub Delete()
     this.shtReport.Delete
 End Sub
+
 
 
 Private Sub InsertReportingSheet(ByVal wkb As Workbook, _
@@ -340,50 +324,26 @@ Private Sub SetRangeNames()
             Range(Columns(NumberOfHiddenWorkingColumns + 1), _
             Columns(NumberOfHiddenWorkingColumns + NumberOfErrorCheckColumns)).Address
             
-        .Names.Add Name:="SheetErrorStatus", RefersTo:="=$C$1"
-        .Names.Add Name:="WorkbookErrorStatus", RefersTo:="=$C$2"
-        .Names.Add Name:="Category", RefersTo:="=$C$3"
+        .Names.Add Name:="Category", RefersTo:="=$B$1"
+        .Names.Add Name:="SheetErrorStatus", RefersTo:="=$B$2"
+        .Names.Add Name:="WorkbookErrorStatus", RefersTo:="=$B$3"
+        .Names.Add Name:="ReturnToIndexAddress", RefersTo:="=$B$4"
         
         
         .Names.Add Name:="Heading", RefersTo:="=" & _
-            .Cells(1, 1).Offset(NumberOfErrorCheckRows + NumberOfErrorCheckRows + 1, _
+            .Cells(1, 1).Offset(NumberOfErrorCheckRows + NumberOfErrorCheckRows + 2, _
             NumberOfHiddenWorkingRows + NumberOfHiddenWorkingColumns + 1).Address
             
         .Names.Add Name:="ReturnToIndex", RefersTo:="=" & _
-            .Range("Heading").Offset(1, 0).Address
+            .Range("Heading").Offset(-2, -1).Address
             
         .Names.Add Name:="DefaultCursorLocation", RefersTo:="=" & _
-            .Range("Heading").Offset(-1, -1).Address
+            .Range("Heading").Offset(1, 0).Address
             
         .Names.Add Name:="Notes", RefersTo:="=" & _
             .Range(.Cells(1, 1), .Cells((NumberOfHiddenWorkingRows + NumberOfErrorCheckRows), _
             (NumberOfHiddenWorkingColumns + NumberOfErrorCheckRows))).Address
             
-    End With
-    
-End Sub
-
-
-Public Sub ToggleErrorCheckRangeVisbility(ByVal ShowHiddenRange As Boolean)
-
-    With this.shtReport
-        .Activate
-        If ShowHiddenRange Then
-            .Range("HiddenWorkingRows").EntireRow.Hidden = False
-            .Range("HiddenWorkingColumns").EntireColumn.Hidden = False
-            .Range("ErrorCheckRows").EntireRow.Hidden = False
-            .Range("ErrorCheckColumns").EntireColumn.Hidden = False
-            .Range("A1").Select
-            ActiveWindow.ScrollRow = 1
-            ActiveWindow.ScrollColumn = 1
-        Else
-            .Range("HiddenWorkingRows").EntireRow.Hidden = True
-            .Range("HiddenWorkingColumns").EntireColumn.Hidden = True
-            .Range("ErrorCheckRows").EntireRow.Hidden = True
-            .Range("ErrorCheckColumns").EntireColumn.Hidden = True
-            .Range("DefaultCursorLocation").Select
-        End If
-        
     End With
     
 End Sub
@@ -410,9 +370,6 @@ Private Sub FormatSheetFixedFormatting()
 
         .Range("Heading").Font.Bold = True
 
-        .Range("Category").Font.Color = RGB(170, 170, 170)
-        .Range("Category").Font.Size = 8
-
         .Range("WorkbookErrorStatus").Font.Color = RGB(170, 170, 170)
         .Range("SheetErrorStatus").Font.Color = RGB(170, 170, 170)
         .Range("ErrorCheckRows").Cells(1).Font.Bold = True
@@ -426,25 +383,33 @@ Private Sub FormatSheetFixedFormatting()
         .Range("ErrorCheckRows").Font.Bold = True
         .Range("ErrorCheckColumns").Font.Bold = True
             
-        .Range("Notes").Interior.Color = RGB(205, 225, 243)
+        .Range("Notes").Interior.Color = RGB(255, 255, 255)
         .Range("Notes").Font.Color = RGB(0, 0, 0)
+        .Range("Notes").Font.Bold = False
         .Range("Notes").EntireColumn.ColumnWidth = 10
-        .Range("Notes").BorderAround Weight:=xlThick
-        .Range("Notes").Cells(1, 1).Value = "Sheet error status"
-        .Range("Notes").Cells(2, 1).Value = "Workbook error status"
-        .Range("Notes").Cells(3, 1).Value = "Category"
+        .Range("Notes").BorderAround Weight:=xlMedium
+        .Range("Notes").Cells(1, 1).Value = "Category"
+        .Range("Notes").Cells(2, 1).Value = "Sheet error status"
+        .Range("Notes").Cells(3, 1).Value = "Workbook error status"
+        .Range("Notes").Cells(4, 1).Value = "Return to index address"
         .Range("Notes").Cells(6, 1).Value = "Hidden workings in light grey"
         .Range("Notes").Cells(7, 1).Value = "Hidden error checks in dark grey"
-        .Range("Notes").Cells(2, 2).Font.Bold = True
-        .Range("Notes").Cells(3, 2).Font.Bold = True
 
-        .Range("ErrorCheckRows").EntireRow.Hidden = True
-        .Range("ErrorCheckColumns").EntireColumn.Hidden = True
-        .Range("HiddenWorkingRows").EntireRow.Hidden = True
-        .Range("HiddenWorkingColumns").EntireColumn.Hidden = True
+
+        .Range("Category").Font.Color = RGB(0, 60, 160)
+        .Range("Category").Font.Size = 8
+
+        .Columns("A:A").EntireColumn.AutoFit
         
-        .Range("Category").Font.Color = RGB(0, 0, 255)
-        .Range("Category").Font.Bold = True
+        With Union(.Range("ErrorCheckColumns"), .Range("HiddenWorkingColumns")).Columns
+            .Group
+            .Resize(, 1).EntireColumn.ShowDetail = False
+        End With
+        With Union(.Range("ErrorCheckRows"), .Range("HiddenWorkingRows")).Rows
+            .Group
+            .Resize(1).EntireRow.ShowDetail = False
+        End With
+        
         
         SetErrorConditionalFormatting
         ActiveWindow.DisplayGridlines = False
@@ -549,6 +514,92 @@ Private Sub FreezeActiveWindowPanes(ByVal lFreezeRow As Long, ByVal lFreezeColum
 
 End Sub
 
+Sub RefreshIndexSheetRelatedItems()
+
+    RefreshIndexRelatedformulas
+    CreateReturnToIndexHyperLink
+
+End Sub
+
+
+Private Sub RefreshIndexRelatedformulas()
+
+    With this.shtReport
+        .Range("ReturnToIndexAddress").Formula2 = ReturnToIndexAddressFormula
+        .Range("SheetErrorStatus").Formula2 = SheetErrorStatusFormula
+        .Range("WorkbookErrorStatus").Formula2 = WorkbookErrorStatusFormula
+    End With
+
+End Sub
+
+
+
+Private Sub CreateReturnToIndexHyperLink()
+
+    With this.shtReport
+        .Range("ReturnToIndex").Value = "<Return to index>"
+        .Hyperlinks.Add _
+            Anchor:=this.shtReport.Range("ReturnToIndex"), _
+            Address:="", _
+            SubAddress:=.Range("ReturnToIndexAddress").Value, _
+            TextToDisplay:="<Index>"
+    End With
+
+End Sub
+
+
+
+Private Function ReturnToIndexAddressFormula() As String
+
+    ReturnToIndexAddressFormula = "=LET(" & vbLf & _
+        "   RowNumber, XMATCH(Category&Heading, Index!HiddenCategoriesCol&Index!ReportNamesCol)," & vbLf & _
+        "   ColumnNumber, COLUMN(Index!CategoryCol)," & vbLf & _
+        "   ReturnValue, ""Index!"" & ADDRESS(RowNumber, ColumnNumber)," & vbLf & _
+        "   ReturnValue" & vbLf & _
+        ")"
+
+
+End Function
+
+
+Private Function SheetErrorStatusFormula() As String
+
+    SheetErrorStatusFormula = _
+        "=LET(" & vbLf & _
+        "    SheetErrorMessage, ""Sheet error - see ranges ErrrorCheckColumns and ErrorCheckRows""," & vbLf & _
+        "    ReturnValuePreErrorCheck, SWITCH(" & vbLf & _
+        "       TRUE," & vbLf & _
+        "       COUNTIFS(ErrorCheckColumns, FALSE) <> 0, SheetErrorMessage," & vbLf & _
+        "       COUNTIFS(ErrorCheckRows, FALSE) <> 0, SheetErrorMessage," & vbLf & _
+        "       OR(ISERROR(ErrorCheckRows)),SheetErrorMessage," & vbLf & _
+        "       OR(ISERROR(ErrorCheckColumns)), SheetErrorMessage," & vbLf & _
+        "       COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) = 0, ""This sheet heading / category combination does not appear on index tab""," & vbLf & _
+        "       COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) > 1, ""This sheet heading / category combination appears multiple times on index tab""," & vbLf & _
+        "       ""OK""" & vbLf & _
+        "   )," & vbLf & _
+        "   ReturnValue, IFERROR(" & vbLf & _
+        "       ReturnValuePreErrorCheck," & vbLf & _
+        "       SheetErrorMessage" & vbLf & _
+        "   )," & vbLf & _
+        "   ReturnValue" & vbLf & _
+        ")"
+
+
+End Function
+
+Private Function WorkbookErrorStatusFormula() As String
+
+    WorkbookErrorStatusFormula = _
+        "=IFERROR(" & vbLf & _
+        "   IF(" & vbLf & _
+        "       COUNTIFS(Index!ErrorCheckCol, FALSE) <> 0," & vbLf & _
+        "      ""Workbook error - see index page""," & vbLf & _
+        "      ""OK""" & vbLf & _
+        "   )," & vbLf & _
+        "   ""Workbook error - see index page""" & vbLf & _
+        ")"
+
+End Function
 
 
 

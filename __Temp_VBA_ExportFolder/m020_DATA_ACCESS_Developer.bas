@@ -1,4 +1,5 @@
 Attribute VB_Name = "m020_DATA_ACCESS_Developer"
+'@Folder "SpreadsheetBI"
 Option Explicit
 Option Private Module
 
@@ -261,8 +262,5 @@ Function StorageIsEmpty(ByVal Storage) As Boolean
     StorageIsEmpty = Storage.NumberOfRecords = 0
 
 End Function
-
-
-
 
 

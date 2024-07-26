@@ -254,7 +254,7 @@ Public Function InsertFromDictionary(InsertValues As Dictionary) As Boolean
         AddOneRowToListObject this.ListObj
         i = this.ListObj.DataBodyRange.Rows.Count
         For Each key In InsertValues.Keys
-            this.ListObj.ListColumns(key).DataBodyRange(i) = InsertValues.item(key)
+            this.ListObj.ListColumns(key).DataBodyRange(i) = InsertValues.Item(key)
         Next key
     Else
         InsertFromDictionary = False
@@ -452,10 +452,10 @@ End Function
 
 Public Function IsEmpty(Optional ByVal bFiltered As Boolean = False) As Boolean
 
-    Dim TEst As Double
+    Dim test As Double
     On Error Resume Next
     
-    TEst = SelectedListObject(bFiltered).DataBodyRange.Rows.Count
+    test = SelectedListObject(bFiltered).DataBodyRange.Rows.Count
     IsEmpty = (Err.Number <> 0)
     On Error GoTo 0
     
@@ -575,10 +575,10 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
         .Interior.Color = RGB(68, 114, 196)
         .Font.Color = RGB(255, 255, 255)
         .Font.Bold = True
-        .Borders.item(xlEdgeTop).LineStyle = xlSolid
-        .Borders.item(xlEdgeTop).Weight = xlMedium
-        .Borders.item(xlEdgeBottom).LineStyle = xlSolid
-        .Borders.item(xlEdgeBottom).Weight = xlMedium
+        .Borders.Item(xlEdgeTop).LineStyle = xlSolid
+        .Borders.Item(xlEdgeTop).Weight = xlMedium
+        .Borders.Item(xlEdgeBottom).LineStyle = xlSolid
+        .Borders.Item(xlEdgeBottom).Weight = xlMedium
     End With
 
     'Set row stripe format
@@ -586,8 +586,8 @@ Private Sub FormatStorageListObject(ByRef lo As ListObject)
     sty.TableStyleElements(xlRowStripe2).Interior.Color = RGB(255, 255, 255)
     
     'Set whole table bottom edge format
-    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).LineStyle = xlSolid
-    sty.TableStyleElements(xlWholeTable).Borders.item(xlEdgeBottom).Weight = xlMedium
+    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).LineStyle = xlSolid
+    sty.TableStyleElements(xlWholeTable).Borders.Item(xlEdgeBottom).Weight = xlMedium
 
     
     'Apply custom style and set other attributes

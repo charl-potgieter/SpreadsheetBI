@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+'@Folder "SpreadsheetBI"
 Option Explicit
 
 '---------------------------------------------------------------------------------
@@ -119,3 +120,5 @@ End Sub
 Private Sub EventTextBox_Enter()
     MsgBox ("Entered")
 End Sub
+
+

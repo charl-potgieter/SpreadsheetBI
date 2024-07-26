@@ -52,6 +52,7 @@ Function InsertConsolLooperSheet(ByVal ReportSheetSource As ReportingSheet) As R
 
     Dim wkb As Workbook
     Dim ReportSheetformat As Dictionary
+    Dim WorkbookIndex As IndexPage
     
     Set wkb = ReportSheetSource.Sheet.Parent
 
@@ -76,7 +77,9 @@ Function InsertConsolLooperSheet(ByVal ReportSheetSource As ReportingSheet) As R
         ReportSheetformat.item("Heading colour blue (0 to 255)"))
     InsertConsolLooperSheet.HeadingFontSize = ReportSheetformat.item("Heading font size")
     
-    InsertIndexPage wkb
+    Set WorkbookIndex = New IndexPage
+    WorkbookIndex.Create wkb
+    Set WorkbookIndex = Nothing
     
 End Function
 

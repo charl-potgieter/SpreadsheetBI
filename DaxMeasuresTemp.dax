@@ -1,0 +1,43 @@
+HeadingConsistency:=IF(
+    HASONEVALUE(HeadingConsistencyParentPath[Parent Path]) && HASONEVALUE(HeadingConsistencySubfolderPath[Sub Folder Path]) && HASONEVALUE(HeadingConsistencyFileNames[File Name]) && HASONEVALUE(HeadingConsistencyFieldNames[Field Name]),
+    
+    VAR _CurrentParentPath  = VALUES(HeadingConsistencyParentPath[Parent Path])
+    VAR _CurrrentSubfolderPath  = VALUES(HeadingConsistencySubfolderPath[Sub Folder Path])
+    VAR _CurrentFileName = VALUES(HeadingConsistencyFileNames[File Name])
+    VAR _CurrentFieldName = VALUES(HeadingConsistencyFieldNames[Field Name])
+
+   VAR _CurrentFileNameIsInSubfolder =  CALCULATE(
+        COUNTROWS(VALUES(HeadingConsistencyData[File Name])),
+        ALL(HeadingConsistencyData),
+        HeadingConsistencyData[Parent Path] = _CurrentParentPath,
+        HeadingConsistencyData[Sub Folder Path] = _CurrrentSubfolderPath,
+        HeadingConsistencyData[File Name] = _CurrentFileName
+    ) =1
+   
+    //Parent path is contains the grouping of files to be consolidated that require to be tested for consistency, subfolders are for convenience / organisation purposes only
+    VAR _CurrentFieldNameIsInParentPath = CALCULATE(
+        COUNTROWS(VALUES(HeadingConsistencyData[Field Name])),
+        ALL(HeadingConsistencyData),
+        HeadingConsistencyData[Parent Path] = _CurrentParentPath,
+        HeadingConsistencyData[Field Name] = _CurrentFieldName
+    ) = 1
+    
+    VAR _CurrentFieldIsInCurrentFile = CALCULATE(
+        COUNTROWS(VALUES(HeadingConsistencyData[Field Name])),
+        HeadingConsistencyData[Parent Path] = _CurrentParentPath,
+        HeadingConsistencyData[Sub Folder Path] = _CurrrentSubfolderPath,
+        HeadingConsistencyData[File Name] = _CurrentFileName,
+        HeadingConsistencyData[Field Name] = _CurrentFieldName
+    ) =1        
+    
+    VAR _ReturnValue = SWITCH(
+        TRUE(),
+        NOT(_CurrentFileNameIsInSubFolder), BLANK(),
+        NOT(_CurrentFieldNameIsInParentPath), BLANK(),
+        _CurrentFieldIsInCurrentFile, "OK",
+        NOT(_CurrentFieldIsInCurrentFile), "MISSING"
+     )
+    
+    RETURN _ReturnValue
+    
+)

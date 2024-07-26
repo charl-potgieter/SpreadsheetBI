@@ -452,10 +452,10 @@ End Function
 
 Public Function IsEmpty(Optional ByVal bFiltered As Boolean = False) As Boolean
 
-    Dim TEst As Double
+    Dim Test As Double
     On Error Resume Next
     
-    TEst = SelectedListObject(bFiltered).DataBodyRange.Rows.Count
+    Test = SelectedListObject(bFiltered).DataBodyRange.Rows.Count
     IsEmpty = (Err.Number <> 0)
     On Error GoTo 0
     
@@ -482,16 +482,19 @@ End Function
 Private Function CreateListStorageSheet(ByRef wkb As Workbook, ByVal sName As String) As ReportingSheet
 
     Dim RptSheet As ReportingSheet
+    Dim WorkbookIndex As IndexPage
     
     Set RptSheet = New ReportingSheet
+    Set WorkbookIndex = New IndexPage
     RptSheet.Create wkb
     RptSheet.Name = sName
     RptSheet.Category = "List Storage"
     RptSheet.Heading = "Report Properties"
-    InsertIndexPage wkb
+    WorkbookIndex.Create wkb
     RptSheet.Sheet.Activate
     Set CreateListStorageSheet = RptSheet
     Set RptSheet = Nothing
+    Set WorkbookIndex = Nothing
     
 End Function
 

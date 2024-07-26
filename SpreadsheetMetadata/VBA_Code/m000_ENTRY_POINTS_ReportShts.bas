@@ -3,14 +3,14 @@ Option Explicit
 
 
 Sub InsertIndexPageActiveWorkbook()
-    
-    Dim IndexSheet As Worksheet
+
+    Dim WorkbookIndex As IndexPage
 
     StandardEntry
-    Set IndexSheet = InsertIndexPage(ActiveWorkbook)
-    IndexSheet.Activate
-    IndexSheet.Range("DefaultCursorLocation").Select
-    Set IndexSheet = Nothing
+    Set WorkbookIndex = New IndexPage
+    WorkbookIndex.Create ActiveWorkbook
+    WorkbookIndex.ActivateAtDefauiltCursorLocation
+    Set WorkbookIndex = Nothing
     StandardExit
 
 End Sub
@@ -20,6 +20,7 @@ Function InsertReportingSheetSheetIntoActiveWorkbook()
     
     Dim ReportSht As ReportingSheet
     Dim CurrentReportSheet As ReportingSheet
+    Dim WorkbookIndex As IndexPage
     Dim CurrentSheetAssigned As Boolean
     Dim Category As String
     Dim Header As String
@@ -50,10 +51,12 @@ Function InsertReportingSheetSheetIntoActiveWorkbook()
         Default:=Replace(WorksheetFunction.Proper(Header), " ", ""))
     ReportSht.Name = SheetName
     
-    InsertIndexPage ActiveWorkbook
+    Set WorkbookIndex = New IndexPage
+    WorkbookIndex.Create wkb
     ReportSht.Sheet.Activate
     ReportSht.DefaultCursorLocation.Select
 
+    Set WorkbookIndex = Nothing
     Set wkb = Nothing
     Set ReportSht = Nothing
     StandardExit
@@ -64,6 +67,7 @@ End Function
 Sub ConvertSelectedSheetsToReportingSheet()
 
     Dim ReportSht As ReportingSheet
+    Dim WorkbookIndex As IndexPage
     Dim ReportSheetformat As Dictionary
     Dim SelectedSheetNames() As String
     Dim i As Integer
@@ -93,9 +97,11 @@ Sub ConvertSelectedSheetsToReportingSheet()
         ReportSht.HeadingFontSize = ReportSheetformat.item("Heading font size")
     Next i
     
-    InsertIndexPage ActiveWorkbook
+    Set WorkbookIndex = New IndexPage
+    WorkbookIndex.Create ActiveWorkbook
     ReportSht.Sheet.Activate
     
+    Set WorkbookIndex = Nothing
     Set ReportSht = Nothing
     Set ReportSheetformat = Nothing
     
@@ -106,43 +112,6 @@ End Sub
 
 
 
-Sub ToggleErrorCheckRangeVisbilityOnSelectedSheets()
-Attribute ToggleErrorCheckRangeVisbilityOnSelectedSheets.VB_ProcData.VB_Invoke_Func = "H\n14"
-
-    Dim sht As Worksheet
-    Dim ReportSheet As ReportingSheet
-    Dim ReportIsAssigned As Boolean
-    Dim obj As Object
-    Dim ShowHiddenRange As Boolean
-    Dim CurrentlyActiveSheet As Worksheet
-    Dim IsFirstReportingSheetInSelection As Boolean
-    
-    StandardEntry
-    Set CurrentlyActiveSheet = ActiveSheet
-    IsFirstReportingSheetInSelection = True
-    
-    'Toggling can occur for multiple selected sheets
-    'Visibility is set based on status of the first sheet
-    For Each obj In ActiveWindow.SelectedSheets
-        Set sht = obj
-        Set ReportSheet = New ReportingSheet
-        ReportIsAssigned = ReportSheet.AssignExistingSheet(sht)
-        If ReportIsAssigned Then
-            If IsFirstReportingSheetInSelection Then
-                ShowHiddenRange = Not ReportSheet.HiddenRangesAreVisible
-                IsFirstReportingSheetInSelection = False
-            End If
-            ReportSheet.ToggleErrorCheckRangeVisbility ShowHiddenRange
-        End If
-        Set ReportSheet = Nothing
-    Next obj
-    Set obj = Nothing
-    CurrentlyActiveSheet.Activate
-    StandardExit
-    
-End Sub
-
-
 
 Sub IndexPageNavigation()
 Attribute IndexPageNavigation.VB_ProcData.VB_Invoke_Func = "I\n14"
@@ -150,15 +119,22 @@ Attribute IndexPageNavigation.VB_ProcData.VB_Invoke_Func = "I\n14"
     Dim wkb As Workbook
     Dim TargetSheetName As String
     Dim TargetSheet As Worksheet
+    Dim ReportSheet As ReportingSheet
+    Dim ReportSheetAssigned As Boolean
+    
 
     Set wkb = ActiveWorkbook
+    Set ReportSheet = New ReportingSheet
+    ReportSheetAssigned = ReportSheet.AssignExistingSheet(ActiveSheet)
+
 
     Select Case True
     
+        Case ReportSheetAssigned
+            ReportSheet.Sheet.Range("ReturnToIndex").Hyperlinks(1).Follow
+    
         Case ActiveSheet.Name <> "Index" And SheetExists(wkb, "Index")
             Sheets("Index").Activate
-            On Error Resume Next
-            On Error GoTo 0
             
         Case Selection.Rows.Count <> 1
             'Do Nothing

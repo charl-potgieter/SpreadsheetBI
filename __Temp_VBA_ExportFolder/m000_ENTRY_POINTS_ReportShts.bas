@@ -1,5 +1,7 @@
 Attribute VB_Name = "m000_ENTRY_POINTS_ReportShts"
+'@Folder "SpreadsheetBI"
 Option Explicit
+Option Private Module
 
 
 Sub InsertIndexPageActiveWorkbook()
@@ -83,14 +85,14 @@ Sub ConvertSelectedSheetsToReportingSheet()
         
         Set ReportSht = New ReportingSheet
         ReportSht.CreateFromExistingSheet ActiveSheet
-        ReportSht.SheetFont = ReportSheetformat.item("Sheet font")
-        ReportSht.DefaultFontSize = ReportSheetformat.item("Default font size")
-        ReportSht.ZoomPercentage = ReportSheetformat.item("Zoom percentage")
+        ReportSht.SheetFont = ReportSheetformat.Item("Sheet font")
+        ReportSht.DefaultFontSize = ReportSheetformat.Item("Default font size")
+        ReportSht.ZoomPercentage = ReportSheetformat.Item("Zoom percentage")
         ReportSht.HeadingFontColour = Array( _
-            ReportSheetformat.item("Heading colour red (0 to 255)"), _
-            ReportSheetformat.item("Heading colour green (0 to 255)"), _
-            ReportSheetformat.item("Heading colour blue (0 to 255)"))
-        ReportSht.HeadingFontSize = ReportSheetformat.item("Heading font size")
+            ReportSheetformat.Item("Heading colour red (0 to 255)"), _
+            ReportSheetformat.Item("Heading colour green (0 to 255)"), _
+            ReportSheetformat.Item("Heading colour blue (0 to 255)"))
+        ReportSht.HeadingFontSize = ReportSheetformat.Item("Heading font size")
     Next i
     
     InsertIndexPage ActiveWorkbook
@@ -235,6 +237,3 @@ Exitpoint:
     StandardExit
 
 End Sub
-
-
-

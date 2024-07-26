@@ -14,9 +14,13 @@ End Type
 Sub SaveReportMetadataInActiveWorkbook()
 'Reads all report metadata from reports in active workbook and saves
 
+    Dim WorkbookIndex As IndexPage
+
     StandardEntry
+    Set WorkbookIndex = New IndexPage
     SaveReportingPowerPivotMetaData ActiveWorkbook
-    InsertIndexPage ActiveWorkbook
+    WorkbookIndex.Create ActiveWorkbook
+    Set WorkbookIndex = Nothing
     StandardExit
     
 End Sub
@@ -26,6 +30,7 @@ Sub CreateReportFromMetadata()
 
     Dim vStorageObjReportStructure As Variant
     Dim vStorageObjQueriesForSelectedReports As Variant
+    Dim WorkbookIndex As IndexPage
     Dim UserReportSelection As TypeReportUserSelection
     Dim i As Long
     Dim PwrPvtReport As ReportingPowerPivot
@@ -64,7 +69,9 @@ Sub CreateReportFromMetadata()
 
 
 Exitpoint:
-    InsertIndexPage ActiveWorkbook
+    Set WorkbookIndex = New IndexPage
+    WorkbookIndex.Create ActiveWorkbook
+    Set WorkbookIndex = Nothing
     StandardExit
 
 End Sub
