@@ -41,7 +41,7 @@ End Sub
 Function GetSundryStorageItem(ByVal item As String) As Variant
 
     Dim Storage As ListStorage
-    
+
     Set Storage = New ListStorage
     Storage.AssignStorage ThisWorkbook, "SundryStorage"
     GetSundryStorageItem = Storage.Xlookup(item, "[Item]", "[Value]")

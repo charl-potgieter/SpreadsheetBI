@@ -16,21 +16,38 @@ Sub GenerateSpreadsheetMetadata(ByVal wkb As Workbook)
 '   -  Listobject font colour
 '   - Poqwe query exports
 
-    Dim sMetaDataRootPath As String
+    Dim sFolderPath As String
     Dim sTableStructurePath As String
     Dim sVbaCodePath As String
     Dim sOtherPath As String
     Dim sPowerQueryPath As String
+    Dim LastUsedFolder As String
+    Dim fso As FileSystemObject
 
-    sMetaDataRootPath = wkb.Path & Application.PathSeparator & "SpreadsheetMetadata"
-    sTableStructurePath = sMetaDataRootPath & Application.PathSeparator & "TableStructure"
-    sVbaCodePath = sMetaDataRootPath & Application.PathSeparator & "VBA_Code"
-    sOtherPath = sMetaDataRootPath & Application.PathSeparator & "Other"
-    sPowerQueryPath = sMetaDataRootPath & Application.PathSeparator & "PowerQueries"
+    sFolderPath = wkb.Path & Application.PathSeparator & "SpreadsheetMetadata"
+    
+    'Get target folder for metadata
+    LastUsedFolder = GetSundryStorageItem("Last used directory for creating spreadsheet from metadata")
+    sFolderPath = GetFolder(LastUsedFolder)
+    If sFolderPath = "" Then
+        Exit Sub
+    End If
+    
+    'Save the selected folder for future use
+    Set fso = New FileSystemObject
+    UpdateSundryStorageValueForGivenItem "Last used directory for creating spreadsheet from metadata", _
+        fso.GetParentFolderName(sFolderPath)
+    ThisWorkbook.Save
+    
+    
+    sTableStructurePath = sFolderPath & Application.PathSeparator & "TableStructure"
+    sVbaCodePath = sFolderPath & Application.PathSeparator & "VBA_Code"
+    sOtherPath = sFolderPath & Application.PathSeparator & "Other"
+    sPowerQueryPath = sFolderPath & Application.PathSeparator & "PowerQueries"
     
 
     'Create folders for storing metadata
-    If Not FolderExists(sMetaDataRootPath) Then CreateFolder sMetaDataRootPath
+    If Not FolderExists(sFolderPath) Then CreateFolder sFolderPath
     If Not FolderExists(sTableStructurePath) Then CreateFolder sTableStructurePath
     If Not FolderExists(sVbaCodePath) Then CreateFolder sVbaCodePath
     If Not FolderExists(sOtherPath) Then CreateFolder sOtherPath
