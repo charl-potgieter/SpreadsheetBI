@@ -202,8 +202,13 @@ End Property
 
 Public Property Let HeadingFontSize(ByVal FontSize As Integer)
     this.shtReport.Range("Heading").Font.Size = FontSize
+    
 End Property
 
+
+Public Property Get HeadingRange() As Range
+    Set HeadingRange = this.shtReport.Range("Heading")
+End Property
 
 
 Public Sub Create(ByVal wkb As Workbook, _

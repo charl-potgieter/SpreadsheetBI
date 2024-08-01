@@ -1,12 +1,9 @@
-Today
-------
-
-Need to fix metadata generation - file path issue with Onedrive
-
-
-
 ReportingSheet and Index
 ---------------------------
+ - Link Index sheet to sheet headers (rather than hardcode)
+    - this allows for dynamic headers e.g. with date
+    - does not an index recreate each time header is updated on sheeet
+
  - There is duplication in ReportingSheet.Create and ReportingSheet.CreateFromExistingSheet --> look into combining in one sub
 
  - Instead of referencing range names (previously set) would it be bettter to get the range by set as a class property get?

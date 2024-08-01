@@ -177,7 +177,7 @@ Private Sub CreateLinkagesBetweenIndexAndTargetPages()
         If ReportSheetAssigned And (sht.Visible = xlSheetVisible) Then
             
             WriteCategoryNameOnIndexPage ReportSheet.Category, CurrentRow, LastCapturedReportCategory
-            WriteReportNameOnIndexPage ReportSheet.Heading, ReportSheet.Name, CurrentRow
+            WriteReportNameOnIndexPage ReportSheet.HeadingRange, ReportSheet.Name, CurrentRow
             WriteHiddenSheetNameOnIndexPage ReportSheet.Name, CurrentRow
             WriteHiddenCategoryNameOnIndexPage ReportSheet.Category, CurrentRow
             WriteReferenceToSheetErrorCheckOnIndexPage ReportSheet, CurrentRow
@@ -188,10 +188,10 @@ Private Sub CreateLinkagesBetweenIndexAndTargetPages()
             StorageAssigned = Storage.AssignStorage(sht.Parent, sht.Name)
             If StorageAssigned Then
 
-                WriteCategoryNameOnIndexPage "ListStorage", CurrentRow, LastCapturedReportCategory
-                WriteReportNameOnIndexPage Storage.Name, Storage.Name, CurrentRow
-                WriteHiddenSheetNameOnIndexPage Storage.Name, CurrentRow
-                WriteHiddenCategoryNameOnIndexPage "ListStorage", CurrentRow
+'                WriteCategoryNameOnIndexPage "ListStorage", CurrentRow, LastCapturedReportCategory
+'                WriteReportNameOnIndexPage Storage.Name, Storage.Name, CurrentRow
+'                WriteHiddenSheetNameOnIndexPage Storage.Name, CurrentRow
+'                WriteHiddenCategoryNameOnIndexPage "ListStorage", CurrentRow
             
 
             End If
@@ -201,8 +201,6 @@ Private Sub CreateLinkagesBetweenIndexAndTargetPages()
 
 
 End Sub
-
-
 
 
 
@@ -219,11 +217,12 @@ Sub WriteCategoryNameOnIndexPage(ByVal SheetCategory As String, _
 End Sub
 
 
-Sub WriteReportNameOnIndexPage(ByVal SheetHeading As String, _
+Sub WriteReportNameOnIndexPage(ByVal SheetHeadingRange As Range, _
     ByVal SheetName As String, ByRef CurrentRow As Long)
 
     CurrentRow = CurrentRow + 2
-    this.IndexSheet.Range("ReportNamesCol").Cells(CurrentRow) = SheetHeading
+    this.IndexSheet.Range("ReportNamesCol").Cells(CurrentRow).Formula2 = _
+        "=" & SheetHeadingRange.Parent.Name & "!" & SheetHeadingRange.Address
     ActiveSheet.Hyperlinks.Add _
         Anchor:=this.IndexSheet.Range("ReportNamesCol").Cells(CurrentRow), _
         Address:="", _

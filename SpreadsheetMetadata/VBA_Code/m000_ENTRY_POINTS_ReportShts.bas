@@ -8,6 +8,7 @@ Sub InsertIndexPageActiveWorkbook()
 
     StandardEntry
     Set WorkbookIndex = New IndexPage
+    
     WorkbookIndex.Create ActiveWorkbook
     WorkbookIndex.ActivateAtDefauiltCursorLocation
     Set WorkbookIndex = Nothing
