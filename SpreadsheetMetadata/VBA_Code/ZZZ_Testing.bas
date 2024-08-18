@@ -2,27 +2,23 @@ Attribute VB_Name = "ZZZ_Testing"
 Option Explicit
 
 
-
-Sub GroupColumn()
-
-    ActiveSheet.Range("A:B").Columns.Group
-
-
-End Sub
+Function SheetErrorStatusFormula2() As String
 
 
 
+    SheetErrorStatusFormula2 = _
+        "=LET(" & vbLf & _
+        "    ErrorChecksOK, AND(TRUE, ErrorCheckRows, ErrorCheckColumns)," & vbLf & _
+        "    ErrorOnErrorCheck, ISERROR(ErrorChecksOK)," & vbLf & _
+        "    SWITCH(" & vbLf & _
+        "        TRUE," & vbLf & _
+        "        ErrorOnErrorCheck, ""Sheet error - see ranges ErrrorCheckColumns and ErrorCheckRows""," & vbLf & _
+        "        NOT(ErrorChecksOK), ""Sheet error - see ranges ErrrorCheckColumns and ErrorCheckRows""," & vbLf & _
+        "        COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) = 0, ""This sheet heading / category combination does not appear on index tab""," & vbLf & _
+        "        COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) > 1, ""This sheet heading / category combination appears multiple times on index tab""," & vbLf & _
+        "        ""OK""" & vbLf & _
+        "    )" & vbLf & _
+        ")"
 
-Sub Showdetails()
 
-
-    If ActiveSheet.Columns("A").Hidden Then
-        ActiveSheet.Range("A:B").Resize(, 1).EntireColumn.ShowDetail = True
-    Else
-        ActiveSheet.Range("A:B").Resize(, 1).EntireColumn.ShowDetail = False
-    End If
-
-
-End Sub
-
-
+End Function

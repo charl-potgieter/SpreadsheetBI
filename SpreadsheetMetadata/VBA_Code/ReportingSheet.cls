@@ -571,24 +571,17 @@ Private Function SheetErrorStatusFormula() As String
 
     SheetErrorStatusFormula = _
         "=LET(" & vbLf & _
-        "    SheetErrorMessage, ""Sheet error - see ranges ErrrorCheckColumns and ErrorCheckRows""," & vbLf & _
-        "    ReturnValuePreErrorCheck, SWITCH(" & vbLf & _
-        "       TRUE," & vbLf & _
-        "       COUNTIFS(ErrorCheckColumns, FALSE) <> 0, SheetErrorMessage," & vbLf & _
-        "       COUNTIFS(ErrorCheckRows, FALSE) <> 0, SheetErrorMessage," & vbLf & _
-        "       OR(ISERROR(ErrorCheckRows)),SheetErrorMessage," & vbLf & _
-        "       OR(ISERROR(ErrorCheckColumns)), SheetErrorMessage," & vbLf & _
-        "       COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) = 0, ""This sheet heading / category combination does not appear on index tab""," & vbLf & _
-        "       COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) > 1, ""This sheet heading / category combination appears multiple times on index tab""," & vbLf & _
-        "       ""OK""" & vbLf & _
-        "   )," & vbLf & _
-        "   ReturnValue, IFERROR(" & vbLf & _
-        "       ReturnValuePreErrorCheck," & vbLf & _
-        "       SheetErrorMessage" & vbLf & _
-        "   )," & vbLf & _
-        "   ReturnValue" & vbLf & _
+        "    ErrorChecksOK, AND(TRUE, ErrorCheckRows, ErrorCheckColumns)," & vbLf & _
+        "    ErrorOnErrorCheck, ISERROR(ErrorChecksOK)," & vbLf & _
+        "    SWITCH(" & vbLf & _
+        "        TRUE," & vbLf & _
+        "        ErrorOnErrorCheck, ""Sheet error - see ranges ErrrorCheckColumns and ErrorCheckRows""," & vbLf & _
+        "        NOT(ErrorChecksOK), ""Sheet error - see ranges ErrrorCheckColumns and ErrorCheckRows""," & vbLf & _
+        "        COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) = 0, ""This sheet heading / category combination does not appear on index tab""," & vbLf & _
+        "        COUNTIFS(Index!HiddenCategoriesCol, Category, Index!ReportNamesCol, Heading) > 1, ""This sheet heading / category combination appears multiple times on index tab""," & vbLf & _
+        "        ""OK""" & vbLf & _
+        "    )" & vbLf & _
         ")"
-
 
 End Function
 
